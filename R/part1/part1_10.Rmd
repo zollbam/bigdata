@@ -1,0 +1,56 @@
+---
+title: "part1_10"
+author: "gyc"
+date: "2022-08-08"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+## 팔머 펭귄을 분석해보자
+
+팔머 펭귄 데이터셋이 궁금해?? 여기를 가봐
+<https://bit.ly/36rDgFx>
+
+```{r}
+library(palmerpenguins)
+library(psych)
+penguins
+```
+
+## 이제부터 그림을 그려볼꺼야
+
+이런 순서로 해보자.
+
+1. 부리 길이<->부리 깊이의 산점도를 그린다.
+  * 음의 상관이 있는 것 처럼 보이는가?
+  * 이것은 simpson's paradox로 인한 것이다.
+2.펭귄의 종별로 색깔을 입힌다.
+  * 종별로 구분하니 양의 상관이 있는 것처럼 보이지 않는가?
+  * 심슨의 역설은 우리가 조심해야 할 통계의 함정이다.
+  
+## 1번 문제
+```{r}
+plot(penguins$bill_length_mm,penguins$bill_depth_mm)
+```
+- 점들이 너무 퍼져 있어서 음인지 양인지도 분간이 어려우므로 부리길이와 깊이는 아무 상관이 없어 보인다.
+
+
+## 2문제 문제
+```{r}
+pg_nax<-na.omit(penguins)
+mycolor <- ifelse(pg_nax$species=='Adelie','blue',ifelse(pg_nax$species=='Gentoo','yellow','green'))
+plot(penguins$bill_length_mm,penguins$bill_depth_mm,col=mycolor)
+```
+- 종별로 색깔을 구별해서보니
+  - Adelie는 약한 양의 상관
+  - Gentoo는 강한 양의 상관
+  - Chinstrap는 중간쯤 양의 상관이 보이는 것을 확인
+
+## 2번 문제 다른방법 => as.numeric()
+```{r}
+pg_nax<-na.omit(penguins)
+mycolor<-as.numeric(pg_nax$species)
+plot(penguins$bill_length_mm,penguins$bill_depth_mm,col=mycolor,pch='🐧')
+```
