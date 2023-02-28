@@ -74,6 +74,171 @@ xfa_y_plot <- function(df, x_val, y_val){
   plot(x = df[1:length(x_val),"YEAR_MM"], y= y_val, col = "green", type = "l", axes = F, lwd=3)
 }
 
+## train과 test 나누기 함수
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## 반환
+## list형태로 저장된 train과 test
+## -------------------------------------------
+tra_tes_split <- function(df){
+  train_anal_data <- df[1:(nrow(df)-20),] # 마지막 10개행 제외한 모든 행은 train
+  test_anal_data <- df[(nrow(df)-19):nrow(df),] # 마직막 10행은 test
+  
+  return(list(train = train_anal_data, test = test_anal_data)) # 여러개의 return
+}
+
+## 예측값과 실제값 비교
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임(예측하고자하는 설명변수의 데이터가 있어야함)
+## pred: 예측값
+## meth: 문자형 형태로 그래프 제목이 될 예정
+## 반환
+## 예측값과 실제값의 비교 그래프
+## -------------------------------------------
+pred_tru <- function(df, pred, meth){
+  # 그래프 기본 틀
+  plt_pred_tru <- ggplot(data = df) +
+    geom_point(aes(x = YEAR_MM, y = pred), 
+               colour = "green",
+               size = 4) # 예측값
+  
+  # 기본 틀에 추가
+  if(names(df)[ncol(df)] == "APT_TRDE_IDEX"){
+    plt_pred_tru <- plt_pred_tru + geom_point(aes(x = YEAR_MM, y = APT_TRDE_IDEX), size = 3) # 실제값
+  } else {
+    plt_pred_tru <- plt_pred_tru + geom_point(aes(x = YEAR_MM, y = PCLND_IDEX), size = 3) # 실제값
+  }
+  
+  # 타이틀 추가
+  plt_pred_tru <- plt_pred_tru + ggtitle(meth)
+  
+  return(ggplotly(plt_pred_tru)) # 그래프
+}
+
+## formula생성
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## 반환
+## x와 y의 formula (리스트 형태)
+## ------------------------------------------
+formula_mk <- function(df){
+  y <- colnames(df)[ncol(df)]
+  x <- colnames(df)[!colnames(df) %in% c("YEAR_MM", "APT_TRDE_IDEX")]
+  
+  y_formula <- paste(y,"~ 1")
+  x_formula <- paste(y,"~",paste(x, collapse = " + "))
+  
+  return(list(y_formula, x_formula))
+}
+
+## mse계산
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## pred: 예측값
+## 반환
+## mse
+## ------------------------------------------
+mse <- function(df, pred){
+  return(mean((df[,"APT_TRDE_IDEX"]-pred)**2))
+}
+
+## 데이터프레임으로 최종모델 반환받기
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## 반환
+## mse가 가장 낮은 모델
+## -------------------------------------------
+model_return <- function(df){
+  # mse저장시킬 벡터
+  mses <- c()
+  
+  # train/test 반환
+  data_train <<- tra_tes_split(df)[[1]]
+  data_test <<- tra_tes_split(df)[[2]]
+  
+  # formula 생성
+  fo_formula <- formula_mk(df)[[1]]
+  ba_formula <- formula_mk(df)[[2]]
+  
+  # 전체변수를 사용하여 예측
+  data_mo <- lm(ba_formula, data = data_train)
+  data_pred <- predict(data_mo, newdata = data_test)
+  data_mse <- mse(data_test, data_pred)
+  mses <- c(mses, data_mse)
+  cat("전체 변수를 사용하여 예측을 했을 때 mse는 ", data_mse, "입니다.", sep = "", end = "\n\n")
+  
+  # 전진선택법으로 예측
+  fo_data_mo <- lm(fo_formula, data = data_train)
+  forward_data_mo <- stepAIC(fo_data_mo, scope = ba_formula, direction = "forward")
+  fo_data_pred <- predict(forward_data_mo, newdata = data_test)
+  fo_data_mse <- mse(data_test, fo_data_pred)
+  mses <- c(mses, fo_data_mse)
+  cat("전진선택법으로 예측을 했을 때 mse는 ", fo_data_mse, "입니다.", sep = "", end = "\n\n")
+  
+  # 후진선택법으로 예측
+  ba_data_mo <- lm(ba_formula, data = data_train)
+  backward_data_mo <- stepAIC(ba_data_mo, scope = fo_formula, direction = "backward")
+  ba_data_pred <- predict(backward_data_mo, newdata = data_test)
+  ba_data_mse <- mse(data_test, ba_data_pred)
+  mses <- c(mses, ba_data_mse)
+  cat("후진선택법으로 예측을 했을 때 mse는 ", ba_data_mse, "입니다.", sep = "", end = "\n\n")
+  
+  # mses중에서 최소 mse 찾기
+  mses_min <- min(mses)
+  
+  # 최소 mse의 모델 반환
+  if (mses_min == data_mse){
+    cat("선택된 모델은 전체 변수를 사용한 것으로 선택(mse: ", data_mse, ")\n회귀계수의 유의성은???", sep = "", end = "\n")
+    return(forward_data_mo)
+  } else if (mses_min == fo_data_mse){
+    cat("전진선택법 모델로 선정(mse: ", fo_data_mse, ")\n회귀계수의 유의성은???", sep =, end = "\n")
+    return(forward_data_mo)
+  } else{
+    cat("후진선택법 모델로 선정(mse: ", ba_data_mse, ")\n회귀계수의 유의성은???", sep = "", end = "\n")
+    return(backward_data_mo)
+  }
+}
+
+## 열별 변동개월수 다르한 데이터 프레임 만들기
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## n_col_vec: 종속변수에 영향을 미치는 개월 벡터((df의 열 개수 -1 만큼의 길이가 되어야 함))
+## 반환
+## 개월 수 변동이 완료된 df
+## -------------------------------------------
+n_change_data <- function(df, n_col_vec){ # a ~ g는 열별로 개월을 변동시킬 숫자를 입력
+  if((length(n_col_vec) + 1) != ncol(df)){
+    return("df와 열의 개수가 맞지 않습니다. 개월 벡터를 다시 확인해 주세요.")
+  }
+  
+  re_data <- df
+  max_n <- max(n_col_vec) # 함수 내에서 필요한 상수값
+  cho_col <- c(1) # 1은 YEAR_MM를 의미
+  
+  # n개월 후 변동된 데이터를 다시 열에 저장
+  for(n in 2:(ncol(df)-1)){ # n은 열 숫자를 의미
+    cho_col <- c(cho_col, n) # 필요한 열 추가한 벡터
+    if(n_col_vec[n-1] != max_n){
+      re_data[n] <- re_data[n][c((1 + max_n - n_col_vec[n-1]):nrow(df), 1:(max_n - n_col_vec[n-1])),]
+    } else{
+      re_data[n] <- re_data[n]
+    }
+  }
+  re_data[ncol(df)] <- re_data[ncol(df)][c((1 + max_n):nrow(df), 1:max_n),]
+    
+  # 사용할 데이터 프레임 만들기
+  cho_col <- c(cho_col, ncol(df))
+  anal_data <- re_data[1:(nrow(df) - max_n), cho_col] # 밀린 행 데이터 삭제
+  
+  return(anal_data) # 내가 사용할 최종 df
+}
+
 # 데이터 불러오기
 ## 11년 7월부터 22년 11월까지
 data <- read.csv("D:/R/final_anal_pred/data/anal_data.csv")
@@ -135,9 +300,13 @@ abline(v = data$YEAR_MM[98], lty = 2, col = "violetred4")
 abline(v = data$YEAR_MM[108], lty = 2, col = "violetred4")
 abline(v = data$YEAR_MM[123], lty = 2, col = "violetred4")
 
+for(i in 0:30){
+  cat(i, "개월의 상관계수는", cor(x_n_var(data, "STAN_INTR", i), y_n_var(data, "APT_TRDE_IDEX", i)),"입니다.", sep = "", end="\n")
+}
 comment("
-17개월에서 가장 높은 상관계수(-0.9033386)를 보이지만
+16개월에서 가장 높은 상관계수(-0.9033386)를 보이지만
 시각화 경향으로 보면 11개월이 반비례 성향을 가장 잘 나타내고 있음
+2개월 부터는 -0.7이 넘으므로 이때부터 예측을 해도 상관은 없을 걸로 예상
 ")
 
 ## 주택담보대출과 아파트매매지수 상관계수 비교
@@ -152,6 +321,18 @@ x_y_plot(data, x_n_var(data, "HOUSE_MORT_LOAN", 26), y_n_var(data, "APT_TRDE_IDE
 comment("
 26개월에서 -0.842332로 가장 높은 상관계수가 나옴
 왜 이렇게 나올까... 주택담보대출 연리와 기준금리를 비교 해봄
+
+상식적으로 생각을 해보면 연리가 오르면 대출이자가 많아져 몇개월 안에 매매지수가 떨어질거 같지만
+0개월의 시각화를 보면 연리가 오르는 경향이 보여도 한참이 지나야 매매지수가 떨어짐
+")
+
+x_y_plot(data, x_n_var(data, "HOUSE_MORT_LOAN", 0), y_n_var(data, "APT_MONY_IDEX", 0)) # 주택담보대출 연리와 아파트 실거래가지수
+comment("
+실거래가지수로 봐도 반영되는 기간이 너무 김
+
+담보대출 자체가 한국은행의 기준금리와는 아에 다른 개념의 금리를 씀
+대출금리 = 대출기준금리 + 가산금리
+이 영향으로 담보대출연리과 아파트매매지수의 관계가 긴 반영 기간을 가지는 걸로 예상상
 ")
 
 x_y_plot(data, x_n_var(data, "HOUSE_MORT_LOAN", 0), y_n_var(data, "STAN_INTR", 0)) # 주택담보대출 연리와 기준금리 시각화(변동없음)
@@ -442,7 +623,6 @@ data |> # 데이터 확인용 코드
   select("YEAR_MM", "HOUSE_MONY_IDEX", "APT_MONY_IDEX") |>
   View()
 
-
 for(i in 0:30){ # n개월 변동 상관계수
   cat(i, "개월의 상관계수는", cor(x_n_var(data, "APT_MONY_IDEX", i), y_n_var(data, "APT_TRDE_IDEX", i)),"입니다.", sep = "", end="\n")
 }
@@ -556,19 +736,40 @@ comment("
 data |>
   plot_ly() |>
   add_boxplot(y = ~ EMPL_RAT)
-plot_ly(data, boxplot(data$EMPL_RAT))
 EMPL_RAT_vector <- data$EMPL_RAT
 EMPL_RAT_vector_sort <- sort(EMPL_RAT_vector)
 comment("
 고용률 데이터를 범주로 바꾸기 위한 기준점 찾기
 ")
-
-## 고용률과 아파트매매지수 상관계수 비교
-cor(x_n_var(data, "EMPL_RAT", 0), y_n_var(data, "APT_TRDE_IDEX",0)) # 상관계수: -0.2030842
-x_y_plot(data, x_n_var(data, "EMPL_RAT", 0), y_n_var(data, "APT_TRDE_IDEX",0))
+example("quantile")
+fdata <- data # 범주형으로 바뀌기 위한 df 복사
+quantile(fdata$EMPL_RAT,probs = c(0.2, 0.5))
+fdata$EMPL_RAT <- as.factor(ifelse(fdata$EMPL_RAT < 59, 0, # 범주형 변경
+                                   ifelse(fdata$EMPL_RAT < 60.5, 1, 2)))
+xfa_y_plot(fdata, x_n_var(fdata,"EMPL_RAT", 0), y_n_var(fdata,"APT_TRDE_IDEX", 0))
+EMPL_RAT_fa.aov <- aov(APT_TRDE_IDEX ~ EMPL_RAT, data = fdata)
+summary(EMPL_RAT_fa.aov)
 comment("
-고용률은 변동폭의 상승과 하락의 주기가 너무 짧음
-주기가 짧은 열들을 어떻게 처리해야할지 고민 해봐야 할듯!!!
+고용률과 아파트매매지수는 비례관계로 예상을 했지만 개월 변동을 해도 관계성을 찾을 수 없음
+기간을 길게하면 관계성을 찾을 수 있을까 싶어 all_data를 이용용
+")
+
+all_fdata <- all_data[47:277,] # 범주형으로 바뀌기 위한 df 복사 (03년 11월 ~ 23년 1월)
+quantile(all_fdata$EMPL_RAT, na.rm = T)
+all_fdata$EMPL_RAT <- ifelse(all_fdata$EMPL_RAT < 59.5, 0, # 범주형 변경
+                                       ifelse(all_fdata$EMPL_RAT < 60.5, 1, 2))
+all_EMPL_RAT_fa.aov <- aov(APT_TRDE_IDEX ~ EMPL_RAT, data = all_fdata)
+summary(all_EMPL_RAT_fa.aov)
+comment("
+p값이 5.77e-05로 99.9%에서 유의 하다고 나옴
+")
+
+for(i in 0:30){ # n개월 변동 상관계수
+  cat(i, "개월의 상관계수는", cor(x_n_var(all_fdata, "EMPL_RAT", i), y_n_var(all_fdata, "APT_TRDE_IDEX", i)),"입니다.", sep = "", end="\n")
+}
+comment("
+9개월 변동에서 -0.3234345로 가장 높음
+고용률과 아파트매매지수는 비례관계일거라고 예상 했지만 반비례가 나옴
 ")
 
 ## 실업률과 아파트매매지수 상관계수 비교
@@ -639,13 +840,12 @@ p값이 너무 높게 나와 기준의 변동이 필요해보임
 ")
 
 ch_fa_HOUSE_COUNT_data <- data
-ch_fa_HOUSE_COUNT_data$HOUSE_COUNT <- ifelse(ch_fa_HOUSE_COUNT_data$HOUSE_COUNT < 13000, 0, # 11568 => 13000 임의로 변경
-                                          ifelse(ch_fa_HOUSE_COUNT_data$HOUSE_COUNT <= 17000, 1, 2)) # 23128 => 17000 임의로 변경
+ch_fa_HOUSE_COUNT_data$HOUSE_COUNT <- ifelse(ch_fa_HOUSE_COUNT_data$HOUSE_COUNT < 14000, 0, # 11568 => 13000 임의로 변경
+                                          ifelse(ch_fa_HOUSE_COUNT_data$HOUSE_COUNT < 17000, 1, 2)) # 23128 => 17000 임의로 변경
 cor(x_n_var(ch_fa_HOUSE_COUNT_data, "HOUSE_COUNT", 0), y_n_var(ch_fa_HOUSE_COUNT_data, "APT_TRDE_IDEX",0)) # 상관계수: -0.1965399
 ch_fa_HOUSE_COUNT_data$HOUSE_COUNT <- as.factor(ch_fa_HOUSE_COUNT_data$HOUSE_COUNT)
-x_y_plot(ch_fa_HOUSE_COUNT_data, x_n_var(ch_fa_HOUSE_COUNT_data, "HOUSE_COUNT", 0), y_n_var(ch_fa_HOUSE_COUNT_data, "APT_TRDE_IDEX",0))
+xfa_y_plot(ch_fa_HOUSE_COUNT_data, x_n_var(ch_fa_HOUSE_COUNT_data, "HOUSE_COUNT", 0), y_n_var(ch_fa_HOUSE_COUNT_data, "APT_TRDE_IDEX",0))
 ch_fa_HOUSE_COUNT.aov <- aov(APT_TRDE_IDEX ~ HOUSE_COUNT, data = ch_fa_HOUSE_COUNT_data)
-anova(ch_fa_HOUSE_COUNT.aov)
 summary(ch_fa_HOUSE_COUNT.aov)
 comment("
 p값을 줄이기 위해 계속 기준값 변경을 시도한 결과 0.03까지 낮추어 봄
@@ -675,8 +875,8 @@ Q3: 13648
 ")
 
 fa_APT_COUNT_data <- data
-fa_APT_COUNT_data$APT_COUNT <- ifelse(fa_APT_COUNT_data$APT_COUNT < 6128, 0, 
-                                          ifelse(fa_APT_COUNT_data$APT_COUNT <= 13648, 1, 2)) # 상관계수를 구해보아야 해서 as.factor은 안함!!
+fa_APT_COUNT_data$APT_COUNT <- ifelse(fa_APT_COUNT_data$APT_COUNT < 5000, 0, 
+                                          ifelse(fa_APT_COUNT_data$APT_COUNT < 12000, 1, 2)) # 상관계수를 구해보아야 해서 as.factor은 안함!!
 cor(x_n_var(fa_APT_COUNT_data, "APT_COUNT", 0), y_n_var(fa_APT_COUNT_data, "APT_TRDE_IDEX",0)) # 상관계수: -0.08924593
 fa_APT_COUNT_data$APT_COUNT <- as.factor(fa_APT_COUNT_data$APT_COUNT)
 xfa_y_plot(fa_APT_COUNT_data, x_n_var(fa_APT_COUNT_data, "APT_COUNT", 0), y_n_var(fa_APT_COUNT_data, "APT_TRDE_IDEX",0))
@@ -791,7 +991,77 @@ comment("
 ")
 
 # 회귀분석
-comment("")
+comment("
+기준금리 : 2개월부터 16개월 까지
+주택담보대출연리 : 반영되는 기간이 너무 길어 아예 빼고 예측하는 것도 하나의 방법
+ * 전체로 했을 때 변수선택법으로 선택되는지 지켜보기
+소비심리지수들 : 범주형으로 바꾸고 월변동은 없음으로 하고 예측진행 => 경우에 따라 3개월 까지는 해보자
+소비자물가지수 : 전체 데이터 중에 경향을 파악하기는 쉬우나 이것이 아파트매매지수와의 관련성 찾기는 어려움
+실거래가지수들 : 0~1개월 변동
+경제심리지수 : 아파트매매지수와는 별 상관이 없어 보이고 경제적 사건들이 경제심리지수에 많은 영향을 미침
+예금액/대출액 : 소비자물가지수처럼 오르는 경향만 보이고 하락 구간을 찾기 어려움...
+고용률/실업률 : 범주형으로 교체
+거래현황들 : 범주형으로 교체
+미분양 : 0~9개월 까지는 변동해서 예측해보자
+")
+
+## 데이터 복사
+fdata <- data
+
+## 구조확인
+str(fdata)
+
+## 소비심리지수들 범주형 변경
+comment("
+95미만: 하강, 95이상 115미만: 보합, 115이상: 상승
+")
+fdata$REAL_CNSMP_TRL_IDEX <- as.factor(ifelse(fdata$REAL_CNSMP_TRL_IDEX < 95, 0, ifelse(fdata$REAL_CNSMP_TRL_IDEX < 115, 1, 2))) # 부동산
+fdata$HOUSE_CNSMP_TRL_IDEX <- as.factor(ifelse(fdata$HOUSE_CNSMP_TRL_IDEX < 95, 0, ifelse(fdata$HOUSE_CNSMP_TRL_IDEX < 115, 1, 2))) # 주택
+fdata$TRDE_CNSMP_TRL_IDEX <- as.factor(ifelse(fdata$TRDE_CNSMP_TRL_IDEX < 95, 0, ifelse(fdata$TRDE_CNSMP_TRL_IDEX < 115, 1, 2))) # 주택매매
+fdata$SECU_CNSMP_TRL_IDEX <- as.factor(ifelse(fdata$SECU_CNSMP_TRL_IDEX < 95, 0, ifelse(fdata$SECU_CNSMP_TRL_IDEX < 115, 1, 2))) # 주택전세
+
+## 거래현황들 범주형 변경
+comment("
+각 거래현황들 마다 기준을 다르게 둠
+")
+fdata$HOUSE_COUNT <- as.factor(ifelse(fdata$HOUSE_COUNT < 14000, 0, # 주택
+                                      ifelse(fdata$HOUSE_COUNT < 17000, 1, 2)))
+fdata$APT_COUNT <- as.factor(ifelse(fdata$APT_COUNT < 5000, 0,  # 아파트
+                                    ifelse(fdata$APT_COUNT < 12000, 1, 2)))
+fdata$HOUSE_TRDE_COUNT <- as.factor(ifelse(fdata$HOUSE_TRDE_COUNT < 7100, 0, # 주택매매
+                                           ifelse(fdata$HOUSE_TRDE_COUNT <= 17000, 1, 2)))
+fdata$APT_TRDE_COUNT <- as.factor(ifelse(fdata$APT_TRDE_COUNT < 3942, 0, # 아파트매매
+                                         ifelse(fdata$APT_TRDE_COUNT <= 9357, 1, 2)))
+
+## 유의성 확인
+fdata.aov <- aov(APT_TRDE_IDEX ~ APT_TRDE_COUNT, data = fdata)
+summary(fdata.aov)
+
+## 변경 잘 되었는지 구조확인
+str(fdata)
+
+## 전체 변수로 회귀분석
+x_formula <- formula_mk(fdata)[[1]] # 상수 formula 생성
+y_formula <- formula_mk(fdata)[[2]] # 전체 formula 생성
+
+fdata_train <- tra_tes_split(fdata)[[1]] # train데이터
+fdata_test <- tra_tes_split(fdata)[[2]] # test데이터
+
+fdata.lm <- lm(formula = y_formula, data = fdata_train)
+summary(fdata.lm)
+fdata_pred <- predict(fdata.lm, newdata = fdata_test)
+mse(fdata_test, fdata_pred)
+pred_tru(fdata_test, fdata_pred, "전체변수 사용 예측")
+
+## 
+summary(model_return(fdata))
+
+
+View(n_change_data(fdata, c(2,0,3,3,3,3,0,1,1,0,0,0,0,0,0,0,0,0,0,0)))
+View(fdata)
+length(c(2,0,3,3,3,3,0,1,1,0,0,0,0,0,0,0,0,0,0,0))
+
+
 
 
 
