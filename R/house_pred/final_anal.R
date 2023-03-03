@@ -14,6 +14,8 @@ comment("
 library(dplyr)
 library(tidyr)
 library(plotly)
+library(ggplot2)
+library(MASS)
 
 # 필요함수
 ## 해당열 n개월 만큼 열 밀기(설명변수)
@@ -82,13 +84,13 @@ xfa_y_plot <- function(df, x_val, y_val){
 ## list형태로 저장된 train과 test
 ## -------------------------------------------
 tra_tes_split <- function(df){
-  train_anal_data <- df[1:(nrow(df)-20),] # 마지막 10개행 제외한 모든 행은 train
-  test_anal_data <- df[(nrow(df)-19):nrow(df),] # 마직막 10행은 test
+  train_anal_data <- df[1:(nrow(df)-20),] # 마지막 20개행 제외한 모든 행은 train
+  test_anal_data <- df[(nrow(df)-19):nrow(df),] # 마직막 20행은 test
   
   return(list(train = train_anal_data, test = test_anal_data)) # 여러개의 return
 }
 
-## 예측값과 실제값 비교
+## 예측값과 실제값 비교(아파트매매지수 용)
 ## -------------------------------------------
 ## 매개변수
 ## df: 데이터 프레임(예측하고자하는 설명변수의 데이터가 있어야함)
@@ -117,7 +119,36 @@ pred_tru <- function(df, pred, meth){
   return(ggplotly(plt_pred_tru)) # 그래프
 }
 
-## formula생성
+## 예측값과 실제값 비교(아파트실거래가지수 용)
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임(예측하고자하는 설명변수의 데이터가 있어야함)
+## pred: 예측값
+## meth: 문자형 형태로 그래프 제목이 될 예정
+## 반환
+## 예측값과 실제값의 비교 그래프
+## -------------------------------------------
+pred_tru_mony <- function(df, pred, meth){
+  # 그래프 기본 틀
+  plt_pred_tru <- ggplot(data = df) +
+    geom_point(aes(x = YEAR_MM, y = pred), 
+               colour = "green",
+               size = 4) # 예측값
+  
+  # 기본 틀에 추가
+  if(names(df)[ncol(df)] == "APT_MONY_IDEX"){
+    plt_pred_tru <- plt_pred_tru + geom_point(aes(x = YEAR_MM, y = APT_MONY_IDEX), size = 3) # 실제값
+  } else {
+    plt_pred_tru <- plt_pred_tru + geom_point(aes(x = YEAR_MM, y = PCLND_IDEX), size = 3) # 실제값
+  }
+  
+  # 타이틀 추가
+  plt_pred_tru <- plt_pred_tru + ggtitle(meth)
+  
+  return(ggplotly(plt_pred_tru)) # 그래프
+}
+
+## formula생성(아파트매매지수 용)
 ## -------------------------------------------
 ## 매개변수
 ## df: 데이터 프레임
@@ -134,7 +165,24 @@ formula_mk <- function(df){
   return(list(y_formula, x_formula))
 }
 
-## mse계산
+## formula생성(아파트실거래가지수 용)
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## 반환
+## x와 y의 formula (리스트 형태)
+## ------------------------------------------
+formula_mk_mony <- function(df){
+  y <- colnames(df)[ncol(df)]
+  x <- colnames(df)[!colnames(df) %in% c("YEAR_MM", "APT_MONY_IDEX")]
+  
+  y_formula <- paste(y,"~ 1")
+  x_formula <- paste(y,"~",paste(x, collapse = " + "))
+  
+  return(list(y_formula, x_formula))
+}
+
+## mse계산(아파트매매지수 용)
 ## -------------------------------------------
 ## 매개변수
 ## df: 데이터 프레임
@@ -146,7 +194,19 @@ mse <- function(df, pred){
   return(mean((df[,"APT_TRDE_IDEX"]-pred)**2))
 }
 
-## 데이터프레임으로 최종모델 반환받기
+## mse계산(아파트실거래가지수 용)
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## pred: 예측값
+## 반환
+## mse
+## ------------------------------------------
+mse_mony <- function(df, pred){
+  return(mean((df[,"APT_MONY_IDEX"]-pred)**2))
+}
+
+## 데이터프레임으로 최종모델 반환받기(아파트매매지수 용)
 ## -------------------------------------------
 ## 매개변수
 ## df: 데이터 프레임
@@ -158,33 +218,33 @@ model_return <- function(df){
   mses <- c()
   
   # train/test 반환
-  data_train <<- tra_tes_split(df)[[1]]
-  data_test <<- tra_tes_split(df)[[2]]
+  data.train <<- tra_tes_split(df)[[1]]
+  data.test <<- tra_tes_split(df)[[2]]
   
   # formula 생성
   fo_formula <- formula_mk(df)[[1]]
   ba_formula <- formula_mk(df)[[2]]
   
   # 전체변수를 사용하여 예측
-  data_mo <- lm(ba_formula, data = data_train)
-  data_pred <- predict(data_mo, newdata = data_test)
-  data_mse <- mse(data_test, data_pred)
+  data_mo <- lm(ba_formula, data = data.train)
+  data_pred <- predict(data_mo, newdata = data.test)
+  data_mse <- mse(data.test, data_pred)
   mses <- c(mses, data_mse)
   cat("전체 변수를 사용하여 예측을 했을 때 mse는 ", data_mse, "입니다.", sep = "", end = "\n\n")
   
   # 전진선택법으로 예측
-  fo_data_mo <- lm(fo_formula, data = data_train)
+  fo_data_mo <- lm(fo_formula, data = data.train)
   forward_data_mo <- stepAIC(fo_data_mo, scope = ba_formula, direction = "forward")
-  fo_data_pred <- predict(forward_data_mo, newdata = data_test)
-  fo_data_mse <- mse(data_test, fo_data_pred)
+  fo_data_pred <- predict(forward_data_mo, newdata = data.test)
+  fo_data_mse <- mse(data.test, fo_data_pred)
   mses <- c(mses, fo_data_mse)
   cat("전진선택법으로 예측을 했을 때 mse는 ", fo_data_mse, "입니다.", sep = "", end = "\n\n")
   
   # 후진선택법으로 예측
-  ba_data_mo <- lm(ba_formula, data = data_train)
+  ba_data_mo <- lm(ba_formula, data = data.train)
   backward_data_mo <- stepAIC(ba_data_mo, scope = fo_formula, direction = "backward")
-  ba_data_pred <- predict(backward_data_mo, newdata = data_test)
-  ba_data_mse <- mse(data_test, ba_data_pred)
+  ba_data_pred <- predict(backward_data_mo, newdata = data.test)
+  ba_data_mse <- mse(data.test, ba_data_pred)
   mses <- c(mses, ba_data_mse)
   cat("후진선택법으로 예측을 했을 때 mse는 ", ba_data_mse, "입니다.", sep = "", end = "\n\n")
   
@@ -194,7 +254,7 @@ model_return <- function(df){
   # 최소 mse의 모델 반환
   if (mses_min == data_mse){
     cat("선택된 모델은 전체 변수를 사용한 것으로 선택(mse: ", data_mse, ")\n회귀계수의 유의성은???", sep = "", end = "\n")
-    return(forward_data_mo)
+    return(data_mo)
   } else if (mses_min == fo_data_mse){
     cat("전진선택법 모델로 선정(mse: ", fo_data_mse, ")\n회귀계수의 유의성은???", sep =, end = "\n")
     return(forward_data_mo)
@@ -204,37 +264,94 @@ model_return <- function(df){
   }
 }
 
-## 열별 변동개월수 다르한 데이터 프레임 만들기
+## 데이터프레임으로 최종모델 반환받기(아파트실거래가지수 용)
 ## -------------------------------------------
 ## 매개변수
 ## df: 데이터 프레임
-## n_col_vec: 종속변수에 영향을 미치는 개월 벡터((df의 열 개수 -1 만큼의 길이가 되어야 함))
+## 반환
+## mse가 가장 낮은 모델
+## -------------------------------------------
+model_return_mony <- function(df){
+  # mse저장시킬 벡터
+  mses <- c()
+  
+  # train/test 반환
+  data.train <<- tra_tes_split(df)[[1]]
+  data.test <<- tra_tes_split(df)[[2]]
+  
+  # formula 생성
+  fo_formula <- formula_mk_mony(df)[[1]]
+  ba_formula <- formula_mk_mony(df)[[2]]
+  
+  # 전체변수를 사용하여 예측
+  data_mo <- lm(ba_formula, data = data.train)
+  data_pred <- predict(data_mo, newdata = data.test)
+  data_mse <- mse_mony(data.test, data_pred)
+  mses <- c(mses, data_mse)
+  cat("전체 변수를 사용하여 예측을 했을 때 mse는 ", data_mse, "입니다.", sep = "", end = "\n\n")
+  
+  # 전진선택법으로 예측
+  fo_data_mo <- lm(fo_formula, data = data.train)
+  forward_data_mo <- stepAIC(fo_data_mo, scope = ba_formula, direction = "forward")
+  fo_data_pred <- predict(forward_data_mo, newdata = data.test)
+  fo_data_mse <- mse_mony(data.test, fo_data_pred)
+  mses <- c(mses, fo_data_mse)
+  cat("전진선택법으로 예측을 했을 때 mse는 ", fo_data_mse, "입니다.", sep = "", end = "\n\n")
+  
+  # 후진선택법으로 예측
+  ba_data_mo <- lm(ba_formula, data = data.train)
+  backward_data_mo <- stepAIC(ba_data_mo, scope = fo_formula, direction = "backward")
+  ba_data_pred <- predict(backward_data_mo, newdata = data.test)
+  ba_data_mse <- mse_mony(data.test, ba_data_pred)
+  mses <- c(mses, ba_data_mse)
+  cat("후진선택법으로 예측을 했을 때 mse는 ", ba_data_mse, "입니다.", sep = "", end = "\n\n")
+  
+  # mses중에서 최소 mse 찾기
+  mses_min <- min(mses)
+  
+  # 최소 mse의 모델 반환
+  if (mses_min == data_mse){
+    cat("선택된 모델은 전체 변수를 사용한 것으로 선택(mse: ", data_mse, ")\n회귀계수의 유의성은???", sep = "", end = "\n")
+    return(data_mo)
+  } else if (mses_min == fo_data_mse){
+    cat("전진선택법 모델로 선정(mse: ", fo_data_mse, ")\n회귀계수의 유의성은???", sep =, end = "\n")
+    return(forward_data_mo)
+  } else{
+    cat("후진선택법 모델로 선정(mse: ", ba_data_mse, ")\n회귀계수의 유의성은???", sep = "", end = "\n")
+    return(backward_data_mo)
+  }
+}
+
+## n개월 변동에 맞는 데이터 프레임 만들기
+## -------------------------------------------
+## 매개변수
+## df: 데이터 프레임
+## n_col_vec: 종속변수에 영향을 미치는 개월 벡터((df의 열 개수 -1 만큼의 길이가 되어야 함)) => 년월 열은 변동시킬 필요 없으므로 
 ## 반환
 ## 개월 수 변동이 완료된 df
 ## -------------------------------------------
-n_change_data <- function(df, n_col_vec){ # a ~ g는 열별로 개월을 변동시킬 숫자를 입력
+n_change_data <- function(df, n_col_vec){ 
   if((length(n_col_vec) + 1) != ncol(df)){
     return("df와 열의 개수가 맞지 않습니다. 개월 벡터를 다시 확인해 주세요.")
   }
   
   re_data <- df
   max_n <- max(n_col_vec) # 함수 내에서 필요한 상수값
-  cho_col <- c(1) # 1은 YEAR_MM를 의미
   
   # n개월 후 변동된 데이터를 다시 열에 저장
   for(n in 2:(ncol(df)-1)){ # n은 열 숫자를 의미
-    cho_col <- c(cho_col, n) # 필요한 열 추가한 벡터
     if(n_col_vec[n-1] != max_n){
       re_data[n] <- re_data[n][c((1 + max_n - n_col_vec[n-1]):nrow(df), 1:(max_n - n_col_vec[n-1])),]
     } else{
       re_data[n] <- re_data[n]
     }
   }
+  
+  # 종속변수도 설명변수에 맞게 밀기
   re_data[ncol(df)] <- re_data[ncol(df)][c((1 + max_n):nrow(df), 1:max_n),]
     
   # 사용할 데이터 프레임 만들기
-  cho_col <- c(cho_col, ncol(df))
-  anal_data <- re_data[1:(nrow(df) - max_n), cho_col] # 밀린 행 데이터 삭제
+  anal_data <- re_data[1:(nrow(df) - max_n), ] # 밀린 행 데이터 삭제
   
   return(anal_data) # 내가 사용할 최종 df
 }
@@ -252,6 +369,13 @@ all_data$YEAR_MM <- as.Date(all_data$YEAR_MM)
 str(all_data)
 colSums(is.na(all_data)) # 결측치 확인
 na.omit(all_data) # data와 같은 내용의 df생성
+
+## 아파트실거래가지수를 종속변수수
+apt_mony_data <- read.csv("D:/R/final_anal_pred/data/apt_mony_data.csv")
+apt_mony_data$YEAR_MM <- as.Date(apt_mony_data$YEAR_MM)
+str(apt_mony_data)
+colSums(is.na(apt_mony_data)) # 결측치 확인
+na.omit(apt_mony_data) # data와 같은 내용의 df생성
 
 
 # 변동된 데이터의 상관계수
@@ -306,7 +430,7 @@ for(i in 0:30){
 comment("
 16개월에서 가장 높은 상관계수(-0.9033386)를 보이지만
 시각화 경향으로 보면 11개월이 반비례 성향을 가장 잘 나타내고 있음
-2개월 부터는 -0.7이 넘으므로 이때부터 예측을 해도 상관은 없을 걸로 예상
+2개월 부터 상관계수가 -0.7이 넘으므로 이때부터 예측을 해도 상관은 없을 걸로 예상
 ")
 
 ## 주택담보대출과 아파트매매지수 상관계수 비교
@@ -332,7 +456,7 @@ comment("
 
 담보대출 자체가 한국은행의 기준금리와는 아에 다른 개념의 금리를 씀
 대출금리 = 대출기준금리 + 가산금리
-이 영향으로 담보대출연리과 아파트매매지수의 관계가 긴 반영 기간을 가지는 걸로 예상상
+이 영향으로 담보대출연리과 아파트매매지수의 관계가 긴 반영 기간을 가지는 걸로 예상
 ")
 
 x_y_plot(data, x_n_var(data, "HOUSE_MORT_LOAN", 0), y_n_var(data, "STAN_INTR", 0)) # 주택담보대출 연리와 기준금리 시각화(변동없음)
@@ -992,19 +1116,74 @@ comment("
 
 # 회귀분석
 comment("
+년월 : 11년 7월부터 22년 11월까지
+ - YEAR_MM
 기준금리 : 2개월부터 16개월 까지
+ - STAN_INTR
 주택담보대출연리 : 반영되는 기간이 너무 길어 아예 빼고 예측하는 것도 하나의 방법
+ - HOUSE_MORT_LOAN
  * 전체로 했을 때 변수선택법으로 선택되는지 지켜보기
 소비심리지수들 : 범주형으로 바꾸고 월변동은 없음으로 하고 예측진행 => 경우에 따라 3개월 까지는 해보자
+ - REAL_CNSMP_TRL_IDEX , HOUSE_CNSMP_TRL_IDEX, TRDE_CNSMP_TRL_IDEX, SECU_CNSMP_TRL_IDEX 
 소비자물가지수 : 전체 데이터 중에 경향을 파악하기는 쉬우나 이것이 아파트매매지수와의 관련성 찾기는 어려움
+ - CNSMR_PRICES_IDEX
 실거래가지수들 : 0~1개월 변동
+ - HOUSE_MONY_IDEX, APT_MONY_IDEX
 경제심리지수 : 아파트매매지수와는 별 상관이 없어 보이고 경제적 사건들이 경제심리지수에 많은 영향을 미침
+ - ECO_CENT_IDEX
 예금액/대출액 : 소비자물가지수처럼 오르는 경향만 보이고 하락 구간을 찾기 어려움...
+ - BANK_DEPO, BANK_LOAN
 고용률/실업률 : 범주형으로 교체
+ - EMPL_RAT, UN_EMPL_RAT
 거래현황들 : 범주형으로 교체
+ - HOUSE_COUNT, APT_COUNT, HOUSE_TRDE_COUNT, APT_TRDE_COUNT
 미분양 : 0~9개월 까지는 변동해서 예측해보자
+ - UN_SOLD_COUNT
+아파트 매매지수 : 종속변수
+ - APT_TRDE_IDEX
 ")
 
+data[,c("YEAR_MM",
+        "STAN_INTR",
+        "HOUSE_MORT_LOAN",
+        "REAL_CNSMP_TRL_IDEX",
+        "HOUSE_CNSMP_TRL_IDEX",
+        "TRDE_CNSMP_TRL_IDEX",
+        "SECU_CNSMP_TRL_IDEX",
+        "CNSMR_PRICES_IDEX",
+        "HOUSE_MONY_IDEX",
+        "APT_MONY_IDEX",
+        "ECO_CENT_IDEX",
+        "BANK_DEPO",
+        "BANK_LOAN",
+        "EMPL_RAT",
+        "UN_EMPL_RAT",
+        "HOUSE_COUNT",
+        "APT_COUNT",
+        "HOUSE_TRDE_COUNT",
+        "APT_TRDE_COUNT",
+        "UN_SOLD_COUNT",
+        "APT_TRDE_IDEX")]
+# ---------------------------------전처리X 회귀분석 시작---------------------------------
+x_formula <- formula_mk(data)[[1]] # 상수 formula 생성
+y_formula <- formula_mk(data)[[2]] # 전체 formula 생성
+
+data_train <- tra_tes_split(data)[[1]] # train데이터
+data_test <- tra_tes_split(data)[[2]] # test데이터
+
+data.mod <- model_return(data)
+summary(data.mod)
+comment("
+전진선택법으로 mse가 126.9688인 모델이 생성
+")
+
+data.pred <- predict(data.mod, newdata = data_test)
+mse(data_test, data.pred)
+pred_tru(data_test, data.pred, "전처리X + 전진선택법 => 126.9688")
+
+# ---------------------------------전처리X 회귀분석 끝---------------------------------
+
+# ---------------------------------범주형 변환 회귀분석 시작---------------------------------
 ## 데이터 복사
 fdata <- data
 
@@ -1034,15 +1213,21 @@ fdata$APT_TRDE_COUNT <- as.factor(ifelse(fdata$APT_TRDE_COUNT < 3942, 0, # 아�
                                          ifelse(fdata$APT_TRDE_COUNT <= 9357, 1, 2)))
 
 ## 유의성 확인
-fdata.aov <- aov(APT_TRDE_IDEX ~ APT_TRDE_COUNT, data = fdata)
+fdata.aov <- aov(APT_TRDE_IDEX ~ SECU_CNSMP_TRL_IDEX, data = fdata)
 summary(fdata.aov)
+comment("
+APT_TRDE_IDEX ~ x라는 formula에서 x를 변경하면서 유의성을 확인해 보면됨
+HOUSE_COUNT열을 확인하고 싶으면 APT_TRDE_IDEX ~ HOUSE_COUNT
+APT_COUNT열을 확인하고 싶으면 APT_TRDE_IDEX ~ APT_COUNT
+이렇게 변경하면 됨
+")
 
 ## 변경 잘 되었는지 구조확인
 str(fdata)
 
 ## 전체 변수로 회귀분석
-x_formula <- formula_mk(fdata)[[1]] # 상수 formula 생성
-y_formula <- formula_mk(fdata)[[2]] # 전체 formula 생성
+f_x_formula <- formula_mk(fdata)[[1]] # 상수 formula 생성
+f_y_formula <- formula_mk(fdata)[[2]] # 전체 formula 생성
 
 fdata_train <- tra_tes_split(fdata)[[1]] # train데이터
 fdata_test <- tra_tes_split(fdata)[[2]] # test데이터
@@ -1053,17 +1238,423 @@ fdata_pred <- predict(fdata.lm, newdata = fdata_test)
 mse(fdata_test, fdata_pred)
 pred_tru(fdata_test, fdata_pred, "전체변수 사용 예측")
 
-## 
-summary(model_return(fdata))
+## 전체/전진/후진의 mse중 최소의 모델반환
+fdata.mod <- model_return(fdata)
+summary(fdata.mod)
+comment("
+전진선택법으로 mse가 122.8333 모델이 생성
+")
+fdata.pred <- predict(fdata.mod, newdata = fdata_test)
+mse(n_fdata_test, fdata.pred)
+pred_tru(data_test, data.pred, "전처리X + 후진선택법 => 122.8333인")
+
+# ---------------------------------범주형 변환 회귀분석 끝---------------------------------
+
+# ---------------------------------범주형 + n개월 변동 회귀분석 시작---------------------------------
+n_fdata <- n_change_data(fdata, c(2,0,3,3,3,3,0,1,1,0,0,0,0,0,0,0,0,0,0,0))
+View(n_fdata)
+str(n_fdata)
+
+n_fdata_train <- tra_tes_split(n_fdata)[[1]] # train데이터
+n_fdata_test <- tra_tes_split(n_fdata)[[2]] # test데이터
+
+n_fdata.lm <- lm(formula = n_y_formula, data = n_fdata_train)
+summary(n_fdata.lm)
+n_fdata_pred <- predict(n_fdata.lm, newdata = n_fdata_test)
+mse(n_fdata_test, n_fdata_pred)
+pred_tru(n_fdata_test, n_fdata_pred, "전체변수 사용 예측")
+
+## 전체/전진/후진의 mse중 최소의 모델반환
+n_fdata.mod <- model_return(n_fdata)
+summary(n_fdata.mod)
+n_fdata_pred <- predict(n_fdata.mod, newdata = n_fdata_test)
+mse(n_fdata_test, n_fdata_pred)
+pred_tru(n_fdata_test, n_fdata_pred, "범주형 + n개월 + 전체 변수 사용 => mse: 182.0222")
+
+comment("
+기준금리 2개월
+주택담보대출 연리 0개월
+부동산소비심리지수 3개월
+주택소비심리지수 3개월
+주택매매소비심리지수 3개월
+주택전세소비심리지수 3개월
+소비자물가지수 0개월
+주택실거래가지수 1개월
+아파트실거래가지수 1개월
+경제심리지수 0개월
+예금액 0개월
+대출액 0개월
+고용률 0개월
+실업률 0개월
+주택거래현황 0개월
+아파트거래현황 0개월
+주택매매거래현황 0개월
+아파트매매거래현황 0개월
+미분양거래현황 0개월
+
+범주형으로 변환
+
+전체 변수를 사용
+
+mse는 182.0222가 나옴
+")
+
+# ---------------------------------범주형 + n개월 변동 회귀분석 끝---------------------------------
+
+# ---------------------------------n개월 변동 회귀분석 시작---------------------------------
+n_data <- n_change_data(data, c(2,0,3,3,3,3,0,1,1,0,0,0,0,0,0,0,0,0,0,0))
+
+n_data_train <- tra_tes_split(n_data)[[1]] # train데이터
+n_data_test <- tra_tes_split(n_data)[[2]] # test데이터
+
+## 전체/전진/후진의 mse중 최소의 모델반환
+n_data.mod <- model_return(n_data)
+summary(n_data.mod)
+n_data_pred <- predict(n_data.mod, newdata = n_data_test)
+mse(n_data_test, n_data_pred)
+pred_tru(n_data_test, n_data_pred, "n개월 + 전진선택법 => mse: 235.1821")
+
+comment("
+기준금리 2개월
+주택담보대출 연리 0개월
+부동산소비심리지수 3개월
+주택소비심리지수 3개월
+주택매매소비심리지수 3개월
+주택전세소비심리지수 3개월
+소비자물가지수 0개월
+주택실거래가지수 1개월
+아파트실거래가지수 1개월
+경제심리지수 0개월
+예금액 0개월
+대출액 0개월
+고용률 0개월
+실업률 0개월
+주택거래현황 0개월
+아파트거래현황 0개월
+주택매매거래현황 0개월
+아파트매매거래현황 0개월
+미분양거래현황 0개월
+
+전체 변수를 사용
+
+mse는 235.1821 나옴
+
+낮아지는게 아니라 점점 높아지네....ㅋㅋㅋ
+")
+
+# ---------------------------------범주형 + n개월 변동 회귀분석 끝---------------------------------
+
+# ----------------------------------n개월 변동(여러가지 다 실험) + 범주형 + 최적 변수선택찾기 회귀분석 시작---------------------------------
+n_fdata <- n_change_data(fdata, c(2,13,3,3,3,3,3,1,1,1,1,1,1,1,2,2,2,2,5,0))
+
+n_fdata_train <- tra_tes_split(n_fdata)[[1]] # train데이터
+n_fdata_test <- tra_tes_split(n_fdata)[[2]] # test데이터
+
+n_fdata.mod <- model_return(n_fdata)
+summary(n_fdata.mod)
+n_fdata_pred <- predict(n_fdata.mod, newdata = n_fdata_test)
+mse(n_fdata_test, n_fdata_pred)
+pred_tru(n_fdata_test, n_fdata_pred, "n개월 변동(여러가지 다 실험) + 범주형 + 최적 변수선택찾기 => 15.93103")
+
+# ---------------------------------n개월 변동(여러가지 다 실험) + 범주형 + 최적 변수선택찾기 회귀분석 끝---------------------------------
+
+# ----------------------------------n개월 변동(여러가지 다 실험) + 범주형 + 최적 변수선택찾기 회귀분석 시작---------------------------------
+n_fdata <- n_change_data(fdata, c(2,13,1,1,1,1,3,1,1,1,1,1,1,1,2,2,2,2,5,0))
+
+n_fdata_train <- tra_tes_split(n_fdata)[[1]] # train데이터
+n_fdata_test <- tra_tes_split(n_fdata)[[2]] # test데이터
+
+n_fdata.mod <- model_return(n_fdata)
+summary(n_fdata.mod)
+n_fdata_pred <- predict(n_fdata.mod, newdata = n_fdata_test)
+mse(n_fdata_test, n_fdata_pred)
+pred_tru(n_fdata_test, n_fdata_pred, "-범주형 + n개월 변동 + 최적 변수선택찾기 => 16.78775")
+comment("
+분석결과에 최대한 맞게 n개월 변동을 하여 통해 최소의 mse를 찾아 예측이 정확한 모델을 찾아보자
+
+n_change_data(fdata, c(2,13,3,3,3,3,3,1,1,1,1,1,1,1,2,2,2,2,5,0)) => mse: 15.93103
+n_change_data(fdata, c(2,13,1,1,1,1,3,1,1,1,1,1,1,1,2,2,2,2,5,0)) => mse: 16.78775
+")
+
+# ----------------------------------n개월 변동(여러가지 다 실험) + 범주형 + 최적 변수선택찾기 회귀분석 끝---------------------------------
+
+# ---------------------------------처음부터 필요 없는 열 삭제 후 회귀분석 시작---------------------------------
+sel_data <- data[,c("YEAR_MM",
+                    "STAN_INTR",
+                    "HOUSE_MORT_LOAN",
+                    "REAL_CNSMP_TRL_IDEX",
+                    # "HOUSE_CNSMP_TRL_IDEX",
+                    "TRDE_CNSMP_TRL_IDEX",
+                    "SECU_CNSMP_TRL_IDEX",
+                    "CNSMR_PRICES_IDEX",
+                    "HOUSE_MONY_IDEX",
+                    "APT_MONY_IDEX",
+                    # "ECO_CENT_IDEX",
+                    # "BANK_DEPO",
+                    # "BANK_LOAN",
+                    # "EMPL_RAT",
+                    # "UN_EMPL_RAT",
+                    "HOUSE_COUNT",
+                    "APT_COUNT",
+                    "HOUSE_TRDE_COUNT",
+                    "APT_TRDE_COUNT",
+                    "UN_SOLD_COUNT",
+                    "APT_TRDE_IDEX")]
+n_sel_data <- n_change_data(sel_data, c(3,4,1,1,1,2,0,0,1,1,1,1,9,0))
+
+n_sel_fdata_train <- tra_tes_split(n_sel_data)[[1]] # train데이터
+n_sel_fdata_test <- tra_tes_split(n_sel_data)[[2]] # test데이터
+
+n_sel_fdata.mod <- model_return(n_sel_data)
+summary(n_sel_fdata.mod)
+n_sel_fdata_pred <- predict(n_sel_fdata.mod, newdata = n_sel_fdata_test)
+mse(n_sel_fdata_test, n_sel_fdata_pred)
+pred_tru(n_sel_fdata_test, n_sel_fdata_pred, "처음부터 필요 없는 열 삭제 + 범주형 + n개월 변동 + 최적 변수선택찾기")
+comment("
+기준금리 3개월
+주택담보대출 연리 4개월
+부동산소비심리지수 1개월
+주택소비심리지수 삭제
+주택매매소비심리지수 1개월
+주택전세소비심리지수 1개월
+소비자물가지수 2개월
+주택실거래가지수 0개월
+아파트실거래가지수 0개월
+경제심리지수 삭제
+예금액 삭제
+대출액 삭제
+고용률 삭제
+실업률 삭제
+주택거래현황 1개월
+아파트거래현황 1개월
+주택매매거래현황 1개월
+아파트매매거래현황 1개월
+미분양거래현황 9개월
+
+월변동은 n_change_data(sel_data, c(3,4,1,1,1,2,0,0,1,1,1,1,9,0))
+
+후진 선택법 => mse: 17.37566
+
+")
+
+# ---------------------------------처음부터 필요 없는 열 삭제 후 회귀분석 끝---------------------------------
+
+# ---------------------------------처음부터 필요 없는 열 삭제 + 범주형 회귀분석 시작(ppt 용)---------------------------------
+sel_fdata <- fdata[,c("YEAR_MM",
+                    "STAN_INTR",
+                    # "HOUSE_MORT_LOAN",
+                    "REAL_CNSMP_TRL_IDEX",
+                    "HOUSE_CNSMP_TRL_IDEX",
+                    "TRDE_CNSMP_TRL_IDEX",
+                    "SECU_CNSMP_TRL_IDEX",
+                    # "CNSMR_PRICES_IDEX",
+                    "HOUSE_MONY_IDEX",
+                    "APT_MONY_IDEX",
+                    # "ECO_CENT_IDEX",
+                    "BANK_DEPO",
+                    "BANK_LOAN",
+                    # "EMPL_RAT",
+                    # "UN_EMPL_RAT",
+                    "HOUSE_COUNT",
+                    "APT_COUNT",
+                    "HOUSE_TRDE_COUNT",
+                    "APT_TRDE_COUNT",
+                    "UN_SOLD_COUNT",
+                    "APT_TRDE_IDEX")]
+n_sel_fdata <- n_change_data(sel_fdata, c(2,3,3,3,3,1,1,1,1,2,2,2,2,5,0))
+
+n_sel_fdata_train <- tra_tes_split(n_sel_fdata)[[1]] # train데이터
+n_sel_fdata_test <- tra_tes_split(n_sel_fdata)[[2]] # test데이터
+
+n_sel_fdata.mod <- model_return(n_sel_fdata)
+summary(n_sel_fdata.mod)
+n_sel_fdata_pred <- predict(n_sel_fdata.mod, newdata = n_sel_fdata_test)
+mse(n_sel_fdata_test, n_sel_fdata_pred)
+pred_tru(n_sel_fdata_test, n_sel_fdata_pred, "처음부터 필요 없는 열 삭제 + 범주형 + n개월 변동 + 최적 변수선택찾기")
+comment("
+필요없는 열만 삭제하고 열 변동은 아까 위에서 한거와 동일하게 둠
+mse는 15.93103에서 30.38173로 높아짐
+
+열을 삭제 할 때는 분석을 잘 하고 삭제해야지 아님 mse가 높아져서 더욱 예측을 못하게 됨
+")
+
+# ---------------------------------처음부터 필요 없는 열 삭제 + 범주형 회귀분석 끝(ppt 용)---------------------------------
+
+# ---------------------------------처음부터 필요 없는 열 삭제 + 범주형 회귀분석 시작(실험 용)---------------------------------
+sel_fdata <- data[,c("YEAR_MM",
+                      "STAN_INTR",
+                      # "HOUSE_MORT_LOAN",
+                      "REAL_CNSMP_TRL_IDEX",
+                      # "HOUSE_CNSMP_TRL_IDEX",
+                      "TRDE_CNSMP_TRL_IDEX",
+                      "SECU_CNSMP_TRL_IDEX",
+                      "CNSMR_PRICES_IDEX",
+                      "HOUSE_MONY_IDEX",
+                      "APT_MONY_IDEX",
+                      # "ECO_CENT_IDEX",
+                      # "BANK_DEPO",
+                      # "BANK_LOAN",
+                      "EMPL_RAT",
+                      "UN_EMPL_RAT",
+                      "HOUSE_COUNT",
+                      "APT_COUNT",
+                      "HOUSE_TRDE_COUNT",
+                      "APT_TRDE_COUNT",
+                      "UN_SOLD_COUNT",
+                      "APT_TRDE_IDEX")]
+n_sel_fdata <- n_change_data(sel_fdata, c(13,2,2,2,1,1,1,0,0,4,4,4,4,9,0))
+
+n_sel_fdata_train <- tra_tes_split(n_sel_fdata)[[1]] # train데이터
+n_sel_fdata_test <- tra_tes_split(n_sel_fdata)[[2]] # test데이터
+
+n_sel_fdata.mod <- model_return(n_sel_fdata)
+summary(n_sel_fdata.mod)
+n_sel_fdata_pred <- predict(n_sel_fdata.mod, newdata = n_sel_fdata_test)
+mse(n_sel_fdata_test, n_sel_fdata_pred)
+pred_tru(n_sel_fdata_test, n_sel_fdata_pred, "처음부터 필요 없는 열 삭제 + 범주형 + n개월 변동 + 최적 변수선택찾기")
+comment("
+
+")
+
+# ---------------------------------처음부터 필요 없는 열 삭제 + 범주형 회귀분석 끝(실험 용)---------------------------------
+
+# 아파트매매지수와 아파트실거래가지수 급하락부분 찾아보기
+## long 데이터 셋 만들기
+APT_IDEX_data <- all_data |>
+  gather(APT_IDEX, values, -YEAR_MM) |> # long형태로 바꾸어 줌
+  filter(APT_IDEX %in% c('APT_TRDE_IDEX', 'APT_MONY_IDEX')) |> # APT_IDEX열에서 APT_TRDE_IDEX와 APT_MONY_IDEX만 추출
+  na.omit()
+
+## ggplot그리고 인터랙티브로 만들기
+ggplotly(APT_IDEX_data |> # 데이터 프레임
+  ggplot() + # ggplot설정
+  geom_line(aes(YEAR_MM, values, col=APT_IDEX), lwd = 1.5) + # x축: YEAR_MM, y축: values, 색구분: APT_IDEX(APT_TRDE_IDEX + APT_MONY_IDEX)
+  theme_classic() + # grid설정
+  theme(legend.position = "bottom", legend.title = element_blank()) ) # 범례위치/범례title삭제
+
+ggplot(all_data) + # ggplot설정
+  geom_line(aes(x=YEAR_MM, y=APT_TRDE_IDEX), lwd = 1.5) +
+  theme_classic()
 
 
-View(n_change_data(fdata, c(2,0,3,3,3,3,0,1,1,0,0,0,0,0,0,0,0,0,0,0)))
-View(fdata)
-length(c(2,0,3,3,3,3,0,1,1,0,0,0,0,0,0,0,0,0,0,0))
+x_y_plot(na.omit(all_data), "APT_TRDE_IDEX", "APT_MONY_IDEX")
 
 
 
 
+x_y_plot(na.omit(all_data), x_n_var(na.omit(all_data), "APT_TRDE_IDEX", 0), y_n_var(na.omit(all_data), "APT_MONY_IDEX", 0))
+
+# ---------------------------------아파트실거래가지수를 종속변수 회귀분석 시작(ppt 용)---------------------------------
+sel_data_mony <- apt_mony_data[,c("YEAR_MM",
+                                  "STAN_INTR",
+                                  "HOUSE_MORT_LOAN",
+                                  "REAL_CNSMP_TRL_IDEX",
+                                  # "HOUSE_CNSMP_TRL_IDEX",
+                                  "TRDE_CNSMP_TRL_IDEX",
+                                  "SECU_CNSMP_TRL_IDEX",
+                                  "CNSMR_PRICES_IDEX",
+                                  # "ECO_CENT_IDEX",
+                                  # "BANK_DEPO",
+                                  # "BANK_LOAN",
+                                  "EMPL_RAT",
+                                  "UN_EMPL_RAT",
+                                  "HOUSE_COUNT",
+                                  "APT_COUNT",
+                                  "HOUSE_TRDE_COUNT",
+                                  "APT_TRDE_COUNT",
+                                  "UN_SOLD_COUNT",
+                                  "APT_TRDE_IDEX",
+                                  "HOUSE_MONY_IDEX",
+                                  "APT_MONY_IDEX")]
+n_sel_data_mony <- n_change_data(sel_data_mony, c(5,3,2,2,2,3,0,0,4,4,4,4,9,0,0,0))
+
+n_sel_data_train_momy <- tra_tes_split(n_sel_data_mony)[[1]] # train데이터
+n_sel_data_test_momy <- tra_tes_split(n_sel_data_mony)[[2]] # test데이터
+
+n_sel_data_mony.mod <- model_return_mony(n_sel_data_mony)
+summary(n_sel_data_mony.mod)
+n_sel_data_pred_mony <- predict(n_sel_data_mony.mod, newdata = n_sel_data_test_momy)
+mse_mony(n_sel_data_test_momy, n_sel_data_pred_mony)
+pred_tru_mony(n_sel_data_test_momy, n_sel_data_pred_mony, "아파트실거래가지수를 종속변수")
+comment("
+종속변수를 바꾸니 예측값과 실제값의 경향이 비슷해서 좋지만 월 변동이 너무 신경쓰임
+기준금리는 13개월, 미분양은 9개월...
+")
+
+# ---------------------------------아파트실거래가지수를 종속변수 회귀분석 끝(ppt 용)---------------------------------
+
+# ---------------------------------아파트실거래가지수를 종속변수 회귀분석 시작(실험 용)---------------------------------
+sel_data_mony <- apt_mony_data[,c("YEAR_MM",
+                                  "STAN_INTR",
+                                  # "HOUSE_MORT_LOAN",
+                                  "REAL_CNSMP_TRL_IDEX",
+                                  # "HOUSE_CNSMP_TRL_IDEX",
+                                  "TRDE_CNSMP_TRL_IDEX",
+                                  "SECU_CNSMP_TRL_IDEX",
+                                  "CNSMR_PRICES_IDEX",
+                                  # "ECO_CENT_IDEX",
+                                  # "BANK_DEPO",
+                                  # "BANK_LOAN",
+                                  # "EMPL_RAT",
+                                  # "UN_EMPL_RAT",
+                                  "HOUSE_COUNT",
+                                  "APT_COUNT",
+                                  "HOUSE_TRDE_COUNT",
+                                  "APT_TRDE_COUNT",
+                                  "UN_SOLD_COUNT",
+                                  "APT_TRDE_IDEX",
+                                  "HOUSE_MONY_IDEX",
+                                  "APT_MONY_IDEX")]
+n_sel_data_mony <- n_change_data(sel_data_mony, c(13,2,2,2,3,3,3,3,3,9,0,0,0))
+
+n_sel_data_train_momy <- tra_tes_split(n_sel_data_mony)[[1]] # train데이터
+n_sel_data_test_momy <- tra_tes_split(n_sel_data_mony)[[2]] # test데이터
+
+n_sel_data_mony.mod <- model_return_mony(n_sel_data_mony)
+summary(n_sel_data_mony.mod)
+n_sel_data_pred_mony <- predict(n_sel_data_mony.mod, newdata = n_sel_data_test_momy)
+mse_mony(n_sel_data_test_momy, n_sel_data_pred_mony)
+pred_tru_mony(n_sel_data_test_momy, n_sel_data_pred_mony, "아파트실거래가지수를 종속변수")
+comment("
+종속변수를 바꾸니 예측값과 실제값의 경향이 비슷해서 좋지만 월 변동이 너무 신경쓰임
+기준금리는 13개월, 미분양은 9개월...
+")
+
+# ---------------------------------아파트실거래가지수를 종속변수 회귀분석 끝(실험 용)---------------------------------
+sel_data_mony <- apt_mony_data[,c("YEAR_MM",
+                                  "STAN_INTR",
+                                  "HOUSE_MORT_LOAN",
+                                  "REAL_CNSMP_TRL_IDEX",
+                                  # "HOUSE_CNSMP_TRL_IDEX",
+                                  "TRDE_CNSMP_TRL_IDEX",
+                                  "SECU_CNSMP_TRL_IDEX",
+                                  "CNSMR_PRICES_IDEX",
+                                  # "ECO_CENT_IDEX",
+                                  # "BANK_DEPO",
+                                  # "BANK_LOAN",
+                                  "EMPL_RAT",
+                                  "UN_EMPL_RAT",
+                                  "HOUSE_COUNT",
+                                  "APT_COUNT",
+                                  "HOUSE_TRDE_COUNT",
+                                  "APT_TRDE_COUNT",
+                                  "UN_SOLD_COUNT",
+                                  "APT_TRDE_IDEX",
+                                  "HOUSE_MONY_IDEX",
+                                  "APT_MONY_IDEX")]
+n_sel_data_mony <- n_change_data(sel_data_mony, c(5,3,2,2,2,3,0,0,4,4,4,4,9,0,0,0))
+
+n_sel_data_train_momy <- tra_tes_split(n_sel_data_mony)[[1]] # train데이터
+n_sel_data_test_momy <- tra_tes_split(n_sel_data_mony)[[2]] # test데이터
+
+n_sel_data_mony.mod <- model_return_mony(n_sel_data_mony)
+summary(n_sel_data_mony.mod)
+n_sel_data_pred_mony <- predict(n_sel_data_mony.mod, newdata = n_sel_data_test_momy)
+mse_mony(n_sel_data_test_momy, n_sel_data_pred_mony)
+pred_tru_mony(n_sel_data_test_momy, n_sel_data_pred_mony, "아파트실거래가지수를 종속변수")
+comment("
+
+")
 
 
 
