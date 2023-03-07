@@ -653,6 +653,39 @@ comment("
 시각적으로도 너무 보기 불편하고 종속변수와의 관계성 찾기도 어려움
 ")
 
+## 주택전세심리지수와 아파트실거래가지수 상관계수 비교
+fa_SECU_CNSMP_TRL_IDEX <- as.factor(ifelse(data$SECU_CNSMP_TRL_IDEX < 95, 0, ifelse(data$SECU_CNSMP_TRL_IDEX < 115, 1, 2))) # 범주형으로 변경
+table(fa_SECU_CNSMP_TRL_IDEX) # 빈도표(빈도)
+prop.table(table(fa_SECU_CNSMP_TRL_IDEX))*100 # 빈도표(확률)
+comment("
+부동산 소비심리지수와 거의 비슷한 양상을 보임
+빈도표를 보면 하강일때 14번, 보합일 때 60번, 상승일 때 63번으로 나타남
+
+다른 3개의 소비심리지수보다 하강의 데이터가 많고 보합과 상승도 비슷한 개수로
+데이터를 보유하고 있어 분석시 좋은 결과를 얻을 수 있을거라 예상되고 있음
+")
+
+for(i in 0:30){
+  cat(i, "개월의 상관계수는", cor(x_n_var(data, "SECU_CNSMP_TRL_IDEX", i), y_n_var(data, "APT_MONY_IDEX", i)),"입니다.", sep = "", end="\n")
+}
+
+for(i in 0:30){
+  cat(i, "개월의 상관계수는", cor(as.numeric(fa_SECU_CNSMP_TRL_IDEX[1:(length(fa_SECU_CNSMP_TRL_IDEX)-i)]), y_n_var(data, "APT_MONY_IDEX", i)),"입니다.", sep = "", end="\n")
+}
+comment("
+범주든 수치든 0개월에서 0.3 정도의 상관정도가 발견되었고 30개월에서 가장 높은 상관계수가 나타남
+")
+
+plot(x=data$YEAR_MM, y=data$APT_MONY_IDEX, type="l", col="green") # 범주형 + 월변동X
+par(new=T)
+plot(x=data$YEAR_MM, y=fa_SECU_CNSMP_TRL_IDEX, col="red", ylim=c(1,4))
+text(as.Date("2012-01-01"),3.1,"상승",cex=2)
+text(as.Date("2012-01-01"),2.1,"보합",cex=2)
+text(as.Date("2012-01-01"),1.1,"하강",cex=2)
+comment("
+아파트 매매지수와 비슷하게 소비심리지수가 하강일 때는 실거래가 지수가 내리고 상승 일때는 증가
+")
+
 ## 소비자물가지수와 아파트매매지수 상관계수 비교
 cor(x_n_var(data, "CNSMR_PRICES_IDEX", 0), y_n_var(data, "APT_TRDE_IDEX",0)) # 11년 07월 ~ 22년 11월 + 0개월 변동 의 상관계수
 for(i in 0:30){ # n개월 변동
@@ -1545,7 +1578,7 @@ comment("
 ## long 데이터 셋 만들기
 APT_IDEX_data <- all_data |>
   gather(APT_IDEX, values, -YEAR_MM) |> # long형태로 바꾸어 줌
-  filter(APT_IDEX %in% c('APT_TRDE_IDEX', 'APT_MONY_IDEX')) |> # APT_IDEX열에서 APT_TRDE_IDEX와 APT_MONY_IDEX만 추출
+  filter(APT_IDEX %in% c('STAN_INTR', 'APT_MONY_IDEX')) |> # APT_IDEX열에서 APT_TRDE_IDEX와 APT_MONY_IDEX만 추출
   na.omit()
 
 ## ggplot그리고 인터랙티브로 만들기
@@ -1560,8 +1593,9 @@ comment("
 집값이 비정상적으로 높아졌다는 점을 알 수 가 있음
 ")
 
-x_y_plot(na.omit(all_data), x_n_var(na.omit(all_data), "APT_TRDE_IDEX", 0), y_n_var(na.omit(all_data), "APT_MONY_IDEX", 0))
+x_y_plot(na.omit(all_data), x_n_var(na.omit(all_data), "STAN_INTR", 0), y_n_var(na.omit(all_data), "APT_MONY_IDEX", 0))
 comment("
+기준금리로 그래프를 그릴 때 line 59에 plot의 type를 'l'에서 's'로 바꾸고 사용 후에는 다시 'l'로 바꾸기
 이 그래프는 경향만 비교해 볼 수 있는 그래프로 2개의 열의 차이가 확실하게 얼마인지는 모름
 ")
 
@@ -1587,7 +1621,7 @@ sel_data_mony <- apt_mony_data[,c("YEAR_MM",
                                   "APT_TRDE_IDEX",
                                   "HOUSE_MONY_IDEX",
                                   "APT_MONY_IDEX")]
-n_sel_data_mony <- n_change_data(sel_data_mony, c(13,2,2,2,3,3,3,3,3,9,0,0,0))
+n_sel_data_mony <- n_change_data(sel_data_mony, c(11,2,2,2,3,3,3,3,3,9,0,0,0))
 
 n_sel_data_train_momy <- tra_tes_split(n_sel_data_mony)[[1]] # train데이터
 n_sel_data_test_momy <- tra_tes_split(n_sel_data_mony)[[2]] # test데이터
@@ -1704,31 +1738,116 @@ comment("
 로 mse가 5정도 떨어짐
 ")
 
-# ---------------------------------아파트실거래가지수를 종속변수 + 범주형 회귀분석 끝(ppt 용)---------------------------------
-
-# ---------------------------------아파트실거래가지수를 종속변수 + 범주형 회귀분석 시작(실험 용)---------------------------------
 f_sel_data_mony <- f_apt_mony_data[,c("YEAR_MM",
                                       "STAN_INTR",
                                       "HOUSE_MORT_LOAN",
-                                      "REAL_CNSMP_TRL_IDEX",
-                                      "HOUSE_CNSMP_TRL_IDEX",
+                                      # "REAL_CNSMP_TRL_IDEX",
+                                      # "HOUSE_CNSMP_TRL_IDEX",
                                       "TRDE_CNSMP_TRL_IDEX",
-                                      "SECU_CNSMP_TRL_IDEX",
+                                      # "SECU_CNSMP_TRL_IDEX",
                                       "CNSMR_PRICES_IDEX",
                                       "ECO_CENT_IDEX",
                                       "BANK_DEPO",
                                       "BANK_LOAN",
                                       "EMPL_RAT",
-                                      "UN_EMPL_RAT",
-                                      "HOUSE_COUNT",
-                                      "APT_COUNT",
+                                      # "UN_EMPL_RAT",
+                                      # "HOUSE_COUNT",
+                                      # "APT_COUNT",
                                       "HOUSE_TRDE_COUNT",
                                       "APT_TRDE_COUNT",
-                                      "UN_SOLD_COUNT",
-                                      "APT_TRDE_IDEX",
+                                      # "UN_SOLD_COUNT",
+                                      # "APT_TRDE_IDEX",
                                       "HOUSE_MONY_IDEX",
                                       "APT_MONY_IDEX")]
-f_n_sel_data_mony <- n_change_data(f_sel_data_mony, rep(0,20))
+f_n_sel_data_mony <- n_change_data(f_sel_data_mony, c(11,0,11,0,4,6,6,7,0,0,0,0))
+
+f_n_sel_data_train_momy <- tra_tes_split(f_n_sel_data_mony)[[1]] # train데이터
+f_n_sel_data_test_momy <- tra_tes_split(f_n_sel_data_mony)[[2]] # test데이터
+
+f_n_sel_data_mony.mod <- model_return_mony(f_n_sel_data_mony)
+summary(f_n_sel_data_mony.mod)
+f_n_sel_data_pred_mony <- predict(f_n_sel_data_mony.mod, newdata = f_n_sel_data_test_momy)
+mse_mony(f_n_sel_data_test_momy, f_n_sel_data_pred_mony)
+pred_tru_mony(f_n_sel_data_test_momy, f_n_sel_data_pred_mony, "월 변동O + 변수선택법 + 범주형 + 종속변수 변경")
+comment("
+설명변수에는 주택매매소비심리지수와 경제심리지수빼고는 다 선택됨
+월 변동O + 변수선택법 + 범주형 + 종속변수 변경 => mse: 1.196295
+")
+
+f_sel_data_mony <- f_apt_mony_data[,c("YEAR_MM",
+                                      # "STAN_INTR",
+                                      "HOUSE_MORT_LOAN",
+                                      # "REAL_CNSMP_TRL_IDEX",
+                                      # "HOUSE_CNSMP_TRL_IDEX",
+                                      # "TRDE_CNSMP_TRL_IDEX",
+                                      # "SECU_CNSMP_TRL_IDEX",
+                                      "CNSMR_PRICES_IDEX",
+                                      # "ECO_CENT_IDEX",
+                                      "BANK_DEPO",
+                                      "BANK_LOAN",
+                                      "EMPL_RAT",
+                                      # "UN_EMPL_RAT",
+                                      # "HOUSE_COUNT",
+                                      # "APT_COUNT",
+                                      "HOUSE_TRDE_COUNT",
+                                      "APT_TRDE_COUNT",
+                                      # "UN_SOLD_COUNT",
+                                      # "APT_TRDE_IDEX",
+                                      "HOUSE_MONY_IDEX",
+                                      "APT_MONY_IDEX")]
+f_n_sel_data_mony <- n_change_data(f_sel_data_mony, c(0,0,6,6,7,0,0,0,0))
+table(f_n_sel_data_mony$HOUSE_TRDE_COUNT)
+f_n_sel_data_train_momy <- tra_tes_split(f_n_sel_data_mony)[[1]] # train데이터
+f_n_sel_data_test_momy <- tra_tes_split(f_n_sel_data_mony)[[2]] # test데이터
+
+f_n_sel_data_mony.mod <- model_return_mony(f_n_sel_data_mony)
+summary(f_n_sel_data_mony.mod)
+f_n_sel_data_pred_mony <- predict(f_n_sel_data_mony.mod, newdata = f_n_sel_data_test_momy)
+mse_mony(f_n_sel_data_test_momy, f_n_sel_data_pred_mony)
+pred_tru_mony(f_n_sel_data_test_momy, f_n_sel_data_pred_mony, "월 변동O + 변수선택법 + 범주형 + 종속변수 변경")
+comment("
+선택되지 못한 주택매매소비심리지수와 경제심리지수는 제거하고 p값이 높았던 기준금리를 빼고 예측모델을 만듬
+월 변동O + 변수선택법 + 범주형 + 종속변수 변경 => mse: 1.123004
+")
+
+# ---------------------------------아파트실거래가지수를 종속변수 + 범주형 회귀분석 끝(ppt 용)---------------------------------
+
+# ---------------------------------아파트실거래가지수를 종속변수 + 범주형 회귀분석 시작(실험 용)---------------------------------
+# n개월 변동 상관계수 비교
+## 범주형을 수치형으로 바꿔주기 위한 df복사
+f_apt_mony_data_copy <- f_apt_mony_data
+f_apt_mony_data_copy$APT_TRDE_COUNT <- as.numeric(f_apt_mony_data_copy$APT_TRDE_COUNT)
+
+for(i in 0:30){
+  cat(i, "개월의 상관계수는", cor(x_n_var(f_apt_mony_data_copy, "REAL_CNSMP_TRL_IDEX", i), y_n_var(f_apt_mony_data_copy, "APT_MONY_IDEX", i)),"입니다.", sep = "", end="\n")
+}
+comment("
+기준금리와 아파트실거래가지수 : 11개월에서 상관계수가 가장 높음 => -0.8354804
+부동산소비심리지수와 아파트실거래가지수 : 14개월에서 상관계수가 가장 높음 => 0.1413298
+")
+
+f_sel_data_mony <- f_apt_mony_data[,c("YEAR_MM",
+                                      "STAN_INTR",
+                                      "HOUSE_MORT_LOAN",
+                                      # "REAL_CNSMP_TRL_IDEX",
+                                      # "HOUSE_CNSMP_TRL_IDEX",
+                                      "TRDE_CNSMP_TRL_IDEX",
+                                      # "SECU_CNSMP_TRL_IDEX",
+                                      "CNSMR_PRICES_IDEX",
+                                      "ECO_CENT_IDEX",
+                                      "BANK_DEPO",
+                                      "BANK_LOAN",
+                                      "EMPL_RAT",
+                                      # "UN_EMPL_RAT",
+                                      # "HOUSE_COUNT",
+                                      # "APT_COUNT",
+                                      "HOUSE_TRDE_COUNT",
+                                      "APT_TRDE_COUNT",
+                                      # "UN_SOLD_COUNT",
+                                      # "APT_TRDE_IDEX",
+                                      "HOUSE_MONY_IDEX",
+                                      "APT_MONY_IDEX")]
+f_n_sel_data_mony <- n_change_data(f_sel_data_mony, c(11,0,11,0,4,6,6,7,0,0,0,0))
 
 f_n_sel_data_train_momy <- tra_tes_split(f_n_sel_data_mony)[[1]] # train데이터
 f_n_sel_data_test_momy <- tra_tes_split(f_n_sel_data_mony)[[2]] # test데이터
@@ -1739,7 +1858,7 @@ f_n_sel_data_pred_mony <- predict(f_n_sel_data_mony.mod, newdata = f_n_sel_data_
 mse_mony(f_n_sel_data_test_momy, f_n_sel_data_pred_mony)
 pred_tru_mony(f_n_sel_data_test_momy, f_n_sel_data_pred_mony, "아파트실거래가지수 종속변수 + 범주형")
 comment("
-월 변동x + 변수선택법 + 범주형 => mse: 28.42931
+월 변동x + 변수선택법 + 범주형 => mse: 2.005536
 ")
 
 # ---------------------------------아파트실거래가지수를 종속변수 + 범주형 회귀분석 끝(실험 용)---------------------------------
@@ -1768,10 +1887,11 @@ com_data_mony <- apt_mony_data[,c("YEAR_MM",
                                   "APT_MONY_IDEX")]
 n_com_data_mony <- n_change_data(com_data_mony, rep(0,20))
 
-n_com_ggplotly(n_com_data_mony, "APT_MONY_IDEX", "APT_TRDE_IDEX")
+n_com_ggplotly(n_com_data_mony, "HOUSE_TRDE_COUNT", "APT_MONY_IDEX")
 
 str(com_data_mony)
-# ---------------------------------하강 + 보합만의 데이터로 분석---------------------------------
+
+# ---------------------------------하강 + 보합만의 데이터로 분석(범주) 시작---------------------------------
 f_down_apt_mony_data <- f_apt_mony_data|>
   filter(REAL_CNSMP_TRL_IDEX!=2 & HOUSE_CNSMP_TRL_IDEX!=2 & TRDE_CNSMP_TRL_IDEX!=2 & SECU_CNSMP_TRL_IDEX!=2)
 
@@ -1789,7 +1909,30 @@ comment("
 summary(f_down_apt_mony_data.mod)
 comment("
 7열을 빼도 전전선택법에서 무한한 음의 값을 가져서 모델을 반환 받을 수 없음
+범주가 아닌 수치로 해봄봄
 ")
+
+# ---------------------------------하강 + 보합만의 데이터로 분석(범주) 끝---------------------------------
+
+# ---------------------------------하강 + 보합만의 데이터로 분석(수치) 시작---------------------------------
+down_apt_mony_data <- apt_mony_data|>
+  filter(REAL_CNSMP_TRL_IDEX<115 & HOUSE_CNSMP_TRL_IDEX<115 & TRDE_CNSMP_TRL_IDEX<115 & SECU_CNSMP_TRL_IDEX<115)
+
+down_apt_mony_data_train <- tra_tes_split(down_apt_mony_data)[[1]] # train데이터
+down_apt_mony_data_test <- tra_tes_split(down_apt_mony_data)[[2]] # test데이터
+
+str(down_apt_mony_data)
+View(down_apt_mony_data)
+comment("
+21개 열과 33개 행인 데이터 프레임
+")
+down_apt_mony_data.mod <- model_return_mony(down_apt_mony_data)
+comment("
+수치형으로도 AIC가 음의 무한값이 나옴
+train데이터로 훈련을 하면 오류가 나오지만 전체 데이터로 사용시 에는 오류가 나오지 않고 제대로 훈련됨
+")
+
+# ---------------------------------하강 + 보합만의 데이터로 분석(수치) 끝---------------------------------
 
 # ---------------------------------상승 + 보합만의 데이터로 분석(범주형) 시작---------------------------------
 f_up_apt_mony_data <- f_apt_mony_data|>
@@ -1813,15 +1956,3 @@ comment("
 mse가 6.409578이 나옴
 ")
 # ---------------------------------상승 + 보합만의 데이터로 분석(범주형) 끝---------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
