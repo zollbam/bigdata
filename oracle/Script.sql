@@ -1,6 +1,307 @@
+-- * 테이블 검색
+-- ** 모든열 검색
+SELECT *
+FROM HR.EMPLOYEES;
+
+-- ** 특정열 검색
+SELECT EMPLOYEE_ID , FIRST_NAME 
+FROM HR.EMPLOYEES ;
+
+-- ** 중복열 빼고 검색
+SELECT DISTINCT DEPARTMENT_ID
+FROM HR.EMPLOYEES ;
+
+-- *** 예제
+CREATE TABLE HR.EX_DISTINCT_TWO(
+    COL_FIR VARCHAR2(10),
+    COL_SEC VARCHAR2(10)
+);
+
+DROP TABLE HR.EX_DISTINCT_TWO;
+
+INSERT INTO HR.EX_DISTINCT_TWO VALUES('${COL_FIR}', '${COL_SEC}');
+
+SELECT  *
+FROM HR.EX_DISTINCT_TWO;
+
+SELECT DISTINCT COL_FIR, COL_SEC 
+FROM HR.EX_DISTINCT_TWO;
+/*
+중복데이터가 COL_FIR, COL_SEC 열 모두에 적용이 되어 2개열 모두 값이 같아야 하나의 열만 나오게 된다.
+COL_FIR가 AB, COL_SEC가 CD인 열이 2개 있어서 1개 행은 삭제되어 나온다.
+ */
+
+SELECT COL_FIR, DISTINCT COL_SEC 
+FROM HR.EX_DISTINCT_TWO;
+/*
+오류가 나온다.
+즉, DISTINCT는 따로 뺴내서는 사용 할 수 없다는 것을 확인했다.
+ */
+
+-- ** 조건에 맞는 데이터만 검색
+SELECT *
+FROM HR.EMPLOYEES 
+WHERE DEPARTMENT_ID = 50;
+
+SELECT EMPLOYEE_ID , LAST_NAME , PHONE_NUMBER , DEPARTMENT_ID 
+FROM HR.EMPLOYEES 
+WHERE DEPARTMENT_ID IN (50,90);
+
+SELECT EMPLOYEE_ID , FIRST_NAME , LAST_NAME , PHONE_NUMBER , DEPARTMENT_ID 
+FROM HR.EMPLOYEES 
+WHERE INITCAP(FIRST_NAME) = 'David';
+
+SELECT FIRST_NAME
+FROM HR.EMPLOYEES 
+WHERE UPPER(FIRST_NAME) = 'DAVID';
+
+SELECT FIRST_NAME
+FROM HR.EMPLOYEES 
+WHERE INITCAP(FIRST_NAME) = 'DAvid';
+/*
+= 은 대소문자를 구분하므로 INITCAP, UPPER, LOWER 등 함수를 잘 사용하여 검색을 해야 한다.
+ */
+
+SELECT lower(FIRST_NAME)
+FROM HR.EMPLOYEES ;
+
+-- ** 날짜 타입 검색
+SELECT HIRE_DATE
+FROM HR.EMPLOYEES 
+WHERE HIRE_DATE = '2006-04-06';
+/*
+NLS_DATE_FORMAT로 지정된 형태로 넣어야 된다.
+ */
+
+-- *** NLS_DATE_FORMAT에 지정된 날짜 형태
+SELECT PARAMETER, value
+FROM v$nls_parameters
+WHERE PARAMETER = 'NLS_DATE_FORMAT';
+
+-- *** NLS_DATE_FORMAT을 변경
+ALTER SESSION SET "NLS_DATE_FORMAT"='YY-MM-DD HH:MI:SS';
+ALTER SESSION SET "NLS_DATE_FORMAT"='RR/MM/DD';
+
+SELECT SYSDATE FROM dual;
+/*
+NLS_DATE_FORMAT을 바꾸어도 2023-03-16 13:58:50.000로 나옴
+ */
+
+CREATE TABLE HR.ex_date(
+   fir_DATE DATE
+);
+
+DROP TABLE HR.ex_date;
+
+INSERT INTO HR.ex_date VALUES('05/12/25');
+INSERT INTO HR.ex_date VALUES('2005-12-25');
+
+SELECT * FROM hr.EX_DATE;
+/*
+날짜 형태도 변경되지 않고 잘 모르겠다. 나중에 찾아보자!!
+ */
+
+-- ** null 검색
+SELECT LAST_NAME , DEPARTMENT_ID 
+FROM hr.EMPLOYEES 
+WHERE DEPARTMENT_ID IS NULL ;
+
+SELECT LAST_NAME , DEPARTMENT_ID 
+FROM hr.EMPLOYEES 
+WHERE DEPARTMENT_ID IS NOT NULL ;
+
+-- **논리연산자
+-- *** AND
+SELECT LAST_NAME , FIRST_NAME ,SALARY ,DEPARTMENT_ID 
+FROM hr.EMPLOYEES
+WHERE DEPARTMENT_ID = 50 AND SALARY >= 5000;
+/*
+DEPARTMENT_ID가 50이면서 SALARY 5000이상인 데이터를 검색
+ */
+
+-- *** OR
+SELECT LAST_NAME , FIRST_NAME ,SALARY ,DEPARTMENT_ID 
+FROM hr.EMPLOYEES
+WHERE DEPARTMENT_ID = 50 OR SALARY > 5000;
+/*
+DEPARTMENT_ID가 50이거나 SALARY 5000이상인 데이터를 검색하므로
+AND보다 많은 양의 row가 출력 된 것을 확인 할 수 있다.
+ */
+
+-- * 테이블 정렬
+-- ** 하나의 열(오름차순)
+SELECT DISTINCT DEPARTMENT_ID 
+FROM hr.EMPLOYEES 
+ORDER BY DEPARTMENT_ID ;
+
+-- ** 하나의 열(내림차순)
+SELECT DISTINCT DEPARTMENT_ID 
+FROM hr.EMPLOYEES 
+ORDER BY DEPARTMENT_ID DESC;
+
+-- ** 여러 개의 열
+SELECT FIRST_NAME , DEPARTMENT_ID
+FROM hr.EMPLOYEES 
+ORDER BY DEPARTMENT_ID DESC, FIRST_NAME ;
+/*
+첫번째로 DEPARTMENT_ID를 내림차순 같은 값이 있을 경우 FIRST_NAME로 오름차순
+ */
+
+SELECT FIRST_NAME , DEPARTMENT_ID
+FROM hr.EMPLOYEES 
+ORDER BY DEPARTMENT_ID , FIRST_NAME DESC ;
+/*
+첫번째로 DEPARTMENT_ID를 오름차순 같은 값이 있을 경우 FIRST_NAME로 내림차순
+ */
+
+SELECT FIRST_NAME , DEPARTMENT_ID
+FROM hr.EMPLOYEES 
+ORDER BY DEPARTMENT_ID DESC , FIRST_NAME DESC ;
+/*
+첫번째로 DEPARTMENT_ID를 내림차순 같은 값이 있을 경우 FIRST_NAME로 내림차순
+ */
+
+-- * 데이터 사전
+-- ** 데이터 사전의 이름과 해당 설명
+SELECT * FROM dictionary;
+
+-- ** 해당 유저의 객체에 대한 정보
+SELECT *
+FROM USER_OBJECTS;
+
+-- ** HR이 가지고 있는 권한
+SELECT *
+FROM dba_sys_PRIVS
+WHERE grantee='HR';
+
+-- ** SCOTT이 가지고 있는 테이블
+SELECT *
+FROM all_tables
+WHERE OWNER = 'SCOTT';
+
+-- * 연습문제
+-- ** 1번
+SELECT FIRST_NAME ,LAST_NAME 
+FROM hr.EMPLOYEES;
+
+-- ** 2번
+SELECT FIRST_NAME ,LAST_NAME 
+FROM hr.EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+
+-- *** cmd로 계정을 접속 후
+/*
+list를 치면
+SELECT FIRST_NAME ,LAST_NAME 
+FROM hr.EMPLOYEES
+WHERE DEPARTMENT_ID = 50; 보이게 하고
+
+save REG1을 치면 파일이 저장된다.
+ */
+
+-- ** 3번
+-- *** cmd로 계정을 접속 후
+/*
+run REG1하면 파일을 불러온다.
+@REG1을 치면 파일의 결과가 출력된다.
+ */
+
+-- ** 4번
+SELECT FIRST_NAME sung ,LAST_NAME name
+FROM hr.EMPLOYEES;
+
+-- ** 5번
+SELECT DISTINCT DEPARTMENT_ID 
+FROM hr.EMPLOYEES;
+
+-- ** 6번
+SELECT SALARY 
+FROM hr.EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+
+-- ** 7번
+SELECT FIRST_NAME , SALARY  
+FROM hr.EMPLOYEES
+WHERE FIRST_NAME  = 'David';
+
+-- ** 8번
+SELECT FIRST_NAME , SALARY , HIRE_DATE 
+FROM hr.EMPLOYEES
+WHERE HIRE_DATE  > '2005-09-01'
+ORDER BY HIRE_DATE ;
+
+-- ** 9번
+SELECT FIRST_NAME , SALARY , HIRE_DATE 
+FROM hr.EMPLOYEES
+WHERE SALARY NOT BETWEEN 5000 AND 10000
+ORDER BY SALARY ;
+
+-- ** 10번
+SELECT FIRST_NAME , SALARY , DEPARTMENT_ID  
+FROM hr.EMPLOYEES
+WHERE FIRST_NAME LIKE '%se%';
+
+-- ** 11번
+SELECT FIRST_NAME , SALARY , DEPARTMENT_ID  
+FROM hr.EMPLOYEES
+WHERE FIRST_NAME LIKE '_a___';
+
+SELECT FIRST_NAME , SALARY , DEPARTMENT_ID  
+FROM hr.EMPLOYEES
+WHERE FIRST_NAME LIKE 'A____';
+
+-- * 데이터 INSERT 하기
+CREATE TABLE HR.EX_INSERT AS (SELECT * 
+                                                           FROM HR.EMPLOYEES
+                                                           WHERE DEPARTMENT_ID = 1000);
+
+ DROP TABLE hr.EX_INSERT ;
+ /*
+ EMPLOYEES의 구조만 복사 했다.
+  */
+
+ALTER TABLE HR.EX_INSERT MODIFY LAST_NAME VARCHAR2(25) NULL;
+ALTER TABLE HR.EX_INSERT MODIFY EMAIL VARCHAR2(25) NULL;
+ALTER TABLE HR.EX_INSERT MODIFY HIRE_DATE DATE NULL;
+ALTER TABLE HR.EX_INSERT MODIFY JOB_ID VARCHAR2(10) NULL;
+ /*
+NOT NULL로 되어 있는 열들이 있어서 열타입을 변경 해 주었습니다.
+  */
+
+INSERT INTO hr.EX_INSERT(LAST_NAME, FIRST_NAME, HIRE_DATE, MANAGER_ID, DEPARTMENT_ID)
+VALUES('Hering','Elizabeth',sysdate, 108, 30);
+
+INSERT  INTO hr.EX_INSERT(LAST_NAME, FIRST_NAME, HIRE_DATE, MANAGER_ID, DEPARTMENT_ID) 
+VALUES ('${LAST_NAME}', '${FIRST_NAME}', sysdate, ${MANAGER_ID}, ${DEPARTMENT_ID});
+
+-- * 데이터 UPDATE 하기
+UPDATE hr.EX_INSERT SET MANAGER_ID = 130 WHERE LAST_NAME = 'Hering';
+
+-- * 데이터 DELETE 하기
+DELETE FROM hr.EX_INSERT WHERE MANAGER_ID=128;
+
+-- * 테이블 확인
+SELECT LAST_NAME, FIRST_NAME, HIRE_DATE, MANAGER_ID, DEPARTMENT_ID
+FROM hr.EX_INSERT;
+
+-- * 트랜잭션
+ /*
+상단의 데이터베이스를 눌러 트랜잭션 모드를 manual commit으로 체크를 하자!!
+  */
+INSERT  INTO hr.EX_INSERT(LAST_NAME, FIRST_NAME, HIRE_DATE, MANAGER_ID, DEPARTMENT_ID) 
+VALUES ('${LAST_NAME}', '${FIRST_NAME}', sysdate, ${MANAGER_ID}, ${DEPARTMENT_ID});
+
+DELETE FROM hr.EX_INSERT WHERE MANAGER_ID=115;
+
+UPDATE hr.EX_INSERT SET DEPARTMENT_ID = 200 WHERE FIRST_NAME ='Kim';
+
+ /*
+commit 이나 DCL, DDL문을 실행시키지 않는 이상 변화된 데이터는 나만 볼 수 있다.
+  */
+
 -- *외부변수 삽입하기
 INSERT  INTO REGIONS(region_id, REGION_NAME) VALUES (${region_id}, '${region_name}');
-SELECT * FROM REGIONS ;
+SELECT * FROM hr.REGIONS ;
 /*
 cmd에서는 INSERT  INTO REGIONS(region_id, REGION_NAME) VALUES (&region_id, '&region_name');로 해야하는데
 디비버에서는 안 되므로 https://digndig.kr/sql/2021/10/06/SQL_BindingVariables.html 를 찾아본 결과 $를 이용한 바인드 방법을 찾음
@@ -8,7 +309,7 @@ cmd에서는 INSERT  INTO REGIONS(region_id, REGION_NAME) VALUES (&region_id, '&reg
 */
 
 -- *연습문제
--- **테이블 생성
+-- ** 1번
 CREATE TABLE customer
 (ID NUMBER(4) CONSTRAINT customer_id_pk PRIMARY KEY,
  NAME varchar(40),
@@ -16,30 +317,45 @@ CREATE TABLE customer
  COUNTRY varchar(40),
  CREDIT_RATING varchar(40));
 
--- **테이블 삭제 => 데이터만
 DELETE from CUSTOMER;
+/*
+DML문
+테이블 안의 데이터만 삭제
+ */
 
--- **테이블 삭제 => 테이블 자체 삭제
 DROP TABLE CUSTOMER;
+/*
+DDL문
+테이블 자체를 삭제
+ */
 
--- **테이블 확인
+-- *** 테이블 확인
 SELECT * FROM CUSTOMER ;
 
--- **데이터 삽입
+-- ** 2번
 INSERT INTO CUSTOMER VALUES (201,'Unisports','55-206610','Sao Paolo ,Brazil','EXCELL');
+
+-- ** 3번 
 INSERT INTO CUSTOMER(id,phone,CREDIT_RATING,NAME,COUNTRY) VALUES (202,'81-20101','POOR','OJ Atheletics','Osaka, Japan');
+
+-- ** 4번
+SELECT * FROM CUSTOMER ;
+
+-- ** 5번
+UPDATE customer SET phone = '55-123456' WHERE id=201;
+
+-- ** 6번
 INSERT INTO CUSTOMER VALUES (206,'Sportique','33-225720','Cannes, France','EXCELL');
 INSERT INTO CUSTOMER VALUES (214,'Ojibway Retail','1-716-555','Buffalo, new york, USA','GOOD');
 INSERT INTO CUSTOMER VALUES (${id},'${name}','${PHONE}','${COUNTRY}','${CREDIT_RATING}');
 
--- **데이터 변경
-UPDATE CUSTOMER SET phone = '55-123456' WHERE id=201;
+-- ** 7번
 UPDATE CUSTOMER SET credit_rating = 'GOOD' WHERE credit_rating = 'EXCELL';
 
--- **커밋
+-- ** 8번
 COMMIT;
 
--- **모든 데이터 삭제
+-- ** 9번
 DELETE from CUSTOMER;
 TRUNCATE TABLE CUSTOMER;
 /*
@@ -1170,6 +1486,41 @@ inner join한 테이블을 empdepv라는 뷰로 생성하였습니다.
 
 -- ** 뷰 불러오기
 SELECT * FROM empdepvu;
+
+
+
+
+
+
+
+
+-- ** 
+SELECT 1 FROM hr.EMPLOYEES emp , hr.DEPARTMENTS dep WHERE emp.DEPARTMENT_ID = dep.DEPARTMENT_ID;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
