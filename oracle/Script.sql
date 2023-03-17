@@ -310,54 +310,54 @@ cmd에서는 INSERT  INTO REGIONS(region_id, REGION_NAME) VALUES (&region_id, '&reg
 
 -- *연습문제
 -- ** 1번
-CREATE TABLE customer
+CREATE TABLE HR.customer
 (ID NUMBER(4) CONSTRAINT customer_id_pk PRIMARY KEY,
  NAME varchar(40),
  PHONE varchar(40),
  COUNTRY varchar(40),
  CREDIT_RATING varchar(40));
 
-DELETE from CUSTOMER;
+DELETE from HR.customer;
 /*
 DML문
 테이블 안의 데이터만 삭제
  */
 
-DROP TABLE CUSTOMER;
+DROP TABLE HR.customer;
 /*
 DDL문
 테이블 자체를 삭제
  */
 
 -- *** 테이블 확인
-SELECT * FROM CUSTOMER ;
+SELECT * FROM HR.customer ;
 
 -- ** 2번
-INSERT INTO CUSTOMER VALUES (201,'Unisports','55-206610','Sao Paolo ,Brazil','EXCELL');
+INSERT INTO HR.customer VALUES (201,'Unisports','55-206610','Sao Paolo ,Brazil','EXCELL');
 
 -- ** 3번 
-INSERT INTO CUSTOMER(id,phone,CREDIT_RATING,NAME,COUNTRY) VALUES (202,'81-20101','POOR','OJ Atheletics','Osaka, Japan');
+INSERT INTO HR.customer(id,phone,CREDIT_RATING,NAME,COUNTRY) VALUES (202,'81-20101','POOR','OJ Atheletics','Osaka, Japan');
 
 -- ** 4번
-SELECT * FROM CUSTOMER ;
+SELECT * FROM HR.customer ;
 
 -- ** 5번
-UPDATE customer SET phone = '55-123456' WHERE id=201;
+UPDATE HR.customer SET phone = '55-123456' WHERE id=201;
 
 -- ** 6번
-INSERT INTO CUSTOMER VALUES (206,'Sportique','33-225720','Cannes, France','EXCELL');
-INSERT INTO CUSTOMER VALUES (214,'Ojibway Retail','1-716-555','Buffalo, new york, USA','GOOD');
-INSERT INTO CUSTOMER VALUES (${id},'${name}','${PHONE}','${COUNTRY}','${CREDIT_RATING}');
+INSERT INTO HR.customer VALUES (206,'Sportique','33-225720','Cannes, France','EXCELL');
+INSERT INTO HR.customer VALUES (214,'Ojibway Retail','1-716-555','Buffalo, new york, USA','GOOD');
+INSERT INTO HR.customer VALUES (${id},'${name}','${PHONE}','${COUNTRY}','${CREDIT_RATING}');
 
 -- ** 7번
-UPDATE CUSTOMER SET credit_rating = 'GOOD' WHERE credit_rating = 'EXCELL';
+UPDATE HR.customer SET credit_rating = 'GOOD' WHERE credit_rating = 'EXCELL';
 
 -- ** 8번
 COMMIT;
 
 -- ** 9번
-DELETE from CUSTOMER;
-TRUNCATE TABLE CUSTOMER;
+DELETE from HR.customer;
+TRUNCATE TABLE HR.customer;
 /*
 TRUNCATE는 롤백을 해도 소용이 없이 싹지워 버림
 롤백을 하기 위해서는 DELETE from으로 삭제 하자
@@ -367,7 +367,7 @@ TRUNCATE는 롤백을 해도 소용이 없이 싹지워 버림
 ROLLBACK;
 
 -- *테이블 생성
-CREATE TABLE s_emp(
+CREATE TABLE hr.s_emp(
 id varchar2(7),
 last_name varchar2(25) CONSTRAINT s_emp_last_name_nn NOT NULL,
 FIRST_name varchar2(25),
@@ -382,6 +382,8 @@ commision_pct NUMBER(4,2),
  CONSTRAINT s_emp_id_pk PRIMARY KEY (id),
  CONSTRAINT s_emp_userid_u unique (userid),
  CONSTRAINT s_emp_commision_pct_ck CHECK (commision_pct IN (10,12.5,15,17.5,20)));
+
+DROP TABLE hr.s_emp;
 /*
 CONSTRAINT 변수 설정할 때 같이 쓸수도 있고 마지막에 적는 것도 가능
 열이름 열타입 제약조건 순서대로 적어야 함
@@ -389,36 +391,36 @@ cmd랑 같이 열려 있어서 인지 끄자마자 바로 테이블이 생성
 cmd가 켜져 있었을 때는 시간만 계속 흐르고 생성이 되지 않았음
 */
 
-SELECT * FROM s_emp;
+SELECT * FROM hr.s_emp;
 
 -- * 테이블 구조 변경
-ALTER TABLE s_emp ADD (comments_two varchar2(255));
+ALTER TABLE hr.s_emp ADD (comments_two varchar2(255));
 /*
 varchar2타입인 comments2열을 추가
 */
 
-ALTER TABLE s_emp MODIFY (comments_two varchar2(100));
+ALTER TABLE hr.s_emp MODIFY (comments_two varchar2(100));
 /*
 comments2열의 타입을 수정
 255자리에서 100자리로 수정
 */
 
 -- * 데이터 제약조건 추가
-ALTER TABLE s_emp ADD CONSTRAINT s_emp_manager_id_fk FOREIGN KEY (manager_id) REFERENCES s_emp(id);
+ALTER TABLE hr.s_emp ADD CONSTRAINT s_emp_manager_id_fk FOREIGN KEY (manager_id) REFERENCES hr.s_emp(id);
 /*
 오류가 나오는 이유는 s_emp의 id와 manager_id가 서로 다른 타입이라서
 그러면 manager_id를 number에서 char타입으로 변경
  */
 
-ALTER TABLE s_emp MODIFY (manager_id varchar2(7));
-ALTER TABLE s_emp ADD CONSTRAINT s_emp_manager_id_fk FOREIGN KEY (manager_id) REFERENCES s_emp(id);
+ALTER TABLE hr.s_emp MODIFY (manager_id varchar2(7));
+ALTER TABLE hr.s_emp ADD CONSTRAINT s_emp_manager_id_fk FOREIGN KEY (manager_id) REFERENCES hr.s_emp(id);
 /*
 타입을 똑같이 맞춘 다음에는 오류가 나오지 않고 바로 실행이 됨
 s_emp의 manager_id는 s_emp의 id열을 참조 하여 생성
  */
 
 -- * 데이터 제약조건 삭제
-ALTER TABLE s_emp DROP CONSTRAINT s_emp_manager_id_fk;
+ALTER TABLE hr.s_emp DROP CONSTRAINT s_emp_manager_id_fk;
 /*
 alter table [테이블명] drop constraint 제약조건명;
  */
@@ -429,13 +431,42 @@ describe user_constraints;
 디비버에서는 잘못된 구문이라고 결과가 출력이 안됨
  */
 
+SELECT * 
+FROM all_constraints
+WHERE OWNER = 'HR' AND TABLE_name='S_EMP';
+
 SELECT * FROM USER_constraints;
+
+SELECT * FROM DBA_constraints WHERE OWNER = 'HR';
+
+SELECT COUNT(*) FROM all_constraints;
+/*
+모든 유저의 제약조건을 다 보여준다.
+7248개 행이 있다.
+ */
+
+SELECT COUNT(*) FROM USER_constraints;
+/*
+연결된 DB가 SYSTEM이라 SYSTEM에 대한 제약조건만 보여 준다.
+376개 행이 있다.
+ */
+
+SELECT COUNT(*) FROM DBA_constraints;
+/*
+DB의 제약조건을 다 보여준다.
+7248개 행이 있다.
+ */
+
 SELECT * FROM USER_cons_columns;
+
+SELECT * 
+FROM ALL_CONS_COLUMNS 
+WHERE OWNER = 'HR' AND TABLE_NAME='S_EMP';
 
 -- * 뷰 생성
 CREATE VIEW empvu10
 AS SELECT id, last_name, title
-FROM S_EMP 
+FROM HR.S_EMP 
 WHERE dept_id='10';
 /*
 열이름은 s_emp와 동일하게 나옴
@@ -443,7 +474,7 @@ WHERE dept_id='10';
 
 CREATE VIEW empvu20(id_number, emplooyee,job)
 AS SELECT id, last_name, title
-FROM S_EMP;
+FROM HR.S_EMP ;
 /*
 열이름이 id_number, emplooyee,job로 변경되어 나옴
  */
@@ -462,9 +493,9 @@ SELECT * from empvu30;
 
 -- * 시퀀스 생성
 -- ** 예제 1
-DROP SEQUENCE s_dept_id;
+DROP SEQUENCE hr.s_dept_id;
 
-CREATE SEQUENCE s_dept_id
+CREATE SEQUENCE HR.s_dept_id
 MAXVALUE 9999999
 INCREMENT BY 10
 START WITH 10
@@ -478,36 +509,38 @@ CYCLE: 최대값 도달시 최소값부터 다시 할당
 NOCYCLE: 최대값 도달시 시퀀스 생성 중지
  */
 
-CREATE TABLE s_demp AS SELECT * FROM DEPARTMENTS WHERE DEPARTMENT_ID = 300;
+CREATE TABLE hr.s_demp AS SELECT * FROM hr.DEPARTMENTS WHERE DEPARTMENT_ID = 300;
 /*
 연습을 해보기위해 DEPARTMENTS테이블의 구조만 복사
  */
 
-INSERT INTO s_demp VALUES(s_dept_id.NEXTVAL, 'abc', 1, 2700); --다음값
-INSERT INTO s_demp VALUES(s_dept_id.CURRVAL, 'pc', 3, 1400); -- 현재값
+INSERT INTO hr.s_demp VALUES(HR.s_dept_id.NEXTVAL, 'abc', 1, 2700); --다음값
+INSERT INTO hr.s_demp VALUES(HR.s_dept_id.CURRVAL, 'pc', 3, 1400); -- 현재값
 /*
 시퀀스를 이용하여 s_dept_id열에 만든 시퀀스 순서대로 값이 입력됨
  */
 
-SELECT * FROM s_demp;
-DROP TABLE s_demp;
+SELECT * FROM hr.s_demp;
+DROP TABLE hr.s_demp;
 
 -- ** 예제 2
-CREATE TABLE ex_sequ_tb(
+CREATE TABLE hr.ex_sequ_tb(
    num NUMBER(4)
  );
 
-SELECT * FROM ex_sequ_tb;
+SELECT * FROM hr.ex_sequ_tb;
 
-DELETE FROM ex_sequ_tb WHERE num = 6;
+DELETE FROM hr.ex_sequ_tb WHERE num = 6;
 
-SELECT * FROM all_sequences WHERE SEQUENCE_OWNER='HR';
+SELECT *
+FROM DBA_SEQUENCES
+WHERE SEQUENCE_OWNER='HR';
 /*
 시퀀스의 개념을 알기 위해 한 열만 있는 테이블 만듬
  */
 
 -- *** 시퀀스 생성
-CREATE SEQUENCE ex_sequ
+CREATE SEQUENCE HR.ex_sequ
 MAXVALUE 10
 MINVALUE 1
 INCREMENT BY 1
@@ -516,35 +549,43 @@ nocache
 cycle;
 
 -- *** 변경
-ALTER SEQUENCE ex_sequ
+ALTER SEQUENCE HR.ex_sequ
 ORDER;
 
 -- *** 삭제
-DROP SEQUENCE ex_sequ;
+DROP SEQUENCE HR.ex_sequ;
 
 -- *** 테이블에 값 추가
-INSERT INTO ex_sequ_tb VALUES(ex_sequ.nextval);
-INSERT INTO ex_sequ_tb VALUES(ex_sequ.currval);
+INSERT INTO hr.ex_sequ_tb VALUES(hr.ex_sequ.nextval);
+INSERT INTO hr.ex_sequ_tb VALUES(HR.ex_sequ.currval);
+
+SELECT * FROM hr.ex_sequ_tb;
 
 -- * 시퀀스 수정
 /*
 start with 옵션은 수정이 불가능
  */
-ALTER SEQUENCE s_dept_id
+ALTER SEQUENCE hr.s_dept_id
 MAXVALUE 900
-MINVALUE 800
-INCREMENT BY 1
+MINVALUE 1
+INCREMENT BY 1;
 
 -- * 인덱스
 /*
 인덱스란 데이터가 위치한 장소의 정보를 가진 일종의 주소록
 데이터의 주소 ROWID를 가지고 있습니다.
  */
-CREATE INDEX s_emp_last_name_i
-ON s_emp(last_name);
+CREATE INDEX HR.s_emp_last_name_i
+ON HR.s_emp(last_name);
 
-CREATE UNIQUE INDEX s_customer_phone_uk
-ON customer(phone);
+CREATE UNIQUE INDEX HR.s_customer_ID_uk
+ON HR.customer(ID);
+
+CREATE INDEX HR.s_customer_NAME_I
+ON HR.customer(NAME);
+
+CREATE UNIQUE INDEX HR.s_customer_phone_uk
+ON HR.customer(phone);
 /*
 고객테이불에 전화번호는 중복될 수 없다.
 primary키나 unique제약 조건을 주면 unique index는 자동적으로 만들어 짐
@@ -560,7 +601,9 @@ SELECT * FROM all_all_tables WHERE OWNER = 'HR';
 
 SELECT * FROM user_objects;
 
-SELECT * FROM all_indexes WHERE table_name = 'S_EMP'; 
+SELECT * 
+FROM all_indexes 
+WHERE table_name = 'S_EMP';
 /*
 꼭 대문자로 입력을 하자!!!
 s_emp로 하면 아무것도 출력되지 않는다.
@@ -568,24 +611,24 @@ s_emp로 하면 아무것도 출력되지 않는다.
 
 -- * 연습문제
 -- ** 1번
-CREATE SEQUENCE S_MY_CUSTOMER_ID
+CREATE SEQUENCE HR.S_MY_CUSTOMER_ID
 START WITH 300
 INCREMENT BY 1
 nocache;
 
 -- ** 2번
-CREATE TABLE ex_custo(
+CREATE TABLE HR.ex_custo(
     num NUMBER(4),
     name varchar2(50)
 );
 
-SELECT * FROM ex_custo;
+SELECT * FROM HR.ex_custo;
 
-DROP TABLE ex_custo;
+DROP TABLE HR.ex_custo;
 
-INSERT INTO ex_custo VALUES(S_MY_CUSTOMER_ID.nextval,'gy');
-INSERT INTO ex_custo VALUES(S_MY_CUSTOMER_ID.nextval,'zb');
-INSERT INTO ex_custo VALUES(S_MY_CUSTOMER_ID.nextval,'apple');
+INSERT INTO HR.ex_custo VALUES(HR.S_MY_CUSTOMER_ID.nextval,'gy');
+INSERT INTO HR.ex_custo VALUES(HR.S_MY_CUSTOMER_ID.nextval,'zb');
+INSERT INTO HR.ex_custo VALUES(HR.S_MY_CUSTOMER_ID.nextval,'apple');
 
 -- ** 3번
 SELECT * FROM all_indexes WHERE OWNER='HR' AND table_name = 'CUSTOMER' ORDER BY index_name;
@@ -594,29 +637,35 @@ HR의 CUSTOMER테이블에 있는 모든 인덱스 정보를 확인 할 수 있다.
 인덱스의 이름으로 id, name, phone이 인덱스로 지정 되는 것도 확인할 수 있다.
  */
 
-CREATE INDEX CUSTOMER_NAME_I
-ON customer(name);
+CREATE INDEX HR.CUSTOMER_NAME_I
+ON HR.customer(name);
 /*
 customer테이블의 name열을 이용해서 인덱스를 생성했다.
  */
 
-SELECT rowid, ID FROM customer;
-SELECT rowid, name FROM customer;
-SELECT rowid, COUNTRY  FROM customer;
+SELECT rowid, ID FROM HR.customer;
+SELECT rowid, name FROM HR.customer;
+SELECT rowid, COUNTRY  FROM HR.customer;
 /*
 인덱스의 rowid(주소)와 키값을 확인해보자!!
 COUNTRY는 인덱스가 없는데도 나온다.
 인덱스가 생겼다고 실행되는 쿼리가 아니라 일반적으로 다 볼 수 있다는 것을 확인 했습니다.
  */
 
-SELECT /*+ index(customer CUSTOMER_NAME_I) */*
-FROM customer;
+SELECT *
+FROM HR.customer;
+
+SELECT /*+ INDEX_DESC(CUSTOMER s_customer_NAME_I) */ ID, NAME, PHONE, COUNTRY, CREDIT_RATING
+FROM HR.customer;
+
+SELECT /*+ INDEX_ASC(HR.CUSTOMER HR.s_customer_ID_UK) */ ID
+FROM HR.customer;
 /*
 인덱스의 힌트 주석을 하는 거라는데 잘 모르겠다.....
  */
 
 -- ** 4번
-DROP INDEX CUSTOMER_NAME_I;
+DROP INDEX HR.CUSTOMER_NAME_I;
 
 -- * 사용자 권한 제어
 -- ** 문법
@@ -636,21 +685,26 @@ ALTER SESSION SET "_ORACLE_SCRIPT"=TRUE;
 오라클 12c로 넘어오면서 이렇게 해야 공통 사용자를 생성가능하다.
  */
 
+CREATE USER gy IDENTIFIED BY 9333;
+
 GRANT unlimited tablespace TO gy;
+REVOKE UNLIMITED TABLESPACE FROM GY;
 /*
 테이블 등을 받기 위해 tablespace에 대한 무제한 사용권한을 주고자 할 때 사용
 이 쿼리가 없으면 다른 DB에서 데이터를 받을 수 없다.
  */
 
-CREATE USER gy IDENTIFIED BY 9333;
-
 -- ** 시스템 권한 부여
-GRANT CREATE SESSION, CREATE TABLE TO gy;
+GRANT CREATE SESSION, CREATE TABLE TO gy WITH ADMIN OPTION;
+REVOKE CREATE SESSION, CREATE TABLE FROM GY;
 /*
 GY사용자에게 SESSION과 TABLE을 생성할 수 있는 권한을 주었다.
+WITH ADMIN OPTION으로 GY은 다른 사용자에게도 같은 권한을 부여 할 수 있는 권한을 얻었다.
+REVOKE문에서 WITH ADMIN OPTION사용하면 오류가 나온다.
  */
 
 GRANT ALTER any TABLE TO gy;
+REVOKE ALTER ANY TABLE FROM GY;
 /*
 테이블을 변경(alter)할 수 있는 권한을 gy에게 넘겨주었다.
  */
@@ -668,27 +722,35 @@ sys.을 앞에 붙이거나 안 붙이거나 동일한 출력값이 나온다.
  */
 
 -- ** 객체 권한 주기
-GRANT  SELECT, INSERT, UPDATE ON CUSTOMER TO GY;
+GRANT  SELECT, INSERT, UPDATE ON HR.CUSTOMER TO GY;
+REVOKE  SELECT, INSERT, UPDATE ON HR.CUSTOMER FROM GY;
 /*
 GY유저의 CUSTOMER테이블에 select, insert, update에 대한 권한을 얻었다.
  */
 
-GRANT  SELECT, INSERT, UPDATE ON employees TO GY WITH GRANT OPTION;
+GRANT  SELECT, INSERT, UPDATE ON HR.employees TO GY WITH GRANT OPTION;
+REVOKE  SELECT, INSERT, UPDATE ON HR.employees FROM GY;
 /*
 GY유저의 employees테이블에 SELECT, INSERT, UPDATE할수 있고 이것을 다른 사용자에게 줄 수 도 있다.
 GY유저의 권한을 회수 당하면 GY유저가 다른 유저에게 주었던 모든 권한도 모두 회수한다.
  */
 
 -- ** 잘못된 객체 권한 주기
-CREATE SEQUENCE ex_sequ1
+CREATE SEQUENCE HR.ex_sequ1
 START WITH 1
 INCREMENT BY 2
 MAXVALUE 10;
 
-GRANT  delete ON ex_sequ1 TO GY;
+GRANT  delete ON HR.ex_sequ1 TO GY;
+REVOKE delete ON HR.ex_sequ1 FROM GY;
 /*
 시퀀스는 select과 alter만 사용할 수 있다고 오류메세지가 나옴
 ORA-02205: SELECT 와 ALTER 권한만이 시퀀스에 대하여 사용할 수 있습니다.
+ */
+
+GRANT  SELECT  ON HR.ex_sequ1 TO GY;
+/*
+오류가 나지 않는다.
  */
 
 SELECT * FROM dba_tab_privs;
@@ -696,7 +758,7 @@ SELECT * FROM dba_tab_privs WHERE OWNER = 'HR';
 SELECT * FROM dba_tab_privs WHERE GRANTEE = 'GY';
 /*
 dba_tab_privs_made으로 all_이나 user_로는 확인 할 수 없었던 다른 사용자의 테이블이 확인 가능 하다.
-OWNER은 HR이 권한을 주었기 때문에 GY로 해야한다.
+OWNER은 HR이 권한을 주었기 때문에 HR로 해야한다.
 GRANTEE는 권한을 받은 사람이었기 때문에 GY로 한다.
  */
 
@@ -731,21 +793,37 @@ synonym은 데이터베이스 내의 객체들에 대한 별명이다
  */
 
 -- ** 시노님 생성
-CREATE synonym ex_syno_cuto
-FOR gy.customer;
+CREATE synonym HR.ex_syno_cuto
+FOR hr.customer;
 /*
 기본적으로 private형태로 만들어진다.
  */
 
-DROP SYNONYM ex_syno_cuto;
+SELECT * FROM HR.ex_syno_cuto;
 
-CREATE public synonym ex_pu_syno_cuto
-FOR gy.customer;
+DROP SYNONYM hr.ex_syno_cuto;
+
+CREATE public SYNONYM ex_pu_syno_cuto
+FOR HR.customer;
 /*
 public으로 만들면 모든 스키마에서 해당 시노님을 사용할 수 있다.
  */
 
-DROP public SYNONYM ex_syno_cuto;
+SELECT * FROM ex_pu_syno_cuto;
+/*
+다른 스키마로 연동해 실행하면 오류없이 나온다.
+ */
+
+SELECT * FROM hr.ex_pu_syno_cuto;
+/*
+하지만 system에서 이 쿼리를 실행하면 오류가 나온다.
+hr스키마 안에 있는 테이블이 아니므로
+ */
+
+DROP public SYNONYM ex_pu_syno_cuto;
+/*
+public을 써주어야 삭제 가능
+ */
 
 -- * 권한 삭제
 -- ** 시스템 권한 확인
@@ -754,6 +832,7 @@ SELECT * FROM dba_sys_privs WHERE GRANTEE = 'GY';
 -- ** 시스템 권한 삭제
 ALTER SESSION SET "_ORACLE_SCRIPT"=TRUE;
 REVOKE CREATE TABLE, ALTER ANY TABLE, CREATE SESSION FROM gy;
+REVOKE unlimited tablespace FROM gy;
 /*
 ALTER SESSION SET "_ORACLE_SCRIPT"=true;을 하지 않으면 오류가나옴
 ORA-65092: 서로 다른 범위로~~이라는 오류 메세지가 나온다.
@@ -766,7 +845,9 @@ HR이 GY한테 준 권한이 CUSTOMER테이블에서 SELECT, INSERT, UPDATE 이 3개가 나온다.
  */
 
 -- ** 객체 권한 삭제
-REVOKE  SELECT, INSERT, UPDATE ON CUSTOMER FROM GY;
+REVOKE  SELECT, INSERT, UPDATE ON hr.CUSTOMER FROM GY;
+REVOKE  SELECT, INSERT, UPDATE ON hr.EMPLOYEES  FROM GY;
+REVOKE  SELECT ON hr.EX_SEQU1 FROM GY;
 
 -- * role을 통한 궈한 제어
 /*
@@ -776,6 +857,11 @@ role은 데이터 사전에만 기록된다.
  */
 
 -- ** 비밀번호 없는 role 생성
+CREATE ROLE hr.ex_role1;
+/*
+ROLE은 특정 소유자가 소지 할 수 없다.
+ */
+
 CREATE ROLE ex_role1;
 
 -- ** 비밀번호 있는 role 생성
@@ -877,7 +963,7 @@ SELECT * FROM hr.REGIONS;
 -- *** orclpok
 GRANT CREATE synonym TO gy1;
 /*
-gy1에 시노님 생성할 수 있는 권한 부여
+gy1에 시노님 생성할 수 있는 시스템 권한 부여
  */
 
 SELECT * FROM dba_sys_privs WHERE grantee='GY1';
@@ -941,11 +1027,11 @@ where절에서는 새로운 열 이름을 쓰지 않도록 주의하자!!!
  */
 
 -- ** where절에서 새로운 열 사용 방법1
-SELECT LAST_NAME , SALARY, COMMISSION_PCT , COMMISSION
+SELECT FIRST_NAME, LAST_NAME , SALARY, COMMISSION_PCT , COMMISSION
 FROM (SELECT FIRST_NAME, LAST_NAME , SALARY, COMMISSION_PCT , SALARY * COMMISSION_PCT / 100 COMMISSION
              FROM hr.EMPLOYEES)
 WHERE FIRST_NAME  = 'David' AND COMMISSION >= 5
-ORDER BY 4 DESC;
+ORDER BY COMMISSION DESC;
 /*
 새로운 테이블을 만들어 새로운 열을 where절에서 사용하면 된다.
 order by 문은 새로운 열이름으로도 숫자로도 정렬이 가능합니다.
@@ -963,6 +1049,15 @@ SELECT a.LAST_NAME, a.SALARY , a.COMMISSION_PCT  , b.commission
 FROM hr.EMPLOYEES a , (SELECT EMPLOYEE_ID , SALARY * COMMISSION_PCT / 100 COMMISSION  FROM hr.EMPLOYEES) b
 WHERE a.EMPLOYEE_ID = b.EMPLOYEE_ID AND b.COMMISSION >= 5 AND a.FIRST_NAME = 'David'
 ORDER BY 4 DESC;
+
+
+
+
+--------------------여기서부터---------------------
+
+
+
+
 
 -- * 연산 관련 함수 사용하기
 -- ** round 반올림
@@ -1500,7 +1595,11 @@ SELECT 1 FROM hr.EMPLOYEES emp , hr.DEPARTMENTS dep WHERE emp.DEPARTMENT_ID = de
 
 
 
+-- ** TB_KEB_LC_INFO
+SELECT * FROM SCOTT.TB_KEB_LC_INFO;
 
+INSERT INTO SCOTT.TB_KEB_LC_INFO VALUES('11','서울','종로구', '신규',NULL,343533,NULL,'O',NULL,NULL);
+DELETE FROM SCOTT.TB_KEB_LC_INFO WHERE CNAME ='종로구';
 
 
 
