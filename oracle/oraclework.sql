@@ -394,12 +394,13 @@ cmd가 켜져 있었을 때는 시간만 계속 흐르고 생성이 되지 않았음
 SELECT * FROM hr.s_emp;
 
 -- * 테이블 구조 변경
-ALTER TABLE hr.s_emp ADD (comments_two varchar2(255));
+ALTER TABLE hr.s_emp ADD ("comments_two" varchar2(255));
 /*
 varchar2타입인 comments2열을 추가
+comments_two만 적으면 오류가 난다. 꼭 ""안에 넣어서 "comments_two"적자!!!
 */
 
-ALTER TABLE hr.s_emp MODIFY (comments_two varchar2(100));
+ALTER TABLE hr.s_emp MODIFY ("comments_two" varchar2(100));
 /*
 comments2열의 타입을 수정
 255자리에서 100자리로 수정
@@ -695,7 +696,7 @@ REVOKE UNLIMITED TABLESPACE FROM GY;
  */
 
 -- ** 시스템 권한 부여
-GRANT CREATE SESSION, CREATE TABLE TO gy WITH ADMIN OPTION;
+GRANT CREATE SESSION, CREATE TABLE TO gy WITH ADMIN OPTION;F
 REVOKE CREATE SESSION, CREATE TABLE FROM GY;
 /*
 GY사용자에게 SESSION과 TABLE을 생성할 수 있는 권한을 주었다.
@@ -1026,6 +1027,23 @@ WHERE FIRST_NAME  = 'David' AND COMMISSION >= 5 는 ORA-00904 라는 '부적합한 식별
 where절에서는 새로운 열 이름을 쓰지 않도록 주의하자!!!
  */
 
+-- ** 부서별 평균 급여 알아보기
+SELECT DEPARTMENT_ID , AVG(SALARY) FROM HR.EMPLOYEES GROUP BY DEPARTMENT_ID ORDER BY 2 DESC;
+/*
+ 부서 ID가 90인 곳의 평군 급여가 가장 높다 그 밑으로 110, 70, 20, ...이 있다.
+ 부서 ID가 30인 곳의 평균 급여는 4150이다.
+ */
+
+SELECT FIRST_NAME , LAST_NAME , DEPARTMENT_ID , SALARY 
+FROM HR.EMPLOYEES 
+WHERE SALARY >= 2 * (SELECT AVG(SALARY) FROM HR.EMPLOYEES WHERE DEPARTMENT_ID=30)
+ORDER BY 4;
+/*
+1. WHERE절에 있는 서브쿼리는 4150이라는 값을 출력할 것이다. 
+2. 2를 곱하여 30부서의 평균보다 2배 이상 받는 급여자들에 대해 알아 보자 => SALARY가 8300이상인 데이터만 추출
+3. 첫번째 SELECT 문의 4번째 열인 SALARY로 오름차순 정렬을 한다.
+ */
+
 -- ** where절에서 새로운 열 사용 방법1
 SELECT FIRST_NAME, LAST_NAME , SALARY, COMMISSION_PCT , COMMISSION
 FROM (SELECT FIRST_NAME, LAST_NAME , SALARY, COMMISSION_PCT , SALARY * COMMISSION_PCT / 100 COMMISSION
@@ -1049,15 +1067,6 @@ SELECT a.LAST_NAME, a.SALARY , a.COMMISSION_PCT  , b.commission
 FROM hr.EMPLOYEES a , (SELECT EMPLOYEE_ID , SALARY * COMMISSION_PCT / 100 COMMISSION  FROM hr.EMPLOYEES) b
 WHERE a.EMPLOYEE_ID = b.EMPLOYEE_ID AND b.COMMISSION >= 5 AND a.FIRST_NAME = 'David'
 ORDER BY 4 DESC;
-
-
-
-
---------------------여기서부터---------------------
-
-
-
-
 
 -- * 연산 관련 함수 사용하기
 -- ** round 반올림
@@ -1089,6 +1098,10 @@ WHERE DEPARTMENT_ID = 50;
 DEPARTMENT_ID 가 50인 것들만 추출했다.
  */
 
+SELECT round(12334.44643, -3) a, round(12334.44643, -1) b, round(12334.44643, 0) c, round(12334.44643, 1) d, round(12334.44643, 3) e FROM dual;
+SELECT round(344346556.39839938282, -6) one, round(344346556.39839938282, -1) two, round(344346556.39839938282, -4) three FROM dual;
+
+-- *** department_id의 값들이 어떻것이 있을까??
 SELECT DISTINCT DEPARTMENT_ID 
 FROM HR.EMPLOYEES
 ORDER BY DEPARTMENT_ID;
@@ -1096,6 +1109,7 @@ ORDER BY DEPARTMENT_ID;
 DEPARTMENT_ID 는 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, null로 이루어져 있다.
  */
 
+-- ** TRUNC 함수
 SELECT LAST_NAME , SALARY sal_y, SALARY /12 sal_m, trunc(SALARY/12) sal_m_tru
 FROM HR.EMPLOYEES
 WHERE DEPARTMENT_ID = 50;
@@ -1117,25 +1131,55 @@ WHERE trunc(SALARY/12, -2) >= 1416;
 십의 자리에서 자르는 것으로 1416으로 나왔던 King도 1400으로 값이 나와 추출이 되지 않았다.
  */
 
-CREATE TABLE num_mod(
+SELECT trunc(12834.44643, -3) a, trunc(12339.44643, -1) b, trunc(12334.84643, 0) c, trunc(12334.48643, 1) d, trunc(12334.44663, 3) e FROM dual;
+SELECT trunc(344346556.39839938282, -6) one, trunc(344346556.39839938282, -1) two, trunc(344346556.39839938282, -4) three FROM dual;
+
+-- ** CEIL/FLOOR
+SELECT CEIL(34343.46565,1) FROM DUAL;
+SELECT CEIL(34343.46565) a, CEIL(45.88) b FROM DUAL;
+SELECT FLOOR(34343.46565) a , FLOOR(45.88) b FROM DUAL;
+
+-- ** MOD함수
+CREATE TABLE hr.num_mod(
     fir_num NUMBER(10),
     sec_num NUMBER(10)
 );
 
-DROP TABLE num_mod;
+DROP TABLE hr.num_mod;
 /*
 mod함수를 사용하기 위한 예제 테이블을 생성하였습니다.
  */
 
-INSERT INTO num_mod VALUES ('${fir_num}', '${sec_num}');
+INSERT INTO hr.num_mod VALUES ('${fir_num}', '${sec_num}');
 /*
 아무 숫자나 입력하여 레코드를 추가하자
  */
 
-SELECT FIR_NUM , SEC_NUM , trunc(FIR_NUM/SEC_NUM) quotient , MOD(FIR_NUM,SEC_NUM) remainder FROM num_mod;
+SELECT FIR_NUM , SEC_NUM , trunc(FIR_NUM/SEC_NUM) quotient , MOD(FIR_NUM,SEC_NUM) remainder FROM hr.num_mod;
 /*
 quotient 열에는 몫이 들어가고 remainder 열에는 나머지가 들어가게 된다.
  */
+
+SELECT mod(10,3) a, mod(131,12) b, mod(123252,3535) c FROM dual; 
+SELECT mod(10,3) + 100 a, mod(131,12)/56 b, mod(123252,3535)*mod(45,34) c FROM dual; 
+
+-- ** ABS함수
+SELECT abs(10.31) a, abs(-131.12) b, abs(-12325.3535) c FROM dual; 
+
+-- ** power함수
+SELECT power(5, 3) a, power(8, 4) b, power(1, 10) c FROM dual; 
+
+-- ** exp함수
+SELECT exp(2) a, exp(3) b, exp(LN(1)) c FROM dual; 
+
+-- ** ln함수
+SELECT ln(EXP(2)) a, ln(2.171828183) b, LN(252315) c FROM dual; 
+
+-- ** SIGN함수
+SELECT SIGN(-5) a, SIGN(0) b, SIGN(125) c FROM dual; 
+
+-- ** SQRT함수
+SELECT SQRT(100) a, SQRT(1) b, SQRT(196) c FROM dual;
 
 -- * null값의 계산
 /*
@@ -1150,6 +1194,8 @@ WHERE SALARY >=1500;
 COMMISSION_PCT 열에 null값이 있어서 COMMISSION에서 null로 나오는 애들이 있다.
  */
 
+SELECT 1+NULL A, NULL+5*6 B, NULL-40/6 FROM DUAL;
+
 -- ** nvl함수
 SELECT LAST_NAME , SALARY , COMMISSION_PCT , SALARY * nvl(COMMISSION_PCT, 0) / 100 commission
 FROM hr.EMPLOYEES;
@@ -1157,6 +1203,8 @@ FROM hr.EMPLOYEES;
 nvl(A, B) => A가 null이면 B로 대치한다.
 이 쿼리문에서는 null이 0으로 대치되어 계산이 되어 COMMISSION_PCT가 null이면 commission값이 0이 된다.
  */
+
+SELECT nvl(NULL, 5)+1 a, nvl(NULL, 10)-1 b, nvl(NULL, 25232)*0.24 c, nvl(NULL, 45305)/6645 d FROM dual;
 
 -- * date 타입의 연산
 /*
@@ -1218,11 +1266,11 @@ NEXT_DAY(기준일자, 찾을 요일)로 기준일자가 무슨 요일 이든지 기준일자 빼고 가장 �
 SUN, SUNDAY같은 인수를 넣으면 오류가 나온다.
  */
 
-SELECT LAST_NAME , HIRE_DATE ,  MONTHS_BETWEEN(SYSDATE , HIRE_DATE) "MONTHS TENURE"
+SELECT LAST_NAME , HIRE_DATE ,  TRUNC(MONTHS_BETWEEN(SYSDATE , HIRE_DATE)) "MONTHS TENURE"
 FROM hr.EMPLOYEES;
 /*
 열이름이 띄어쓰기면 ""안에 적자!!!
-LAST_DAY(날짜)는 해당 날짜의 해당월의 마지막 날을 반환한다.
+MONTHS_BETWEEN는 2개의 날짜 사이의 달의 수를 알려주는 함수이다.
  */
 
 SELECT FIRST_NAME , TO_CHAR(HIRE_DATE, 'YYYY:MM:DD') for_date FROM hr.EMPLOYEES ;
@@ -1240,12 +1288,14 @@ MMDDYYHHMISS나 MONTH DD, YYYY로 넣어도 s_emp의 START_DATE는 YYYY-MM-DD HH:MI:SS 
  */
 
 INSERT INTO hr.s_emp(ID, LAST_NAME , START_DATE , DEPT_ID) VALUES('100', 'smith', to_date('070393083000','MMDDYYHHMISS'), 50);
+INSERT INTO hr.s_emp(ID, LAST_NAME , START_DATE , DEPT_ID) VALUES('150', 'hellen', to_date('01021993093345','MMDDYYYYHHMISS'), 30);
 INSERT INTO hr.s_emp(id, LAST_NAME , START_DATE , DEPT_ID) VALUES('200', 'kogi', to_date('7월 07, 1993','MONTH DD, YYYY'), 10);
 /*
 어떤 날짜 형태로 집어 넣던 s_emp에는 YYYY-MM-DD HH:MI:SS형태로 들어 간다.
+첫번쩨 삽입 줄은 1993년을 넣고 싶었는데 2093년이 들어감 ㅋㅋㅋㅋ
  */
 
-DELETE FROM hr.s_emp WHERE id = 100;
+DELETE FROM hr.s_emp WHERE id = '200';
 
 SELECT ID , LAST_NAME , TO_CHAR(START_DATE, 'MMDDYYHHMISS')  , DEPT_ID 
 FROM hr.S_EMP ;
@@ -1255,6 +1305,12 @@ FROM hr.S_EMP ;
 /*
 TO_CHAR을 써야 YYYY-MM-DD HH:MI:SS에서 다른 형태로 나오게 된다.
  */
+
+SELECT START_DATE, TO_CHAR(START_DATE, 'MONTH DD, YYYY') CHANGE_DATE
+FROM hr.S_EMP ;
+
+SELECT START_DATE, TO_CHAR(START_DATE, 'MMDDYYHHMISS') CHANGE_DATE
+FROM hr.S_EMP ;
 
 -- * 문자열 편집하기
 /*
@@ -1327,6 +1383,76 @@ where절에서고 함수가 사용가능하다.
 FIRST_NAME 이 7글자인 데이터의 연봉은 얼마 인지 알 수가 있습니다.
  */
 
+-- ** LPAD
+SELECT LPAD('APPLE', 11, '*') A, LPAD('STRAW BERRY', 11, '*') B
+FROM DUAL ;
+
+SELECT LPAD(10, 6, '_') A, LPAD(123456, 6, '_') B
+FROM DUAL ;
+
+-- ** RPAD
+SELECT RPAD('APPLE', 11, '*') A, RPAD('STRAW BERRY', 11, '*') B
+FROM DUAL ;
+
+SELECT RPAD(10, 6, '_') A, RPAD(123456, 6, '_') B
+FROM DUAL ;
+
+-- ** REPLACE
+SELECT REPLACE('HELLO', 'LO', 'TH') A, REPLACE('CON', 'N', 'MPUTER') B, REPLACE('$$$', '$', 'A') c
+FROM DUAL ;
+
+-- ** INSTR
+SELECT INSTR('APPLE', 'PP') A, INSTR('CORPORATE', 'PO') B
+FROM DUAL ;
+
+-- ** TRIM
+SELECT TRIM('    ') A, TRIM('CORPORATE') B
+FROM DUAL;
+
+SELECT TRIM(0 FROM 0009872348900) A, TRIM('@' FROM '@@ I AM GY') B
+FROM DUAL;
+
+-- ** LTRIM
+SELECT LTRIM('__APPLE' , '_ ') A, LTRIM('$ $COMPUTER', '$') B, LTRIM('$_$ORACLE', '$') c
+FROM DUAL;
+
+-- ** RTRIM
+SELECT RTRIM('_APPLE__' , '_ ') A, RTRIM('$ $COMPUTER$$$$$$', '$') B, RTRIM('ORACLE$@$$', '$') c
+FROM DUAL;
+
+-- ** DECODE
+SELECT SALARY, DECODE(SALARY, < 5000, 'LOW','HIGH') VALUE
+FROM HR.EMPLOYEES ;
+
+SELECT SALARY, DECODE(SALARY, 24000, 'LOW','HIGH') VALUE
+FROM HR.EMPLOYEES ;
+
+SELECT DECODE('Apple', 'Apple', 'Fruit', 'X') VALUE
+FROM DUAL ;
+
+SELECT DECODE('Ant', 'Apple', 'Fruit', 'X') VALUE
+FROM DUAL ;
+
+-- ** dump
+SELECT SALARY, dump(SALARY, 10) sal_VALUE, HIRE_DATE, dump(HIRE_DATE, 10) hd_value
+FROM HR.EMPLOYEES ;
+/*
+해당 데이터의 바이트 크기와 해당 데이터 타입 코드를 반환 
+ */
+
+SELECT LAST_NAME, dump(LAST_NAME, 16) LN_VALUE, FIRST_NAME, dump(FIRST_NAME, 8) FN_value
+FROM HR.EMPLOYEES ;
+
+SELECT dump('az', 10) LN_VALUE
+FROM DUAL ;
+
+-- ** UID, USER
+SELECT USER, UID FROM DUAL;
+
+-- ** USERENV
+SELECT USERENV('LANGUAGE') FROM DUAL; 
+SELECT USERENV('TERMINAL') USERENV('SESSIONID'), USERENV('LANGUAGE') FROM DUAL; 
+
 -- * 그룹함수
 SELECT AVG(salary) average, max(SALARY) maximom, min(SALARY) minimum, sum(SALARY) total
 FROM hr.EMPLOYEES;
@@ -1346,14 +1472,14 @@ FROM hr.EMPLOYEES;
 평균의 소수점이 너무 많아 소수점이 3개 보이도록 반올림 시켰다.
  */
 
-SELECT round(AVG(salary),3) average
-FROM (SELECT AVG(salary) average
-            FROM hr.EMPLOYEES;)
-WHERE SALARY > 2 * AVG(salary),3;
+SELECT *
+FROM (SELECT salary
+      FROM hr.EMPLOYEES
+      WHERE SALARY > 2 * AVG(salary));
 /*
 그룹함수는 where절에서 사용할 수 없다.
- */
-
+ */ 
+     
 SELECT DEPARTMENT_ID, AVG(SALARY) avg_salary
 FROM hr.EMPLOYEES
 GROUP BY DEPARTMENT_ID
@@ -1418,6 +1544,28 @@ ORDER BY dept_total_sal DESC;
 부서별 총 연봉합이 50000이상인 부서의 평균 연봉은 얼마인가를 나타냄
  */
 
+-- * 집합쿼리
+-- ** 합집합, 교집합이 있다.
+
+-- ** 차집합
+SELECT DISTINCT DEPARTMENT_ID 
+FROM HR.EMPLOYEES
+MINUS
+SELECT DEPARTMENT_ID 
+FROM HR.DEPARTMENTS ;
+/*
+EMPLOYEES - DEPARTMENTS 결과
+ */
+
+SELECT DISTINCT DEPARTMENT_ID 
+FROM HR.DEPARTMENTS
+MINUS
+SELECT DISTINCT DEPARTMENT_ID 
+FROM HR.EMPLOYEES ;
+/*
+DEPARTMENTS - EMPLOYEES 결과
+ */
+
 -- * 연습문제
 -- ** 1번
 SELECT max(salary) maxsal, min(SALARY) minsal
@@ -1467,7 +1615,7 @@ SELECT emp.LAST_NAME , emp.DEPARTMENT_ID , dep.DEPARTMENT_NAME
 FROM hr.EMPLOYEES emp, hr.DEPARTMENTS dep
 WHERE emp.DEPARTMENT_ID = dep.DEPARTMENT_ID AND emp.LAST_NAME = 'Matos';
 /*
-null 행은 사라져서 107개에서 106개가 되었습니다.
+WHERE문에 조건을 2개 해서 사용할 수도 있다.
  */
 
 -- ** null 데이터 확인
@@ -1490,7 +1638,8 @@ WHERE dep.LOCATION_ID = loc.LOCATION_ID;
 
 SELECT loc.COUNTRY_ID , loc.CITY , dep.DEPARTMENT_ID , dep.DEPARTMENT_NAME 
 FROM hr.DEPARTMENTS dep,  hr.LOCATIONS  loc
-WHERE dep.LOCATION_ID = loc.LOCATION_ID AND loc.CITY in (initcap('TORONTO'), initcap('SEATTLE'));
+WHERE dep.LOCATION_ID = loc.LOCATION_ID AND loc.CITY in (initcap('TORONTO'), initcap('SEATTLE'))
+ORDER BY COUNTRY_ID;
 /*
 하나의 LOCATION에 여러개의 부서가 존재 한다.
 
@@ -1502,7 +1651,7 @@ CA의 Toronto에는 20 이라는 부서 1개 뿐이다.
 SELECT *
 FROM hr.LOCATIONS ;
 /*
-기존 DEPARTMENTS는 23행 6열
+기존 LOCATIONS은 23행 6열
  */
 
 SELECT *
@@ -1571,18 +1720,27 @@ WHERE emp_a.EMPLOYEE_ID = emp_b.EMPLOYEE_ID;
  */
 
 -- * 조인 뷰
-CREATE VIEW empdepvu AS SELECT emp.LAST_NAME , emp.DEPARTMENT_ID , dep.DEPARTMENT_NAME 
-												 FROM hr.EMPLOYEES emp , hr.DEPARTMENTS dep
-												 WHERE emp.DEPARTMENT_ID  = dep.DEPARTMENT_ID;
+CREATE VIEW HR.empdepvu AS (SELECT emp.LAST_NAME , emp.DEPARTMENT_ID , dep.DEPARTMENT_NAME 
+						    FROM hr.EMPLOYEES emp , hr.DEPARTMENTS dep
+						    WHERE emp.DEPARTMENT_ID  = dep.DEPARTMENT_ID);
  /*
 inner join한 테이블을 empdepv라는 뷰로 생성하였습니다.
-
  */
 
 -- ** 뷰 불러오기
-SELECT * FROM empdepvu;
+SELECT * FROM HR.empdepvu;
+DROP VIEW hr.empdepvu
 
+-- * 조인 테이블
+CREATE TABLE HR.empdeptb AS SELECT emp.LAST_NAME , emp.DEPARTMENT_ID , dep.DEPARTMENT_NAME 
+							FROM hr.EMPLOYEES emp , hr.DEPARTMENTS dep
+							WHERE emp.DEPARTMENT_ID  = dep.DEPARTMENT_ID;
+ /*
+inner join한 테이블을 empdeptb라는 테이블로 생성하였습니다.
+ */
 
+-- ** 테이블 불러오기
+SELECT * FROM HR.empdeptb;
 
 
 
