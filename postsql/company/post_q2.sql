@@ -14,6 +14,9 @@ st_setsrid로 setsrid를 설정해준다.
 srid종류는 5179, 2097 등 여러 종류가 있다.
 */
 
+SELECT st_x(st_centroid(geom)),st_y(st_centroid(geom))
+FROM tl_spsb_statn;
+
 -- 멀티 폴리곤에서 중앙점의 좌표찾아서 geometry타입으로 만들기
 SELECT kor_sub_nm, st_setsrid(st_point(st_x(st_centroid(geom)),st_y(st_centroid(geom))),5179) "중앙값 좌표(5179)"
 FROM tl_spsb_statn;
@@ -35,9 +38,15 @@ SELECT st_transform(st_setsrid(st_makepoint(dx, dy),2097), 4326)
 FROM avm_bbook_pyo_count;
 
 -- 5181/2097 => 4326으로 변환(해당건물만)
+-- * 스페이스본
 SELECT st_transform(st_setsrid(st_makepoint(dx, dy),5174), 4326)
 FROM avm_bbook_pyo_count
 WHERE mgmbldrgstpk='11110-100181034';
+
+-- * 장안삼성래미안 2차 아파트
+SELECT mgmbldrgstpk, platplc, bldnm, st_transform(st_setsrid(st_makepoint(dx, dy),5174), 4326)
+FROM avm_bbook_pyo_count
+WHERE mgmbldrgstpk='11230-85720';
 
 -- SRID확인
 SELECT st_srid(geom)
@@ -63,7 +72,7 @@ srid를 잘못 입력 하면 이상한 장소에 점이 찍히게 된다.
 */
 
 -- 멀티폴리곤 전체 데이터를 다 보여줌
-SELECT st_union(geom)
+SELECT st_union(geom, 1000)
 FROM tl_spsb_statn;
 /*
 avm_bbook_pyo_count은 데이터가 많은 탓인지 멀티폴리곤이 아닌 탓인지 돌아는 가는데 마지막 지도에서 아무것도 보이지가 않는다.
@@ -82,6 +91,20 @@ st_ymax: 멀티 폴리곤에서 y의 최대값을 추출
 st_centroid: 멀티폴리곤 중앙점을 구함
 st_xmin, st_ymin 등도 있다.
 */
+
+-- st_geomfromtext
+SELECT st_geomfromtext(st_astext(geom),4326)
+FROM tl_spsb_statn;
+/*
+ st_astext로 geometry을 text형태로 바꾸고 다시 st_geomfromtext이용하여 geometry으로 바꾸어 줍니다.
+ 하지만 srid가 동일하지 않아 지도에 도형이 나오지 않는다.
+ */
+
+SELECT st_geomfromtext(st_astext(geom),5179)
+FROM tl_spsb_statn;
+/*
+ srid를 맞추니 동일하게 결과가 나옵니다.
+ */
 
 -- 쿼리 결과(보완 필요)
 WITH gis_bil AS (
@@ -125,6 +148,7 @@ WHERE ST_DWithin(st_geogfromtext(st_astext(gb.dxy)), st_geogfromtext(st_astext(g
 LIMIT 3;
 
 -- * st_distance 거리 측정법
+-- ** 건축물대장 처음부터 지정 
 WITH gis_bil AS (
 				SELECT mgmbldrgstpk, st_transform(st_setsrid(st_makepoint(dx,dy),5174),4326) dxy
 				FROM avm_bbook_pyo_count
@@ -144,11 +168,12 @@ WITH gis_bil AS (
 )
 SELECT RANK() OVER (ORDER BY fis.dist) 순번, 
                fis.sub_name 이름,
-               to_char(dist::NUMERIC,'999999.00') "거리(m)"
-FROM FIN_sub fis;
+               to_char(dist::NUMERIC,'FM999999.99') "거리(m)"
+FROM FIN_sub fis
 WHERE "in 2000m"= TRUE
 LIMIT 3;
 
+-- ** 건축물대장 사용자 직접 입력
 WITH gis_bil AS (
 	SELECT mgmbldrgstpk, st_transform(st_setsrid(st_makepoint(dx,dy),5174),4326) dxy
 	FROM avm_bbook_pyo_count
@@ -165,66 +190,25 @@ WITH gis_bil AS (
 	ST_DWithin(st_geogfromtext(st_astext(gb.dxy)), st_geogfromtext(st_astext(gs.sub_dxy)),2000) "in 2000m"
 	FROM gis_bil gb, gis_sub gs
 )
-SELECT RANK() OVER (ORDER BY fis.dist) 순번, fis.sub_name 이름, to_char(dist::NUMERIC,'9999.00') "거리(m)"
+SELECT RANK() OVER (ORDER BY fis.dist) 순번, fis.sub_name 이름, to_char(dist::NUMERIC,'FM999999.99') "거리(m)"
 FROM FIN_sub fis
 WHERE "in 2000m"= TRUE
 LIMIT 3;
 
+-- 중복열 번호 붙이기
+SELECT *
+FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY kor_sub_nm ORDER BY gid) dis_rownum
+             FROM tl_spsb_statn)  dis_tl_spsb_stattn;
+/*
+1) ROW_NUMBER함수란 각 partition 내에서 order by절에 의해 정렬된 순서를 기준으로 고유한 값을 반환하는 함수
+  - 이 테이블에서는 같은 이름의 역을 가지며 geom이 다른 데이터들이 있다.
+  - PARTITION BY로 kor_sub_nm이 같다면 1부터 순서대로 부여가 된다.
+  - ORDER BY를 이용해 해당 열을 정렬하여 순서대로 부여하는 것도 가능
+*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+SELECT *
+FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY kor_sub_nm ORDER BY geom) dis_rownum
+             FROM tl_spsb_statn)  dis_tl_spsb_stattn;
+/*
+ROW_NUMBER로 정렬되어지는 기준의 열을 바꾸어 보았습니다.
+*/
