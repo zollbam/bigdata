@@ -85,8 +85,8 @@ mgmbldrgstpk값을 변경 하면 다른 건물의 가격, 단가의 최대/최소값을 알 수 있다.
 SELECT *
 FROM tbl_avm001
            CROSS JOIN LATERAL unnest(ARRAY['상한(MAX)', '하한(MIN)'], 
-                                                                ARRAY[max_price,min_price], 
-                                                                ARRAY[max_price_danga,min_price_danga]) AS pv(com, price, danga);
+                                     ARRAY[max_price,min_price], 
+                                     ARRAY[max_price_danga,min_price_danga]) AS pv(com, price, danga);
  /*
 기존에 있던 열의 데이터도 반환이 됩니다.
 wide에서는 행 수가 499,608이었지만
@@ -105,8 +105,8 @@ AS pv(com, price, danga)을 해서 새로 만든 열의 이름을 정한다.
 SELECT com, price, danga, mgmbldrgstpk
 FROM tbl_avm001
            CROSS JOIN LATERAL unnest(ARRAY['상한(MAX)', '하한(MIN)'], 
-                                                                ARRAY[max_price,min_price], 
-                                                                ARRAY[max_price_danga,min_price_danga]) AS pv(com, price, danga);
+                                     ARRAY[max_price,min_price], 
+                                     ARRAY[max_price_danga,min_price_danga]) AS pv(com, price, danga);
  /*
 mgmbldrgstpk는 기존의 열인데 값은 값이 2번씩 반복되어 출력되는 것을 확인 할 수 있습니다.
 where절을 쓰면 본인이 원하는 조건의 피벗테이블을 조회할 수 있습니다.
@@ -116,8 +116,8 @@ where절을 쓰면 본인이 원하는 조건의 피벗테이블을 조회할 수 있습니다.
 SELECT com 구분, TO_CHAR(price, 'FM999,999,999,999') || '원' 가격,  '(@' || TO_CHAR(danga, 'FM999,999,999,999') || ')' 단가
 FROM tbl_avm001
            CROSS JOIN LATERAL unnest(ARRAY['상한(MAX)', '하한(MIN)'], 
-                                                                ARRAY[max_price,min_price], 
-                                                                ARRAY[max_price_danga,min_price_danga]) AS x(com, price, danga)
+                                     ARRAY[max_price,min_price], 
+                                     ARRAY[max_price_danga,min_price_danga]) AS x(com, price, danga)
 WHERE mgmbldrgstpk = '11110-100181034';
  /*
 형태/열이름을 바꾸고 where절을 활용하여 원하는 쿼리결과를 얻었습니다.

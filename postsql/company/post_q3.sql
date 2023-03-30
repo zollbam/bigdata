@@ -117,7 +117,7 @@ FROM buil_info_mgm bim, buil_info_mgmpyo bimp;
 
 -- * with문 + 여러 개 테이블 full join(사용자 입력 O)
 WITH mgmpyo_to_mgm AS (
-			SELECT mgmbldrgstpk, mgmbldrgstpk_pyo, private_area, flrno FROM avm_bbook_share_oneself_area WHERE mgmbldrgstpk = '11530-100233831'
+			SELECT mgmbldrgstpk, mgmbldrgstpk_pyo, private_area, flrno FROM avm_bbook_share_oneself_area WHERE mgmbldrgstpk = '${user_mgm}'
 ), buil_info_mgm AS (
 			SELECT mtm.private_area ||'㎡' "전유면적", mtm.flrno "해당 층", abpc.grndflrcnt || ' / ' || ugrndflrcnt "총층수(지상/지하)"
 			FROM mgmpyo_to_mgm mtm,  avm_bbook_pyo_count abpc
@@ -132,9 +132,43 @@ WITH mgmpyo_to_mgm AS (
 SELECT bim."전유면적", bimp."주구조", bimp."사용승인일", bim."총층수(지상/지하)", bim."해당 층", bimp."세대수"
 FROM buil_info_mgm bim, buil_info_mgmpyo bimp;
 
+-- * with + 5개 테이블 모두 full join(사용자 입력 O)
+WITH tbl_all AS (
+			SELECT abso.mgmbldrgstpk , abso.mgmbldrgstpk_pyo, abso.private_area, abso.flrno, abpc.grndflrcnt, abpc.ugrndflrcnt, abce.strctcdnm, abud.useaprday, abh.hhldcnt 
+			FROM avm_bbook_share_oneself_area abso FULL JOIN avm_bbook_pyo_count abpc ON abso.mgmbldrgstpk = abpc.mgmbldrgstpk 
+            			                                                                  FULL JOIN avm_bbook_check_elevator abce ON abso.mgmbldrgstpk_pyo = abce.mgmbldrgstpk_pyo 
+                        			                                                      FULL JOIN avm_bbook_useaprday abud ON abso.mgmbldrgstpk_pyo = abud.mgmbldrgstpk_pyo
+                                    			                                          FULL JOIN avm_bbook_hhldcnt  abh ON abso.mgmbldrgstpk_pyo = abh.mgmbldrgstpk_pyo
+)
+SELECT private_area ||'㎡' "전유면적", strctcdnm "주구조", to_char(to_date(useaprday, 'YYYYMMDD'), 'YYYY.MM.DD') "사용승인일", grndflrcnt || ' / ' || ugrndflrcnt "지상/지하)", flrno "해당 층", hhldcnt "세대수"
+FROM tbl_all
+WHERE mgmbldrgstpk = '${user_mgm}';
+/*
+- tbl_all은 18,405,077행 9열 행렬이다.
+- 그리고 5개의 테이블을 mgmbldrgstpk나 mgmbldrgstpk_pyo로 full_join한거라 행의 개수가 많다.
+*/
 
+WITH tbl_all AS (
+			SELECT abso.mgmbldrgstpk , abso.mgmbldrgstpk_pyo, abso.private_area, abso.flrno, abpc.grndflrcnt, abpc.ugrndflrcnt, abce.strctcdnm, abud.useaprday, abh.hhldcnt 
+			FROM avm_bbook_share_oneself_area abso FULL JOIN avm_bbook_pyo_count abpc ON abso.mgmbldrgstpk = abpc.mgmbldrgstpk 
+            			                                                                  FULL JOIN avm_bbook_check_elevator abce ON abso.mgmbldrgstpk_pyo = abce.mgmbldrgstpk_pyo 
+                        			                                                      FULL JOIN avm_bbook_useaprday abud ON abso.mgmbldrgstpk_pyo = abud.mgmbldrgstpk_pyo
+                                    			                                          FULL JOIN avm_bbook_hhldcnt  abh ON abso.mgmbldrgstpk_pyo = abh.mgmbldrgstpk_pyo
+            WHERE abso.mgmbldrgstpk = '${user_mgm}'                    			                                          
+)
+SELECT private_area ||'㎡' "전유면적", strctcdnm "주구조", to_char(to_date(useaprday, 'YYYYMMDD'), 'YYYY.MM.DD') "사용승인일", grndflrcnt || ' / ' || ugrndflrcnt "지상/지하)", flrno "해당 층", hhldcnt "세대수"
+FROM tbl_all;
+/*
+- 쿼리 결과나오는 속도가 빨리진다.
+*/
 
-
-
-
-
+-- * with문 없이 full join
+SELECT abso.private_area ||'㎡' "전유면적", abce.strctcdnm "주구조", to_char(to_date(abud.useaprday, 'YYYYMMDD'), 'YYYY.MM.DD') "사용승인일",abpc.grndflrcnt || ' / ' || abpc.ugrndflrcnt "지상/지하)",abso.flrno "해당 층",abh.hhldcnt "세대수"
+FROM avm_bbook_share_oneself_area abso FULL JOIN avm_bbook_pyo_count abpc ON abso.mgmbldrgstpk = abpc.mgmbldrgstpk 
+            			               FULL JOIN avm_bbook_check_elevator abce ON abso.mgmbldrgstpk_pyo = abce.mgmbldrgstpk_pyo 
+                        			   FULL JOIN avm_bbook_useaprday abud ON abso.mgmbldrgstpk_pyo = abud.mgmbldrgstpk_pyo
+                                       FULL JOIN avm_bbook_hhldcnt  abh ON abso.mgmbldrgstpk_pyo = abh.mgmbldrgstpk_pyo
+WHERE abso.mgmbldrgstpk = '${user_mgm}';
+/*
+- 쿼리 결과를 빨리 보기 위해서는 with절을 쓰지 않는 것이 좋다.
+*/
