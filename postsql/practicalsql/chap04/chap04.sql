@@ -1,4 +1,4 @@
--- Active: 1679746005886@@127.0.0.1@5432@gydb
+-- Active: 1679962641651@@127.0.0.1@5432@gydb
 -- 데이터 타입
 -- * 1. char(n)
 /*
@@ -97,23 +97,74 @@ create table people (
     person_name varchar(100)
 );
 
--- * 10. timestamp
+-- * 10. numeric(precision, scale)
+/*
+- 고정 소수점으로 precision은 입력될 숫자의 전체 자릿수를 scale은 소수점아해 자릿수
+- demical(precision, scale)로도 대체 가능
+- scale을 적지 않으면 기본값이 0으로 설정되고 이는 정수를 의미함
+*/
+
+-- * 11. real
+/*
+- 소수점이하 6자리까지 정밀도를 허용하며 부동 소주점 타입 또는 가변 정밀도 타입이라고도 함
+- 
+*/
+
+-- * 12. double precision
+/*
+- 소수점 이하 15자리까지 정밀도를 허용하며 부동 소주점 타입 또는 가변 정밀도 타입이라고도 함
+- 
+*/
+
+-- 테이블 생성
+create table number_data_types(
+    numeric_column numeric(20, 5),
+    real_column real,
+    double_column double precision
+);
+
+-- 데이터 삽입
+insert into number_data_types VALUES
+    (0.7, 0.7, 0.7),
+    (2.13579, 2.13579,  2.13579),
+    (2.1357987654, 2.1357987654, 2.1357987654),
+    (13.548325458555487, 13.548325458555487, 13.548325458555487),
+    (12854.1454875413218478, 12854.1454875413218478, 12854.1454875413218478);
+
+-- 테이블 확인
+SELECT * 
+from number_data_types;
+/*
+- numeric타입은 전체 자리수에 벗어나지 않는한 소수점 아래 자리는 5개가 나온다.
+- real과 double precision타입은 소수점이 6자리까지 허용이기는 하지만 정수부분이 어떻게 되는냐에 따라 소수점 아래 개수가 달라진다.
+*/
+
+-- 부동소수점 계산의 오류
+select numeric_column * 10000000 fixed,
+       real_column * 10000000 floating
+from number_data_types
+where numeric_column = 0.7;
+/*
+- 이러한 오류를 만들어 내는 부동 소수점으로 회성으로 우주선을 보낸거나 정부 예산을 계산한다면 큰일이 생길 수 있습니다.
+*/
+
+-- * 13. timestamp
 /*
 - 8바이트, 날짜와 시간
 - timestamptz로 timestamp with time zone타입과 동일한 데이터 타입을 지정
 */
 
--- * 11. date
+-- * 14. date
 /*
 - 4바이트, 날짜
 */
 
--- * 12. time
+-- * 15. time
 /*
 - 8바이트, 시간
 */
 
--- * 13. interval
+-- * 16. interval
 /*
 - 16바이트, 시간차이
 - 기간의 시작 또는 끝은 기록하지 않고 길이만 기록
@@ -141,74 +192,75 @@ SELECT timestamp_column,
        timestamp_column - interval_column as new_date
 from date_time_types;
 
--- * 14. json
+-- * 17. json
 /*
 - JSON 텍스트 그대로 저장
 */ 
 
--- * 15. jsonb
+-- * 18. jsonb
 /*
 - JSON 텍스트를 바이너리 형식으로 변환해서 저장
 - 인덱싱을 지원하므로 처리속도가 빠름
 */ 
 
--- * 16. boolean
+-- * 19. boolean
 /*
 - true 또는 false 값을 저장하는 논리 타입
 */ 
 
--- * 17. geometric
+-- * 20. geometric
 /*
 - 점, 선, 원 및 기타 2차원 개체를 포함하는 기하 타입
 */ 
 
--- * 18. text search
+-- * 21. text search
 /*
 - postgresql 전문 검색 엔진용 텍스트 검색 타입
 */ 
 
--- * 19. network address
+-- * 22. network address
 /*
 - IP 또는 MAC 주소와 같은 네트워크 주소 타입
 */ 
 
--- * 20. Universally Unique Idenetifier
+-- * 23. Universally Unique Idenetifier
 /*
 - 경우에 따라 테이블의 고유키로 사용될 수 있는 UUID타입
 */ 
 
--- * 21. range
+-- * 24. range
 /*
 - 정수 또는 타임스탬프 같은 값의 범위를 지정하는 범위 타입
 */ 
 
--- * 22. 그 외
+-- * 25. 그 외
 /*
 - 바이너리 데이터를 저장하는 타입
 - 구조화된 형식으로 정보를 저장하는 XML 및 JSON타입
 */ 
 
+-- cast를 통한 타입 변경
+select timestamp_column "timestamp", cast(timestamp_column as varchar(10)) "varchar"
+from date_time_types;
+/*
+timestamp열은 타입이 timestamp이고, varchar열은 타입이 varchar이다.
+*/
 
+select numeric_column, cast(numeric_column as integer) "int", cast(numeric_column as text) "text"
+from number_data_types;
+/*
+- int열은 numeric타입에서 정수형으로 변환된 경우입니다.
+- text열은 numeric타입에서 텍스트형으로 변환된 경우입니다.
+*/
 
+select cast(char_column as integer) from char_data_types;
+/*
+- 문자형은 숫자형으로 변환이 불가하므로 오류가 나오는 것을 확인 할 수 있다.
+*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- 이중콜론(::)으로 데이터 변환
+select timestamp_column, timestamp_column::varchar(10)
+from date_time_types;
+/*
+- 문제는 이중 콜론은 postgresql에서만 가능하다.
+*/
