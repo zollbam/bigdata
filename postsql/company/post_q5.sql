@@ -184,23 +184,24 @@ FROM avm_base_rtms_apt abra, (SELECT avm_base_rtms_apt_id, region_factor, apt_ou
 WHERE abra.avm_base_rtms_apt_id = b.avm_base_rtms_apt_id;
 
 -- 현실화율 통계(서울특별시 종로구)
--- * 
+-- * tbl_avm001: AVM 모형(AVM추정시세)
+SELECT mkt_pri_etm_mdl_id
+FROM tbl_avm001
+WHERE mgmbldrgstpk = '11110-100181034';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- * tbl_avm012: AVM 시세추정모형 범위별 현실화율
+SELECT CASE WHEN rag_grp_div = '0' THEN '전체'
+            WHEN rag_grp_div = '1' THEN '상위'
+            WHEN rag_grp_div = '2' THEN '중위'
+            WHEN rag_grp_div = '3' THEN '하위' END "범위",
+            max_realrate "MAX 현실화율", 
+            min_realrate "MIN 현실화율", 
+            avg_realrate "AVG 현실화율", 
+            med_realrate "MED 현실화율"
+FROM tbl_avm012
+WHERE mkt_pri_etm_mdl_id = (SELECT mkt_pri_etm_mdl_id
+                            FROM tbl_avm001
+                            WHERE mgmbldrgstpk = '11110-100181034');
 
 
 
@@ -210,12 +211,12 @@ WHERE abra.avm_base_rtms_apt_id = b.avm_base_rtms_apt_id;
 -- 두 테이블 간의 열 이름 비교
 SELECT a.*, b.*
 FROM (SELECT column_name
-FROM information_schema.COLUMNS
-WHERE table_name = 'tbl_avm001') a
+      FROM information_schema.COLUMNS
+      WHERE table_name = 'avm_base_rtms_apt') a
 INNER JOIN 
-(SELECT column_name
-FROM information_schema.COLUMNS
-WHERE table_name= 'tbl_avm003') b ON a.column_name = b.column_name;
+     (SELECT column_name
+      FROM information_schema.COLUMNS
+      WHERE table_name= 'tbl_avm010') b ON a.column_name = b.column_name;
 
 
 

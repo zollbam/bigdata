@@ -1,4 +1,4 @@
--- Active: 1679298474112@@127.0.0.1@3306@sakila
+-- Active: 1679962641651@@127.0.0.1@5432@gydb
 -- theachers테이블 불러오기
 -- * 방법1
 SELECT *
@@ -72,7 +72,7 @@ select last_name, first_name, salary
 from teachers
 where salary >=75000;
 
-select last_name, school, hire_name
+select last_name, school, hire_date
 from teachers
 where school='Myers Middle School';
 
@@ -80,7 +80,7 @@ select  first_name, last_name, school
 from teachers
 where first_name = 'Janet';
 
-select school
+select first_name, last_name, school
 from teachers
 where school <> 'F.D Roosevelt HS';
 
@@ -94,7 +94,7 @@ where salary >= 43500;
 
 select first_name, last_name, school, salary
 from teachers
-where salsry between 40000 and 65000;
+where salary between 40000 and 65000;
 
 select first_name, last_name, school, salary
 from teachers

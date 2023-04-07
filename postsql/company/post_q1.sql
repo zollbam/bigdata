@@ -101,6 +101,17 @@ AS pv(com, price, danga)을 해서 새로 만든 열의 이름을 정한다.
  - pv어떤 이름이 와도 상관이 없다. => p(com, price, danga), x(com, price, danga) 등 이름을 지정할수만 있으면 모두 가능!!!
 */
 
+SELECT com, price, danga
+FROM (SELECT * FROM tbl_avm001 WHERE mgmbldrgstpk = '11110-100181034') a
+           CROSS JOIN LATERAL unnest(ARRAY['상한(MAX)', '하한(MIN)'], 
+                                     ARRAY[max_price,min_price], 
+                                     ARRAY[max_price_danga,min_price_danga]) AS pv(com, price, danga);
+/*
+다른 방법
+unnest는 배열을 열로 바꾸어주는 함수이다.
+pv()로 열이름을 지정할 수 있다.
+*/
+
 -- 내가 만든 피벗테이블만 보기
 SELECT com, price, danga, mgmbldrgstpk
 FROM tbl_avm001

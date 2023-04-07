@@ -99,7 +99,7 @@ create table people (
 
 -- * 10. numeric(precision, scale)
 /*
-- 고정 소수점으로 precision은 입력될 숫자의 전체 자릿수를 scale은 소수점아해 자릿수
+- 고정 소수점으로 precision은 입력될 숫자의 전체 자릿수를 scale은 소수점아래 자릿수
 - demical(precision, scale)로도 대체 가능
 - scale을 적지 않으면 기본값이 0으로 설정되고 이는 정수를 의미함
 */

@@ -1,6 +1,6 @@
 -- 연습문제
 -- * 1번
-select school_name, last_name
+select school, last_name
 from teachers
 order by school, last_name;
 
