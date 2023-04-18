@@ -350,10 +350,26 @@ with index_tbl as(
 		 sys.columns c on ic.object_id=c.object_id and ic.column_id=c.column_id inner join
 		 INFORMATION_SCHEMA.tables t on o.name=t.TABLE_NAME
 	where i.type_desc not in ('HEAP')
+), ind_add_col_tbl as(
+	select index_name, TABLE_NAME, stuff((select ',[' + column_name + ']' 
+	                                      from index_tbl
+										  where index_name=it.index_name and TABLE_NAME=it.TABLE_NAME
+										  for xml path(''))
+										  , 1, 1, '') "mul_col"
+	from index_tbl it
+	group by index_name ,TABLE_NAME
+), final_index_tbl as (
+	select distinct it.INDEX_NAME, it.INDEX_TYPE, it.TABLE_CATALOG, it.TABLE_SCHEMA, it.TABLE_NAME, it.TABLE_TYPE, iact.mul_col,
+		   it.is_unique, it.data_space_id, it.ignore_dup_key, it.is_primary_key, it.is_unique_constraint, it.fill_factor, 
+		   it.is_padded, it.is_disabled, it.is_hypothetical, it.is_ignored_in_optimization, it.allow_page_locks, it.allow_row_locks,
+		   it.has_filter, it.suppress_dup_key_messages, it.auto_created, it.optimize_for_sequential_key
+	from index_tbl it inner join
+		 ind_add_col_tbl iact on it.INDEX_NAME=iact.INDEX_NAME and it.TABLE_NAME=iact.TABLE_NAME
 )
 select *
-from index_tbl;
+from final_index_tbl
 
+-- 'create ' + index_type + ' index ' + index_name + ' on [' + table_schema + '].[' + table_name + '](' + mul_col +')'
 select i.name "INDEX_NAME", i.type_desc "INDEX_TYPE", o.type_desc "OBJECT_TYPE"
 from sys.indexes i inner join 
 	 sys.objects o on i.object_id=o.object_id and i.index_id=i.index_id
