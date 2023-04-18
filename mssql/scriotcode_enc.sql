@@ -1,9 +1,16 @@
 -- 테이블 생성 프로시저
 -- * 프로시저 삭제
+<<<<<<< HEAD
 drop PROC DBO.USP_GET_TABLE_SCHEMA;
  
 -- * 프로시저 생성
 CREATE PROC DBO.USP_GET_TABLE_SCHEMA 
+=======
+drop PROC DBO.USP_GET_TABLE_SCHEMA
+ 
+-- * 프로시저 생성
+CREATE PROC DBO.USP_GET_TABLE_SCHEMA
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 @TBLNAME VARCHAR(100)
 AS
 SET NOCOUNT ON
@@ -57,7 +64,11 @@ FROM #TMP
 UNION ALL
 SELECT ')' AS SCRIPT, 255 AS [ORDER] ORDER BY [ORDER]
 
+<<<<<<< HEAD
 DROP TABLE #TMP;
+=======
+DROP TABLE #TMP
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 
 -- * 프로시저 생성
 USE study
@@ -89,7 +100,11 @@ GO
 sp_helptext Procedure_Name
 
 -- * 프로시저 실행
+<<<<<<< HEAD
 USE master
+=======
+USE study
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 GO  
 EXEC dbo.Procedure_Name @site = 'abx', @name = 'hy', @ret = 5
 EXEC dbo.Procedure_Name @site = 'uid', @name = 'mh', @ret = 1
@@ -109,6 +124,7 @@ exec dbo.Procedure_Name @site, @name, @ret
 exec dbo.Procedure_Name @site= 'tistory.com', @name= 'mozi', @ret=null
 SELECT @ret
 
+<<<<<<< HEAD
 -- 테이블 생성 스크립트 만들기
 -- * 사용 DB
 use master /*DB가 달라질 때마다 변경을 해주어야 한다.*/
@@ -117,6 +133,33 @@ go;
 -- * 스크립트 만들 테이블명 변수 지정 및 설정
 declare @table_name SYSNAME
 set @table_name = 'spt_values' -- masterDB에는 MSreplication_options, spt_fallback_db, spt_fallback_dev, spt_fallback_usg, spt_monitor, spt_values가 있다.
+=======
+--
+select COLUMN_NAME + ' ' + DATA_TYPE + case when isnull(CHARACTER_MAXIMUM_LENGTH,-1)!=-1 and CHARACTER_MAXIMUM_LENGTH<1000 then '(' + cast(CHARACTER_MAXIMUM_LENGTH as varchar) + ')' else '' end
+from INFORMATION_SCHEMA.COLUMNS
+where table_name = 'us_counties_pop_est_2010'
+
+select*
+from INFORMATION_SCHEMA.TABLES
+where table_name = 'us_counties_pop_est_2010'
+
+select*
+from INFORMATION_SCHEMA.COLUMNS
+where table_name = 'us_counties_pop_est_2010'
+
+select COLUMN_NAME + ' ' + DATA_TYPE
+from INFORMATION_SCHEMA.COLUMNS
+where table_name = 'us_counties_pop_est_2010'
+
+-- 테이블 생성 스크립트 만들기
+-- * 사용 DB
+use study /*DB가 달라질 때마다 변경을 해주어야 한다.*/
+go
+
+-- * 스크립트 만들 테이블명 변수 지정 및 설정
+declare @table_name SYSNAME
+set @table_name = 'companyinfo'
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 
 -- * 쿼리문 저장할 변수 지정
 declare @table_create_script nvarchar(max)
@@ -127,13 +170,18 @@ select @table_create_script = 'create table ' + table_name + '(' + stuff((
 														else '' end
 	from INFORMATION_SCHEMA.COLUMNS
 	where table_name = @table_name
+<<<<<<< HEAD
 	for xml path('')),1,2,'') +');'
+=======
+	for xml path('')),1,2,'') +')'
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 from INFORMATION_SCHEMA.TABLES
 where table_name = @table_name
 
 -- * 테이블 생성 스크립트 쿼리문 출력
 print @table_create_script
 /*
+<<<<<<< HEAD
  - create table로 되어 있는 문법이고 pk나 fk 같은 제약 조건에 대해서는 아무 것도 없다.
  - 테이블명을 입력 해주어야 한다.
   => 하나의 테이블명에 대해서만 생성쿼리문을 만들어 낸다.
@@ -246,6 +294,110 @@ select replace((select char(13) + 'alter table [' + CONSTRAINT_SCHEMA + '].['+ t
 		               end + ';'
 from pk_fk_dec_ifm_tbl
 for xml path('')), '&#x0D;', char(13)) "pk_fk";
+=======
+create table로 되어 있는 문법이고 pk나 fk 같은 제약 조건에 대해서는 아무 것도 없다.
+*/
+
+
+select 'create table ' + table_name + ' (' + 
+      string_agg(column_name + ' ' +  data_type + case when DATA_TYPE in ('varchar', 'char', 'varbinary', 'binary', 'nchar', 'nvarchar') then '(' + cast(CHARACTER_MAXIMUM_LENGTH as varchar) + ')'
+														when DATA_TYPE in ('numeric', 'decimal') then '(' + case when cast(NUMERIC_SCALE as varchar) = 0 then cast(NUMERIC_PRECISION as varchar) + ')'
+																												 else cast(NUMERIC_PRECISION as varchar) + ', '  + cast(NUMERIC_SCALE as varchar) + ')' end
+														else '' end, ', ')
+        + ');'
+  from INFORMATION_SCHEMA.COLUMNS
+ where table_name = 'companyinfo'
+ group by
+       table_name
+
+create table companyinfo(  ID bigint, Name nvarchar(200), IND_ID varchar(4), Employees int, IncInCtryCode varchar(4), City varchar(61), StAdd1 varchar(61), Post varchar(21))
+create table companyinfo(ID bigint, Name nvarchar(200), IND_ID varchar(4), Employees int, IncInCtryCode varchar(4), City varchar(61), StAdd1 varchar(61), Post varchar(21));
+
+select *  from INFORMATION_SCHEMA.COLUMNS
+
+select *  from sys.indexes
+
+-- 기본키 설정 스크립트
+use study
+go
+with pk_fk_tbl as (
+    -- 제약조건이 같은 것을 묶어서 
+	SELECT kc.CONSTRAINT_NAME, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_CATALOG, tc.CONSTRAINT_SCHEMA, tc.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGe kc inner join
+         information_schema.TABLE_CONSTRAINTS tc on kc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME
+), pk_fk_add_tbl as (
+	select CONSTRAINT_NAME, stuff((select ',' + COLUMN_NAME from pk_fk_tbl where CONSTRAINT_NAME=pkt.CONSTRAINT_NAME for xml path('')),1,1,'') "mul_col"
+	from pk_fk_tbl pkt
+	group by CONSTRAINT_NAME
+), final_pk_fk_tbl as (
+	select distinct pft.CONSTRAINT_NAME, pft.TABLE_NAME, pft.CONSTRAINT_CATALOG, pft.CONSTRAINT_SCHEMA, pft.CONSTRAINT_TYPE, pkat.mul_col
+	from pk_fk_add_tbl pkat inner join
+	     pk_fk_tbl pft on pft.CONSTRAINT_NAME=pkat.CONSTRAINT_NAME
+)
+
+
+
+
+-- 최종코드 막바지
+select 'alter table ' + TABLE_NAME + ' add constraint '+ CONSTRAINT_NAME + ' ' + case when CONSTRAINT_TYPE = 'PRIMARY KEY' then CONSTRAINT_TYPE + ' (' +mul_col + ')'
+                                                                                      else CONSTRAINT_TYPE
+from final_pk_fk_tbl
+
+
+
+
+
+	SELECT kc.CONSTRAINT_NAME, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_CATALOG, tc.CONSTRAINT_SCHEMA, tc.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGe kc inner join
+         information_schema.TABLE_CONSTRAINTS tc on kc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME
+
+SELECT kcu.CONSTRAINT_NAME, fk.object_id, kcu.constraint_catalog, kcu.constraint_schema, tc.TABLE_NAME, tc.CONSTRAINT_TYPE, fk.parent_object_id, fk.referenced_object_id, fk.key_index_id, fk.delete_referential_action, fk.delete_referential_action_desc, kcu.COLUMN_NAME
+	FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu inner join
+	     information_schema.TABLE_CONSTRAINTS tc on kcu.CONSTRAINT_NAME=tc.CONSTRAINT_NAME inner join
+		 sys.foreign_keys fk on kcu.CONSTRAINT_NAME=fk.name 
+	where kcu.table_name='backupfile'
+
+select stuff((select ',' + a.COLUMN_NAME
+ from (SELECT kc.CONSTRAINT_NAME, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_CATALOG, tc.CONSTRAINT_SCHEMA, tc.CONSTRAINT_TYPE
+	   FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGe kc inner join
+            information_schema.TABLE_CONSTRAINTS tc on kc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME
+       where  tc.CONSTRAINT_TYPE='FOREIGN KEY') a
+for xml path('')),1,1,'')
+
+select *
+from information_schema.TABLE_CONSTRAINTS
+
+select * -- COLUMN_NAME
+from information_schema.KEY_COLUMN_USAGe
+where
+for xml path('')
+
+select *
+from sys.foreign_keys
+
+select *
+from sys.objects
+where object_id='2117582582'
+
+select *
+from sys.foreign_keys fk inner join
+     sys.objects o on fk.parent_object_id=o.object_id inner join
+	 information_schema.KEY_COLUMN_USAGe kcu on fk.name=kcu.constraint_name
+
+select *
+from sys.tables
+
+select *
+from sys.foreign_keys fk inner join 
+     sys.tables t on fk.parent_object_id = t.object_id or fk.referenced_object_id=t.object_id
+where fk.name='FK__backupfil__backu__6C6E1476'
+
+select * from sys.columns where object_id='1691153070' and column_id=1
+select * from sys.tables where object_id='1787153412'
+select * from sys.tables where name = 'backupfile'
+select * from sys.foreign_keys
+select * from sys.objects where object_id = '1819153526'
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 
 -- DB에 저장된 프로시저
 -- * 스크립트를 만들고 싶은 DB명 변수로 지정
@@ -256,7 +408,11 @@ declare @procedure_script nvarchar(max)
 
 select @procedure_script = (select replace((select ROUTINE_DEFINITION + char(13) + char(13) + char(13)
                             from INFORMATION_SCHEMA.ROUTINES 
+<<<<<<< HEAD
                             --where SPECIFIC_CATALOG = @DB_NAME
+=======
+                            where SPECIFIC_CATALOG = @DB_NAME
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
                             for xml path('')), '&#x0D;', char(13)))
 
 print @procedure_script
@@ -283,6 +439,7 @@ select @procedure_script = (select replace((select ROUTINE_DEFINITION + char(13)
 
 print @procedure_script
 
+<<<<<<< HEAD
 -- *** 한행에 하나의 프로시저/함수 생성 쿼리문
 select replace(ROUTINE_DEFINITION, '        ', char(10))
 from INFORMATION_SCHEMA.ROUTINES
@@ -298,6 +455,8 @@ select replace((select replace(ROUTINE_DEFINITION, '        ', char(10))
 1행 1열에 모든 프로시저를 다 넣으려고 하니 글자수 부족으로 다 들어 가지 않는다.
 */
 
+=======
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 -- 인덱스
 -- * 방법1. 인덱스 확인
 use msdb
@@ -323,6 +482,7 @@ select * from sys.indexes where object_id=(select object_id from sys.tables wher
 */
 
 -- * 인덱스 테이블을 만들기 위한 개념 정리
+<<<<<<< HEAD
 select * from sys.tables; -- 해당 DB의 모든 테이블 보기
 select * from sys.schemas; -- 해당 DB의 모든 스키마 보기
 select * from sys.indexes where name='PK_sysutility_mi_dac_execution_statistics_internal'; -- 시스템의 인덱스 보기
@@ -331,12 +491,19 @@ select * from sys.objects;
 select * from sys.columns;
 select * from INFORMATION_SCHEMA.tables;
 select * from INFORMATION_SCHEMA.columns where TABLE_NAME='sysnotifications';
+=======
+select * from sys.tables -- 해당 DB의 모든 테이블 보기
+select * from sys.schemas -- 해당 DB의 모든 스키마 보기
+select * from sys.indexes -- 시스템의 인덱스 보기
+select * from sys.index_columns -- 인덱스 열에 대한 정보가 숫자로 지정되어 있다.
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 /*
  - object_id: 테이블
  - index_id: 인덱스번호
  - index_column_id: 인덱스컬럼 번호
  - column_id: 테이블의 컬럼 번호
 */
+<<<<<<< HEAD
 
 -- * 인덱스 테이블 만들기
 with index_tbl as(
@@ -375,14 +542,42 @@ where object_id='18815129'
 
 -- 권한
 select * from INFORMATION_SCHEMA.COLUMN_PRIVILEGES
+=======
+select * from sys.columns -- 테이블의 컬럼 정보를 보여준다.
+
+-- * 인덱스 테이블 만들기
+select 
+        s.name schema_nm, 
+        i.type_desc index_type, 
+        t.name table_nm, 
+        i.name index_nm, 
+		c.name column_nm
+from sys.tables t
+inner join sys.schemas s 
+   on t.schema_id = s.schema_id
+inner join sys.indexes i 
+   on i.object_id = t.object_id
+inner join sys.index_columns ic 
+   on ic.object_id = t.object_id
+inner join sys.columns c 
+   on c.object_id = t.object_id and ic.column_id = c.column_id
+
+
+-- 권한
+select 
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 
 -- 시퀀스
 
 
 
+<<<<<<< HEAD
 
 
 
 
+=======
+select * from information_schema.check_constraints
+>>>>>>> 6879f7fa83121d045d521da6eaab7dc67ce075b6
 
 
