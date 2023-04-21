@@ -1,3 +1,152 @@
+-- 테이블 생성 스크립트 만들기
+-- 링크: https://scalability.tistory.com/38
+-- * 스크립트 만들 테이블명 변수 설정
+DECLARE @TABLE_NAME SYSNAME -- 
+SELECT @TABLE_NAME = '[dbo].[autoadmin_managed_databases]' 
+
+-- *  
+DECLARE 
+      @OBJECT_NAME SYSNAME
+    , @OBJECT_ID INT
+SELECT 
+      @OBJECT_NAME = '[' + S.NAME + '].[' + O.NAME + ']'
+    , @OBJECT_ID = O.[OBJECT_ID]
+FROM SYS.OBJECTS O WITH (NOWAIT)
+JOIN SYS.SCHEMAS S WITH (NOWAIT) ON O.[SCHEMA_ID] = S.[SCHEMA_ID]
+WHERE S.NAME + '.' + O.NAME = @TABLE_NAME
+    AND O.[TYPE] = 'U'
+    AND O.IS_MS_SHIPPED = 0
+
+
+DECLARE @SQL NVARCHAR(MAX) = '';
+ 
+WITH INDEX_COLUMN AS 
+(
+    SELECT 
+          IC.[OBJECT_ID]
+        , IC.INDEX_ID
+        , IC.IS_DESCENDING_KEY
+        , IC.IS_INCLUDED_COLUMN
+        , C.NAME
+    FROM SYS.INDEX_COLUMNS IC WITH (NOWAIT)
+    JOIN SYS.COLUMNS C WITH (NOWAIT) ON IC.[OBJECT_ID] = C.[OBJECT_ID] AND IC.COLUMN_ID = C.COLUMN_ID
+    WHERE IC.[OBJECT_ID] = @OBJECT_ID
+),
+FK_COLUMNS AS 
+(
+     SELECT 
+          K.CONSTRAINT_OBJECT_ID
+        , CNAME = C.NAME
+        , RCNAME = RC.NAME
+    FROM SYS.FOREIGN_KEY_COLUMNS K WITH (NOWAIT)
+    JOIN SYS.COLUMNS RC WITH (NOWAIT) ON RC.[OBJECT_ID] = K.REFERENCED_OBJECT_ID AND RC.COLUMN_ID = K.REFERENCED_COLUMN_ID 
+    JOIN SYS.COLUMNS C WITH (NOWAIT) ON C.[OBJECT_ID] = K.PARENT_OBJECT_ID AND C.COLUMN_ID = K.PARENT_COLUMN_ID
+    WHERE K.PARENT_OBJECT_ID = @OBJECT_ID
+)
+SELECT @SQL = 'CREATE TABLE ' + @OBJECT_NAME + CHAR(13) + '(' + CHAR(13) + STUFF((
+    SELECT CHAR(9) + ', [' + C.NAME + '] ' + 
+        CASE WHEN C.IS_COMPUTED = 1
+            THEN 'AS ' + CC.[DEFINITION] 
+            ELSE UPPER(TP.NAME) + 
+                CASE WHEN TP.NAME IN ('VARCHAR', 'CHAR', 'VARBINARY', 'BINARY', 'TEXT')
+                       THEN '(' + CASE WHEN C.MAX_LENGTH = -1 THEN 'MAX' ELSE CAST(C.MAX_LENGTH AS VARCHAR(5)) END + ')'
+                     WHEN TP.NAME IN ('NVARCHAR', 'NCHAR', 'NTEXT')
+                       THEN '(' + CASE WHEN C.MAX_LENGTH = -1 THEN 'MAX' ELSE CAST(C.MAX_LENGTH / 2 AS VARCHAR(5)) END + ')'
+                     WHEN TP.NAME IN ('DATETIME2', 'TIME2', 'DATETIMEOFFSET') 
+                       THEN '(' + CAST(C.SCALE AS VARCHAR(5)) + ')'
+                     WHEN TP.NAME = 'DECIMAL' 
+                       THEN '(' + CAST(C.[PRECISION] AS VARCHAR(5)) + ',' + CAST(C.SCALE AS VARCHAR(5)) + ')'
+                    ELSE ''
+                END +
+                CASE WHEN C.COLLATION_NAME IS NOT NULL THEN ' COLLATE ' + C.COLLATION_NAME ELSE '' END +
+                CASE WHEN C.IS_NULLABLE = 1 THEN ' NULL' ELSE ' NOT NULL' END +
+                CASE WHEN DC.[DEFINITION] IS NOT NULL THEN ' DEFAULT' + DC.[DEFINITION] ELSE '' END + 
+                CASE WHEN IC.IS_IDENTITY = 1 THEN ' IDENTITY(' + CAST(ISNULL(IC.SEED_value, '0') AS CHAR(1)) + ',' + CAST(ISNULL(IC.INCREMENT_value, '1') AS CHAR(1)) + ')' ELSE '' END 
+        END + CHAR(13)
+    FROM SYS.COLUMNS C WITH (NOWAIT)
+    JOIN SYS.TYPES TP WITH (NOWAIT) ON C.USER_TYPE_ID = TP.USER_TYPE_ID
+    LEFT JOIN SYS.COMPUTED_COLUMNS CC WITH (NOWAIT) ON C.[OBJECT_ID] = CC.[OBJECT_ID] AND C.COLUMN_ID = CC.COLUMN_ID
+    LEFT JOIN SYS.DEFAULT_CONSTRAINTS DC WITH (NOWAIT) ON C.DEFAULT_OBJECT_ID != 0 AND C.[OBJECT_ID] = DC.PARENT_OBJECT_ID AND C.COLUMN_ID = DC.PARENT_COLUMN_ID
+    LEFT JOIN SYS.IDENTITY_COLUMNS IC WITH (NOWAIT) ON C.IS_IDENTITY = 1 AND C.[OBJECT_ID] = IC.[OBJECT_ID] AND C.COLUMN_ID = IC.COLUMN_ID
+    WHERE C.[OBJECT_ID] = @OBJECT_ID
+    ORDER BY C.COLUMN_ID
+    FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, CHAR(9) + ' ')
+    + ISNULL((SELECT CHAR(9) + ', CONSTRAINT [' + K.NAME + '] PRIMARY KEY (' + 
+                    (SELECT STUFF((
+                         SELECT ', [' + C.NAME + '] ' + CASE WHEN IC.IS_DESCENDING_KEY = 1 THEN 'DESC' ELSE 'ASC' END
+                         FROM SYS.INDEX_COLUMNS IC WITH (NOWAIT)
+                         JOIN SYS.COLUMNS C WITH (NOWAIT) ON C.[OBJECT_ID] = IC.[OBJECT_ID] AND C.COLUMN_ID = IC.COLUMN_ID
+                         WHERE IC.IS_INCLUDED_COLUMN = 0
+                             AND IC.[OBJECT_ID] = K.PARENT_OBJECT_ID 
+                             AND IC.INDEX_ID = K.UNIQUE_INDEX_ID     
+                         FOR XML PATH(N''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, ''))
+            + ')' + CHAR(13)
+            FROM SYS.KEY_CONSTRAINTS K WITH (NOWAIT)
+            WHERE K.PARENT_OBJECT_ID = @OBJECT_ID 
+                AND K.[TYPE] = 'PK'), '') + ')'  + CHAR(13)
+    + ISNULL((SELECT (
+        SELECT CHAR(13) +
+             'ALTER TABLE ' + @OBJECT_NAME + ' WITH' 
+            + CASE WHEN FK.IS_NOT_TRUSTED = 1 
+                THEN ' NOCHECK' 
+                ELSE ' CHECK' 
+              END + 
+              ' ADD CONSTRAINT [' + FK.NAME  + '] FOREIGN KEY(' 
+              + STUFF((
+                SELECT ', [' + K.CNAME + ']'
+                FROM FK_COLUMNS K
+                WHERE K.CONSTRAINT_OBJECT_ID = FK.[OBJECT_ID]
+                FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '')
+               + ')' +
+              ' REFERENCES [' + SCHEMA_NAME(RO.[SCHEMA_ID]) + '].[' + RO.NAME + '] ('
+              + STUFF((
+                SELECT ', [' + K.RCNAME + ']'
+                FROM FK_COLUMNS K
+                WHERE K.CONSTRAINT_OBJECT_ID = FK.[OBJECT_ID]
+                FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '')
+               + ')'
+            + CASE 
+                WHEN FK.DELETE_REFERENTIAL_ACTION = 1 THEN ' ON DELETE CASCADE' 
+                WHEN FK.DELETE_REFERENTIAL_ACTION = 2 THEN ' ON DELETE SET NULL'
+                WHEN FK.DELETE_REFERENTIAL_ACTION = 3 THEN ' ON DELETE SET DEFAULT' 
+                ELSE '' 
+              END
+            + CASE 
+                WHEN FK.UPDATE_REFERENTIAL_ACTION = 1 THEN ' ON UPDATE CASCADE'
+                WHEN FK.UPDATE_REFERENTIAL_ACTION = 2 THEN ' ON UPDATE SET NULL'
+                WHEN FK.UPDATE_REFERENTIAL_ACTION = 3 THEN ' ON UPDATE SET DEFAULT'  
+                ELSE '' 
+              END 
+            + CHAR(13) + 'ALTER TABLE ' + @OBJECT_NAME + ' CHECK CONSTRAINT [' + FK.NAME  + ']' + CHAR(13)
+        FROM SYS.FOREIGN_KEYS FK WITH (NOWAIT)
+        JOIN SYS.OBJECTS RO WITH (NOWAIT) ON RO.[OBJECT_ID] = FK.REFERENCED_OBJECT_ID
+        WHERE FK.PARENT_OBJECT_ID = @OBJECT_ID
+        FOR XML PATH(N''), TYPE).value('.', 'NVARCHAR(MAX)')), '')
+    + ISNULL(((SELECT
+         CHAR(13) + 'CREATE' + CASE WHEN I.IS_UNIQUE = 1 THEN ' UNIQUE' ELSE '' END 
+                + ' NONCLUSTERED INDEX [' + I.NAME + '] ON ' + @OBJECT_NAME + ' (' +
+                STUFF((
+                SELECT ', [' + C.NAME + ']' + CASE WHEN C.IS_DESCENDING_KEY = 1 THEN ' DESC' ELSE ' ASC' END
+                FROM INDEX_COLUMN C
+                WHERE C.IS_INCLUDED_COLUMN = 0
+                    AND C.INDEX_ID = I.INDEX_ID
+                FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') + ')'  
+                + ISNULL(CHAR(13) + 'INCLUDE (' + 
+                    STUFF((
+                    SELECT ', [' + C.NAME + ']'
+                    FROM INDEX_COLUMN C
+                    WHERE C.IS_INCLUDED_COLUMN = 1
+                        AND C.INDEX_ID = I.INDEX_ID
+                    FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') + ')', '')  + CHAR(13)
+        FROM SYS.INDEXES I WITH (NOWAIT)
+        WHERE I.[OBJECT_ID] = @OBJECT_ID
+            AND I.IS_PRIMARY_KEY = 0
+            AND I.[TYPE] = 2
+        FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+    ), '')
+ 
+PRINT @SQL
+
 -- 테이블 생성 프로시저
 -- * 프로시저 삭제
 drop PROC DBO.USP_GET_TABLE_SCHEMA;
@@ -150,6 +299,25 @@ select 'create table ' + TABLE_NAME + '(' +
 from INFORMATION_SCHEMA.COLUMNS c
 group by TABLE_NAME;
 
+-- * 테이블 생성(수정본)
+/*
+타입 추가
+PRECISION에 맞게 코드 변경 => CHARACTER_MAXIMUM_LENGTH이 -1 
+cast로 잘못 변경한 것을 삭제
+*/
+select 'create table ' + TABLE_NAME + '(' +
+       stuff((select ', ' + COLUMN_NAME  + ' ' + DATA_TYPE + 
+	          case when DATA_TYPE in ('varchar', 'char', 'varbinary', 'binary', 'nchar', 'nvarchar') then 
+						case when CHARACTER_MAXIMUM_LENGTH = -1 then ''
+						     else '(' + cast(CHARACTER_MAXIMUM_LENGTH as varchar) + ')' end
+				   when DATA_TYPE in ('numeric', 'decimal', 'float' , 'real') then '(' + 
+							case when NUMERIC_SCALE = 0 then cast(NUMERIC_PRECISION as varchar) + ')'
+								 else cast(NUMERIC_PRECISION as varchar) + ', '  + cast(NUMERIC_SCALE as varchar) + ')' end
+				   else '' end
+              from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=c.TABLE_NAME for xml path('')), 1,2,'') + ');'
+from INFORMATION_SCHEMA.COLUMNS c
+group by TABLE_NAME;
+
 -- * DB내 모든 테이블 생성 쿼리를 변수에 저장시키기
 declare @db_table_create_script nvarchar(max)
 select @db_table_create_script = replace(
@@ -218,7 +386,7 @@ with pk_fk_tbl as (
 	from final_pk_fk_tbl fpft left join paren_refer_tbl prt
 		 on fpft.object_id=prt.constraint_object_id
 )
--- 하나의 행마다 하나의 키 생성 쿼리문
+-- * 하나의 행마다 하나의 키 생성 쿼리문
 select 'alter table [' + CONSTRAINT_SCHEMA + '].['+ table_name + '] add constraint ' + CONSTRAINT_NAME + ' ' + 
         case when constraint_type='PRIMARY KEY' then constraint_type + ' [' + CONSTRAINT_SCHEMA + '].[' + TABLE_NAME + ']([' + mul_col + '])' 
 		     when constraint_type='UNIQUE' then constraint_type + '([' + mul_col + '])' 
@@ -232,7 +400,7 @@ select 'alter table [' + CONSTRAINT_SCHEMA + '].['+ table_name + '] add constrai
 		end + ';' "pk_fk"
 from pk_fk_dec_ifm_tbl;
 
--- * xml형태로 저장 => 한 행에 다 저장
+-- * xml형태로 저장 => 한 행에 다 저장 => 실행 시키기 위해서는 -- * 하나의 행마다 하나의 키 생성 쿼리문 부분을 주석 처리 후 실행
 select replace((select char(13) + 'alter table [' + CONSTRAINT_SCHEMA + '].['+ table_name + '] add constraint ' + CONSTRAINT_NAME + ' ' + 
                        case when constraint_type='PRIMARY KEY' then constraint_type + ' [' + CONSTRAINT_SCHEMA + '].[' + TABLE_NAME + ']([' + mul_col + '])' 
 		                    when constraint_type='UNIQUE' then constraint_type + '([' + mul_col + '])' 
@@ -339,6 +507,7 @@ select * from INFORMATION_SCHEMA.columns where TABLE_NAME='sysnotifications';
 */
 
 -- * 인덱스 테이블 만들기
+declare @index_script varchar(max)
 with index_tbl as(
 	select i.name "INDEX_NAME", i.type_desc "INDEX_TYPE", t.*, c.name "COLUMN_NAME",
 		   i.is_unique, i.data_space_id, i.ignore_dup_key, i.is_primary_key, i.is_unique_constraint, i.fill_factor, 
@@ -366,33 +535,90 @@ with index_tbl as(
 	from index_tbl it inner join
 		 ind_add_col_tbl iact on it.INDEX_NAME=iact.INDEX_NAME and it.TABLE_NAME=iact.TABLE_NAME
 )
-select *
+-- ** 각행의 하나의 인덱스
+select 'create ' + INDEX_TYPE + ' index ' + INDEX_NAME COLLATE Korean_Wansung_CI_AS + ' on [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '](' + mul_col +');' 
 from final_index_tbl
 
--- 'create ' + index_type + ' index ' + index_name + ' on [' + table_schema + '].[' + table_name + '](' + mul_col +')'
-select i.name "INDEX_NAME", i.type_desc "INDEX_TYPE", o.type_desc "OBJECT_TYPE"
-from sys.indexes i inner join 
-	 sys.objects o on i.object_id=o.object_id and i.index_id=i.index_id
-where i.name='PK_sysutility_mi_dac_execution_statistics_internal'
+-- ** 전체 인덱스 출력
+select @index_script = replace(stuff((select ' ' + char(13) + 'create ' + INDEX_TYPE + ' index ' + INDEX_NAME COLLATE Korean_Wansung_CI_AS + ' on [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '](' + mul_col +');' 
+from final_index_tbl
+for xml path('')),1,1,''),'&#x0D;',char(13))
+/*
+DB의 전체 인덱스를 하나의 스크립트에 담는 쿼리문으로 전체 196행 중 80행쯤에서 문자수 초과로 모든 쿼리문이 삽입이 되지 않는다.
+*/
 
-select i.name "INDEX_NAME", i.type_desc "INDEX_TYPE", o.type_desc "OBJECT_TYPE", ic.*
-from sys.indexes i inner join 
-	 sys.objects o on i.object_id=o.object_id inner join
-	 sys.index_columns ic on ic.object_id=i.object_id and i.index_id=ic.index_id
-where i.name='PK_sysutility_mi_dac_execution_statistics_internal'
-
-select *
-from sys.indexes
-where object_id='18815129'
-
-select *
-from sys.index_columns
-where object_id='18815129'
+print @index_script
 
 -- 권한
-select * from INFORMATION_SCHEMA.COLUMN_PRIVILEGES
+-- * DB개념
+-- ** 객체(major_id)가 가지고 있는 권한에 대해 알려준다.
+select * from sys.database_permissions
+
+select grantee_principal_id, grantor_principal_id, type, permission_name, state, state_desc from sys.database_permissions
+select user_name(grantee_principal_id) "grantee_user", -- 권한을 받는 사람
+       user_name(grantor_principal_id) "grantor_user", -- 권한을 주는 사람
+	   type, permission_name, -- 권한 종류(줄임, 풀)
+	   state, state_desc -- 사용권한 상태 (줄임, 풀)
+from sys.database_permissions
+/*
+- class는 0:데이터베이스, 1: 개체, 열, 3: 스키마, 등으로 각 번호에 맞는 객체가 있다.
+- class_desc는 번호로된 class의 문자열 정보
+- major_id: 사용권한이 존재하는 항목 ID
+- minor_id: 사용권한이 존재하는 항목 보조 ID
+*/
+
+-- * 예제 권한 만들기
+create login gy_test with password='9333';
+create user gy_test for login gy_test;
+
+-- * 권한 부여
+grant select on [dbo].[spt_fallback_db] to gy_test;
+grant select on [dbo].[spt_fallback_dev] to gy_test;
+grant create table to gy_test;
+
+-- * 권한 삭제
+revoke select on [dbo].[spt_fallback_db] to gy_test;
+revoke create table to gy_test;
+
+-- * 부여된 권한 확인
+select * from sys.database_permissions where major_id='117575457' -- 테이블로 확인
+select * from sys.database_permissions where USER_NAME(grantee_principal_id)='public' -- 유저명으로 
+/*
+- major_id='117575457' => spt_fallback_db의 번호
+- major_id='133575514' => spt_fallback_dev의 번호
+- grantee_principal_id나 grantor_principal_id는 sys.database_principalsDB에 저장되어 있으니 확인해보자!!
+  => grantee_principal_id는 권한을 부여받은 사람, grantor_principal_id는 권한을 준 사람이라고 생각
+- grant select on [dbo].[spt_fallback_db] to gy_test를 실행하면 grantee_principal_id가 7(gy_test)인 줄이 추가
+- grantor_principal_id가 0이면 public
+*/
+
+-- * 스크립트 생성 쿼리문
+select 'grant ' + PRIVILEGE_TYPE + ' on [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '] to [' + GRANTEE + '];' 
+from INFORMATION_SCHEMA.TABLE_PRIVILEGES;
+
+-- 유저와 역할
+-- * DB개념
+select * from sys.database_principals;
+
+select 'create ' + 
+        case when type='R' then 'role [' + name + '];'
+		     when type='S' then 'user [' + name + '];' end
+from sys.database_principals
+/*
+- mssql 개체 탐색기 해당 DB의 보안 폴더에 있는 사용저와 역할(데이터베이스 역할)에 저장된 정보들을 보여준다.
+- type열에는 A(애플리케이션 역할), C(인증서로 매칭된 사용자), E(Azure active Directory의 외부 사용자), G(window그룹), K(비대칭 키로 매핑된 사용자) 등 다른 타입들도 있다.
+*/
 
 -- 시퀀스
+
+
+
+
+
+
+
+
+
 
 
 
