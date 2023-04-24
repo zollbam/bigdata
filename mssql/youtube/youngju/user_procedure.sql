@@ -84,21 +84,21 @@ while @I <= 100
 				break
 			end
 		set @added = @added + @I
-		print N'현재 숫자는 ' + cast(@I as varchar) + N'이고 총 합은 ' + cast(@added as varchar) + N'입니다.'
+		print N'현재 숫자는 ' + cast(@I as varchar) + N'이고 총 합은 ' + cast(@added as varchar) -- + N'입니다.'
 		set @I = @I + 1
 	end
 		print N'최종결과: ' + cast(@added as varchar);
 
 -- 동적 SQL
 create proc SP_SELECT_TABLE_INFO
-@TableName varchar(3000)
-as 
-begin
-	declare @sqlquery varchar(3000)
-	set @sqlquery = 'select * from ' + @tablename
+	@TableName varchar(3000)	
+	as 
+	begin
+		declare @sqlquery varchar(3000)
+		set @sqlquery = 'select * from ' + @tablename
 
-	exec(@sqlquery)
-end 
+		exec(@sqlquery)
+	end 
 go
 exec SP_SELECT_TABLE_INFO 'companyinfo';
 exec SP_SELECT_TABLE_INFO 'stockprice';

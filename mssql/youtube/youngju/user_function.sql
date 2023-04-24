@@ -1,4 +1,6 @@
 ﻿-- 스칼라 함수
+use study 
+go 
 create function f_plus(
 	@value1 int,
 	@value2 int
