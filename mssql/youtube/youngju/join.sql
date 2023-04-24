@@ -27,7 +27,8 @@ from companyinfo ci right join
 
 -- 4) full outer join
 select ci.Name, ci.IND_ID, ii.IND_Name
-from companyinfo ci full outer join
+from companyinfo ci 
+     full outer join
      industryinfo ii
 		on ci.IND_ID = ii.IND_ID;
 
