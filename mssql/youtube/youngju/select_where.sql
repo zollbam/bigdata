@@ -45,10 +45,6 @@ select *
 from companyinfo
 where name like 'a____';
 
-select *
-from companyinfo
-where city like '[sdva]eoul';
-
 -- order by
 select incinctrycode, Employees, name
 from companyinfo

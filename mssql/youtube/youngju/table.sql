@@ -1,4 +1,6 @@
 ﻿-- 테이블 생성
+use study
+go
 create table Persons(
 	PersonID int,
 	LastName varchar(255),
@@ -89,25 +91,28 @@ alter table customers add constraint pk_customers primary key (id);
 alter table customers drop constraint pk_customers;
 
 -- 제약 조건 추가(외래키)
-create table Customers(
+create table Customers1(
 	PersonID int primary key,
 	LastName varchar(255) not null,
 	FirstName varchar(255) not null,
 	Age int
 )
 go
-insert into customers values
+insert into customers1 values
 	(1, 'Hansen', 'Ola', 30),
 	(2, 'Svendson', 'Tove', 23),
 	(3, 'Hansen', 'Kari', 20)
 go
-select * from customers;
+select * from customers1;
+
+alter table orders drop constraint fk_orders;
+drop table customers1;
 
 create table Orders (
 	OrderID int primary key,
 	OrderNumber int not null,
 	PersonID int,
-	constraint fk_orders foreign key(personid) references customers(personid)
+	constraint fk_orders foreign key(personid) references customers1(personid)
 )
 go 
 insert into orders values
