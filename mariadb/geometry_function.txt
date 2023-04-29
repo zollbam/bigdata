@@ -1,0 +1,128 @@
+https://youngwoon.tistory.com/3
+https://sparkdia.tistory.com/category/Database/Spatial%20DB
+https://mariadb.com/kb/en/geographic-geometric-features/
+https://mariadb.com/kb/en/mysqlmariadb-spatial-support-matrix/
+
+* 좌표 타입 반환/변경
+AsBinary
+AsText
+AsWKB
+AsWKT
+PointFromText
+PointFromWKB
+LineString
+LineFromText
+LineStringFromText
+LineStringFromWKB
+LineFromWKB
+Polygon
+PolyFromText
+PolygonFromText
+PolyFromWKB
+PolygonFromWKB
+MultiPoint
+MultiPointFromText
+MPointFromText
+MultiPointFromWKB
+MPointFromWKB
+MultiLineString
+MultiLineStringFromText
+MLineFromText
+MultiLineStringFromWKB
+MLineFromWKB
+Polygon
+MultiPolygonFromText
+MPolyFromText
+MultiPolygonFromWKB
+MPolyFromWKB
+GeometryCollection
+GeomFromText
+GeometryFromText
+GeomCollFromText
+GeometryCollectionFromText
+GeomCollFromWKB
+GeometryFromWKB
+GeomFromWKB
+
+ =>ST_를 붙여 사용도 가능, ST_가 없는 함수들은 synonym
+
+ST_AsGeoJSON: geom타입을 Json타입으로 변경
+ST_GeomFromGeoJSON: Json타입을 geom타입으로 변경
+
+* 논리값 반환
+ST_INTERSECTS(A, B): A와 B가 교차하면 1(True) 반환 아니면 0(False)
+  - 하나의 폴리곤이 하나의 폴리곤 안에 있다면 1 반환
+ST_CROSSES(A, B): A와 B가 교차하면 1(True) 반환 아니면 0(False)
+ - 하나의 폴리곤이 하나의 폴리곤 안에 있다면 0 반환
+ - 하나의 폴리곤 안에서 조금이라도 나와 겹치는 부분이 생기면 1 반환
+ST_EQUALS(A, B): A와 B가 같다면 1(True) 반환 아니면 0(False)
+ST_WITHIN(A, B): A가 B 안에 있으면 1(True) 반환 아니면 0(False) => B가 더 큰 영역
+ST_CONTAINS(A,B): B가 A 안에 있으면 1(True) 반환 아니면 0(False) => A가 더 큰 영역
+ST_DISJOINT(A,B): A와 B가 교차하지 않으면 1(True) 반환 아니면 0(False)
+ST_TOUCHES(A,B): A가 B를 만지면 1(True) 반환 아니면 0(False)
+ - 2개의 폴리곤이 외부에서 접선이나 접선일 때 1 반환
+
+* 좌표 계산
+ST_UNION(A, B): A좌표와 B좌표의 전체
+ - 점 + 점 => multipoint
+ - 폴리곤 + 폴리곤 + 겹치는 부분 => 합쳐진 하나의 폴리곤
+ - 폴리곤 + 폴리곤 + 겹치는 부분 X => multipolygon
+ST_INTERSECTION(A, B): A좌표와 B좌표의 겹치는 부분
+ST_SYMDIFFERENCE(A, B): A좌표와 B좌표의 총 합친 부분에서 겹치는 영역만 뺀 geom반환
+ST_DIFFERENCE(A, B): A좌표에 B좌표를 뺀 geom 반환 => 빼고 남은 B영역은 출력 X
+ST_BUFFER(A, 반지름): 반지름거리에 있는 영역의 모양을 반환
+ST_ConvexHull: 모든 geom타입을 포함하는 최소 geom타입 영역을 반환
+ST_Envelope: 좌표를 포함하는 MBR(Minimum Bounding Rectangle) 반환
+ST_StartPoint: 첫번째 점(좌표)을 반환
+ST_EndPoint: 마지막 점(좌표)을 반환
+ST_PointN(A,n): n번째 점(좌표)을 반환
+ST_NumPoints: linestring타입의 점 개수를 반환
+ST_GeometryN(A,n): GeometryCollection의 n번째 geom을 반환
+ST_Centroid: geom의 중심점을 찾는 함수로 다각형 외부에서 중심점을 찾을 때도 O
+ST_PointOnSurface
+ - geom의 중심점을 찾는 함수
+ - 무조건 geom도형 안에서 중심점을 찾음
+ - 하지만 오류 문제인지 마리아db에서는 null만 반환 되고 있는 중 => postgis에서는 잘 작동
+ST_BOUNDARY
+ST_Dimension: geom의 차원을 반환
+ - -1: 빈 geom
+    0: 길이도 영역도 없음 => 점
+    1: 영역은 없지만 길이는 있음 => 선
+    2: 영역이 있음 => 다각형(폴리곤)
+ST_GeometryType: geom의 도형 유형을 문자열로 반환
+ - point, polygon 이렇게
+ST_IsClosed
+ - linestring타입의 시작점과 끝점이 같으면 1를 반환, 그렇지 않으면 0반환
+ - linestring타입이 아니면 10.1.5 이전 버전에서는 null이었지만 이후에는 -1 반환
+   * 10.3.8에서 확인 해본 결과 polygon으로 함수 사용시 -1 반환
+
+* 아직 안 찾아본 함수
+ST_IsEmpty
+ST_IsRing
+ST_NumGeometries
+ST_Relate(A, B, i)
+ST_SRID(A, srid)
+ST_DISTANCE(A, B)
+ST_DISTANCE_SPHERE(A, B)
+ST_X
+ST_Y
+ST_Area
+ST_ExteriorRing
+ST_InteriorRingN(A, n)
+ST_NumInteriorRings
+
+
+
+
+인덱스 추가
+CREATE  TABLE  geom  ( g  GEOMETRY  NOT  NULL ,  SPATIAL  INDEX ( g ));
+ALTER  TABLE  geom  ADD  SPATIAL  INDEX ( g );
+
+CREATE  SPATIAL  INDEX  sp_index  ON  geom  ( g );
+
+인덱스 삭제
+ALTER  TABLE  geom  DROP  INDEX  g ;
+
+DROP INDEX sp_index ON geom;
+
+
