@@ -100,61 +100,37 @@ INSERT into gis_geometry SELECT * FROM gis_geometrycollection;
 
 select * from geo.gis_geometry;
 
+# polygon과 multipolygon의 차이
+SET @pg = 'Polygon((0 0,0 3,3 0,0 0),(1 1,1 2,2 1,1 1), (0 0, 0 10, 10 10, 10 0, 0 0))';
+SET @mpg = 'multiPolygon(((0 0,0 3,3 0,0 0),(1 1,1 2,2 1,1 1)), ((0 0, 0 10, 10 10, 10 0, 0 0)))';
 
+select geomfromtext(@pg);
+select st_area(geomfromtext(@pg));
+select geomfromtext(@mpg);
+select st_area(geomfromtext(@mpg));
+/*
+지도상 => pg와 mpg의 영역 차이는 없어 보인다.
+하지만 영역의 면적을 보면 pg는 96, mpg는 104로
+       pg는 10*10의 정사각형에서 짤린 부분이 있고
+       mpg는 10*10의 정사각형에서 추가되는 영역이 있다는 의미 
+*/
 
+# 내부 다각형을 linestring으로
+SET @a = 'Polygon((0 0,0 5,5 0,0 0),(1 1,1 3,3 1,1 1), (0.5 0.5, 4 0.5, 0.5 4, 0.5 0.5))';
 
-set @a = polygonfromtext('polygon((0 0, 2 1, 3 5, 2 4, 0 0))');
+select polyfromtext(@a);
 
-set @b = polygonfromtext('polygon((0 0, 0 1, 1 1, 0 -1, 0 0))');
+select st_interiorringn(polyfromtext(@a), 1);
+/*제일 안쪽에 있는 다각형을 선타입으로 출력*/
+select st_interiorringn(polyfromtext(@a), 2);
+/*안쪽으로 부터 2번째 다각형을 선타입으로 출력*/
+select st_interiorringn(polyfromtext(@a), 3);
+/*가장 바깥쪽에 있는 선을 뽑고 싶었는데 null이 나온다.
+  아무래도 제일 바깥쪽에 있는 선은 ST_ExteriorRing로 뽑을수 있으니
+  st_interiorringn에서는 지원이 안되는 것으로 판단*/
 
-select polygonfromtext('polygon((0 0, 1 2, 1 4, -2 4, 0 0))');
+select st_numinteriorrings(polyfromtext(@a));
+/*내부 링이 2개 이므로 st_interiorringn에서 2번째 인수가 1과 2만 된다.
+  if 링개수가 5이면 두번째 인수는 1~5까지 가능*/
 
-select st_centroid(geomfromtext(ASTEXT((@a))));
-select st_pointonsurface(geomfromtext(ASTEXT((@a))));
-select geometrycollection(geomfromtext(ASTEXT(@a)),geomfromtext(astext(@b)));
-select st_symdifference(geomfromtext(astext(@a)), geomfromtext(astext(@b)));
-select st_difference(geomfromtext(astext(@a)), geomfromtext(astext(@b)));
-
-select geomfromtext(astext(@b));
-
-select st_touches(@b, @a);
-
-select st_intersects(@b, @a);
-
-SET @g1 = GEOMFROMTEXT('POINT (0 2)');
-
-SET @g2 = GEOMFROMTEXT('POINT (2 0)');
-
-SELECT geomfromtext(ASTEXT(ST_UNION(@g1,@g2)));
-
-
-SET @g1 = ST_GEOMFROMTEXT('POINT(1 0)');
-
-SET @g2 = ST_GEOMFROMTEXT('LINESTRING(2 0, 0 2)');
-
-select geomfromtext(astext(@g1));
-select geomfromtext(astext(@g2));
-
-select geomfromtext(astext(st_union(@g1, @g2)));
-
-select st_touches(@g1, @g2);
-
-
-
-select PolygonFromText('POLYGON((-70.916 42.1002,
-                                 -70.9468 42.0946,
-                                 -70.9754 42.0875,
-                                 -70.9749 42.0879,
-                                 -70.9759 42.0897,
-                                 -70. 916 42.1002))') "a";
-            
-
-select ST_PolyFromText( 'POLYGON((-70.916 42.1002,-70.9468 42.0946,-70.9754 42.0875,-70.9749 42.0879,-70.9759 42.0897,-70 .916 42.1002))');
-
-
-
-
-
-
-
-
+# 이해 안가는 함수 
