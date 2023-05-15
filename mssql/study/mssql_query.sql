@@ -1,16 +1,29 @@
--- Å×ÀÌºí »ı¼º
-select 'create table ' + TABLE_NAME + '(' +
-       stuff((select ', ' + COLUMN_NAME  + ' ' + DATA_TYPE + 
-	          case when DATA_TYPE in ('varchar', 'char', 'varbinary', 'binary', 'nchar', 'nvarchar') then 
-						case when CHARACTER_MAXIMUM_LENGTH = -1 then ''
-						     else '(' + cast(CHARACTER_MAXIMUM_LENGTH as varchar) + ')' end
-				   when DATA_TYPE in ('numeric', 'decimal', 'float' , 'real') then '(' + 
-							case when NUMERIC_SCALE = 0 then cast(NUMERIC_PRECISION as varchar) + ')'
-								 else cast(NUMERIC_PRECISION as varchar) + ', '  + cast(NUMERIC_SCALE as varchar) + ')' end
-				   else '' end
-              from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=c.TABLE_NAME for xml path('')), 1,2,'') + ');'
-from INFORMATION_SCHEMA.COLUMNS c
-group by TABLE_NAME;
+-- í…Œì´ë¸” ìƒì„±
+SELECT 'CREATE TABLE '+ table_name + '(' +
+       stuff((SELECT ', ' + 
+                     COLUMN_NAME + ' ' + 
+                     DATA_TYPE + 
+                     CASE WHEN DATA_TYPE in ('varchar', 'char', 'varbinary', 'binary', 'nchar', 'nvarchar') then 
+						                 case when CHARACTER_MAXIMUM_LENGTH = -1 then ''
+						                      else '(' + cast(CHARACTER_MAXIMUM_LENGTH as varchar) + ')' 
+						                 end
+				          WHEN DATA_TYPE in ('numeric', 'decimal', 'float' , 'real') then 
+				                         '(' + case when NUMERIC_SCALE = 0 then cast(NUMERIC_PRECISION as varchar) + ')'
+								                    else cast(NUMERIC_PRECISION as varchar) + ', '  + 
+								                              cast(NUMERIC_SCALE as varchar) + ')' 
+								               end
+				          else '' 
+				     END + ' ' +
+				     CASE WHEN IS_NULLABLE='NO' THEN 'NOT NULL'
+				          ELSE ''
+				     END
+              FROM information_schema.columns
+              where table_name = c.table_name 
+              FOR xml PATH('')), 1, 2, '') 
+       + ');'
+FROM information_schema.columns c
+GROUP BY TABLE_NAME;
+
 
 
 
@@ -25,9 +38,9 @@ select * from INFORMATION_SCHEMA.COLUMN_PRIVILEGES
 select * from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 
 
--- ±âº»/¿Ü·¡/À¯´ÏÅ© Å°
+-- ê¸°ë³¸/ì™¸ë˜/ìœ ë‹ˆí¬ í‚¤
 with pk_fk_tbl as (
-    -- Á¦¾àÁ¶°ÇÀÌ °°Àº °ÍÀ» ¹­¾î¼­ 
+    -- ì œì•½ì¡°ê±´ì´ ê°™ì€ ê²ƒì„ ë¬¶ì–´ì„œ 
 	SELECT kc.CONSTRAINT_NAME, o.object_id, kc.TABLE_NAME, kc.COLUMN_NAME, tc.CONSTRAINT_CATALOG, tc.CONSTRAINT_SCHEMA, tc.CONSTRAINT_TYPE
 	FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGe kc inner join
          information_schema.TABLE_CONSTRAINTS tc on kc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME inner join
@@ -74,7 +87,7 @@ select 'alter table [' + CONSTRAINT_SCHEMA + '].['+ table_name + '] add constrai
 		end + ';' "pk_fk"
 from pk_fk_dec_ifm_tbl;
 /*
-Å×ÀÌºí »ı¼º½Ã Å°¸¦ ÁöÁ¤ÇÏ´Â °ÍÀÌ ¾Æ´Ñ Å×ÀÌºíÀ» ¸¸µé¾î µÎ°í alter¿É¼ÇÀ¸·Î ¼öÁ¤ÇÏ´Â ¹æ¹ıÀ¸·Î ¸¸µë
+í…Œì´ë¸” ìƒì„±ì‹œ í‚¤ë¥¼ ì§€ì •í•˜ëŠ” ê²ƒì´ ì•„ë‹Œ í…Œì´ë¸”ì„ ë§Œë“¤ì–´ ë‘ê³  alterì˜µì…˜ìœ¼ë¡œ ìˆ˜ì •í•˜ëŠ” ë°©ë²•ìœ¼ë¡œ ë§Œë“¬
 */
 
 
@@ -86,7 +99,7 @@ from pk_fk_dec_ifm_tbl;
 
 
 
--- ÀÎµ¦½º
+-- ì¸ë±ìŠ¤
 with index_tbl as(
 	select i.name "INDEX_NAME", i.type_desc "INDEX_TYPE", t.*, c.name "COLUMN_NAME",
 		   i.is_unique, i.data_space_id, i.ignore_dup_key, i.is_primary_key, i.is_unique_constraint, i.fill_factor, 
@@ -119,8 +132,8 @@ select 'create ' + INDEX_TYPE + ' index ' + INDEX_NAME COLLATE Korean_Wansung_CI
 from final_index_tbl
 
 /*
-sys.indexes, sys.objects, sys.index_columns, sys.columns, INFORMATION_SCHEMA.tables¿¡¼­ ÇÊ¿äÇÑ ¿­À» ÃßÃâ
-allow_page_locks, allow_row_locks µîÀº ÀÎµ¦½º ¸¸µé ¶§ ÇÊ¿äÇÑ ¿É¼ÇµéÀÎµ¥ ¾ø¾îµµ »ı¼ºÀÌ µÇ´Ï ÀÏ´Ü ÃßÃâ¸¸ ÇØº½
+sys.indexes, sys.objects, sys.index_columns, sys.columns, INFORMATION_SCHEMA.tablesì—ì„œ í•„ìš”í•œ ì—´ì„ ì¶”ì¶œ
+allow_page_locks, allow_row_locks ë“±ì€ ì¸ë±ìŠ¤ ë§Œë“¤ ë•Œ í•„ìš”í•œ ì˜µì…˜ë“¤ì¸ë° ì—†ì–´ë„ ìƒì„±ì´ ë˜ë‹ˆ ì¼ë‹¨ ì¶”ì¶œë§Œ í•´ë´„
 */
 
 
@@ -132,11 +145,11 @@ allow_page_locks, allow_row_locks µîÀº ÀÎµ¦½º ¸¸µé ¶§ ÇÊ¿äÇÑ ¿É¼ÇµéÀÎµ¥ ¾ø¾îµµ »
 
 
 
--- ÇÁ·Î½ÃÀú
+-- í”„ë¡œì‹œì €
 select replace(ROUTINE_DEFINITION, '        ', char(10))
 from INFORMATION_SCHEMA.ROUTINES;
 /*
-ÁÖ¼®ÀÌ³ª ¿£ÅÍ/¶ç¾î¾²±â ¹®Á¦·Î º»ÀÎÀÌ Á÷Á¢ º¹»çÇØ¼­ ÄÚµå¸¦ ¸ÂÃß¾î ÁÖ¾î¾ß ÇÏ´Â ¹ø°Å·Î¿ò
+ì£¼ì„ì´ë‚˜ ì—”í„°/ë„ì–´ì“°ê¸° ë¬¸ì œë¡œ ë³¸ì¸ì´ ì§ì ‘ ë³µì‚¬í•´ì„œ ì½”ë“œë¥¼ ë§ì¶”ì–´ ì£¼ì–´ì•¼ í•˜ëŠ” ë²ˆê±°ë¡œì›€
 */
 
 
@@ -147,14 +160,14 @@ from INFORMATION_SCHEMA.ROUTINES;
 
 
 
--- ±ÇÇÑ
+-- ê¶Œí•œ
 select 'grant ' + PRIVILEGE_TYPE + ' on [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '] to [' + GRANTEE +
        case when is_grantable = 'NO' then ''
 	        else ' with grant option' 
 	   end + '];' 
 from INFORMATION_SCHEMA.TABLE_PRIVILEGES;
 /*
-INFORMATION_SCHEMA.TABLE_PRIVILEGES¿É¼Ç¿¡´Â ¸ğµç Á¤º¸µéÀÌ ´Ù µé¾î ÀÖ¾î ÆíÇÏ°Ô Äõ¸®¹®À» ÀÛ¼º
+INFORMATION_SCHEMA.TABLE_PRIVILEGESì˜µì…˜ì—ëŠ” ëª¨ë“  ì •ë³´ë“¤ì´ ë‹¤ ë“¤ì–´ ìˆì–´ í¸í•˜ê²Œ ì¿¼ë¦¬ë¬¸ì„ ì‘ì„±
 */
 
 
@@ -165,8 +178,8 @@ INFORMATION_SCHEMA.TABLE_PRIVILEGES¿É¼Ç¿¡´Â ¸ğµç Á¤º¸µéÀÌ ´Ù µé¾î ÀÖ¾î ÆíÇÏ°Ô Äõ
 
 
 
--- ½ÃÄö½º
--- * °¢ Çà¸¶´Ù ÇÏ³ªÀÇ ½ÃÄö½º(INFORMATION_SCHEMA.SEQUENCES)
+-- ì‹œí€€ìŠ¤
+-- * ê° í–‰ë§ˆë‹¤ í•˜ë‚˜ì˜ ì‹œí€€ìŠ¤(INFORMATION_SCHEMA.SEQUENCES)
 select 'create sequence [' + sequence_schema + '].[' + sequence_name + '] as ' + data_type + char(13) + 
        'start with ' + cast(start_value as varchar) + char(13) +
        'minvalue ' + cast(MINIMUM_VALUE as varchar) + char(13) +
@@ -175,7 +188,7 @@ select 'create sequence [' + sequence_schema + '].[' + sequence_name + '] as ' +
 	   case when cycle_option=0 then 'cycle' else 'no cycle' end + ';'
 from INFORMATION_SCHEMA.SEQUENCES;
 
--- * ½ºÅ©¸³Æ®¿¡ ÀúÀå(INFORMATION_SCHEMA.SEQUENCES)
+-- * ìŠ¤í¬ë¦½íŠ¸ì— ì €ì¥(INFORMATION_SCHEMA.SEQUENCES)
 declare @script varchar(max)
 select @script=replace(stuff((select ',' + 'create sequence [' + sequence_schema + '].[' + sequence_name + '] as ' + data_type + char(13) + 
                                      'start with ' + cast(start_value as varchar) + char(13) +
@@ -188,12 +201,12 @@ for xml path('')),1,1,''),'&#x0D;', char(13))
 
 print @script;
 
--- * °¢ Çà¸¶´Ù ÇÏ³ªÀÇ ½ÃÄö½º(sys.SEQUENCES)
+-- * ê° í–‰ë§ˆë‹¤ í•˜ë‚˜ì˜ ì‹œí€€ìŠ¤(sys.SEQUENCES)
 /*
-sys.SEQUENCES¿Í INFORMATION_SCHEMA.SEQUENCESÀÇ ´Ù¸¥Á¡
- - sys.SEQUENCES´Â cache¿É¼ÇÀ» ÁöÁ¤ ÇØÁÙ ¼ö ÀÖ´Â ¿­ÀÌ ÀÖÀ½
- - sys.SEQUENCES´Â cacheÅ©±â¸¦ ÀúÀå ½ÃÄÑµĞ Á¤º¸µµ ÀÖÀ½
- - sys.SEQUENCES´Â ÇöÀç °ªµµ º¼ ¼ö ÀÖÀ½
+sys.SEQUENCESì™€ INFORMATION_SCHEMA.SEQUENCESì˜ ë‹¤ë¥¸ì 
+ - sys.SEQUENCESëŠ” cacheì˜µì…˜ì„ ì§€ì • í•´ì¤„ ìˆ˜ ìˆëŠ” ì—´ì´ ìˆìŒ
+ - sys.SEQUENCESëŠ” cacheí¬ê¸°ë¥¼ ì €ì¥ ì‹œì¼œë‘” ì •ë³´ë„ ìˆìŒ
+ - sys.SEQUENCESëŠ” í˜„ì¬ ê°’ë„ ë³¼ ìˆ˜ ìˆìŒ
 */
 select 'create sequence ' + name + ' as ' + (select name "sq_type" from sys.types where system_type_id= s.system_type_id) + char(13) +
        'start with ' + cast(start_value as varchar) + char(13) +
@@ -205,7 +218,7 @@ select 'create sequence ' + name + ' as ' + (select name "sq_type" from sys.type
 			case when is_cached = 1 and cache_size is not null then cast(system_type_id as varchar) else '' end + ';'
 from sys.SEQUENCES s;
 
--- * ½ºÅ©¸³Æ®¿¡ ÀúÀå(sys.SEQUENCES)
+-- * ìŠ¤í¬ë¦½íŠ¸ì— ì €ì¥(sys.SEQUENCES)
 declare @script_ss varchar(max)
 select @script_ss=replace(stuff((select ' ' + 'create sequence ' + name + ' as ' + (select name "sq_type" from sys.types where system_type_id= s.system_type_id) + char(13) +
        'start with ' + cast(start_value as varchar) + char(13) +
