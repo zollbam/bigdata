@@ -10,9 +10,14 @@ DBMS > DB > table > data > 데이터 조회 및 활용
 
 DB 객체
  - 테이블
- -
-
-
+ - 뷰
+ - 인덱스
+ - 저장 프로시저
+ - 함수
+ - 트리거
+  * 삭제할 데이터를 자동으로 다른 곳에 저장
+  * insert, update, delete작업이 발생되면 실행되는 코드
+ - 커서
 */
 
 -- DB 생성
@@ -63,3 +68,91 @@ select top 3 * from memberTBL; -- 위에서 부터 3개 행만
 select memberName, memberAddress from memberTBL; -- 특정 열만
 select * from memberTBL where memberName = '지은이'; -- 조건에 맞는 데이터
 
+select * from [dbo].[productTBL] where productName = '세탁기';
+
+-- 테이블 복사
+select Name, ProductNumber, ListPrice, Size 
+	into indexTBL
+from AdventureWorks.Production.Product;
+
+SELECT * FROM INDEXTBL WHERE NAME = 'MINIPUMP';
+/*
+실제 실행 계획 포함을 눌러 실행 결과 속도를 살펴 보자
+
+커서 전체 대문자 변환 단축키
+ctrl + shift + U
+
+커서 전체 소문자 변환 단축키
+ctrl + shift + L
+*/
+
+-- 인덱스 생성
+CREATE INDEX IDX_INDEXTBL_NAME ON INDEXTBL(NAME);
+/*
+create index [인덱스명] on [테이블명][(컬럼명)];
+
+100%로 데이터를 찾던것을 50% 감소 확인
+*/
+
+-- 뷰 생성
+create view uv_memberTBL as 
+	select memberName, memberAddress 
+	from memberTBL;
+
+select * from uv_memberTBL;
+
+-- 프로시저 생성
+create procedure myProc
+as 
+select * from [dbo].[memberTBL] where memberName = '당탕이'
+select * from [dbo].[productTBL] where productName = '세탁기';
+
+exec myProc;
+execute myProc;
+/*execute는 exec로 줄여서도 사용가능*/
+
+-- 프로시저 변경
+alter procedure myProc
+as 
+select * from [dbo].[memberTBL] where memberName = '지은이'
+select * from [dbo].[productTBL] where productName = '세탁기';
+
+exec myProc;
+execute myProc;
+/*다른 결과가 나옴*/
+
+-- 트리거 생성
+insert into memberTBL values ('Figure', '연아', '경기도 군포시 당정동');
+select * from memberTBL;
+update memberTBL set memberAddress = '서울 강남구 역삼동' where memberName = '연아'; 
+delete from memberTBL where memberName = '연아';
+/*레코드 삭제만 되고 아무 일 일어나지 X*/
+
+create table deletedMemberTBL(
+	memberID char(8),
+	memberName nchar(5),
+	memberAddress nchar(20),
+	deleteDate date /*삭제한 날짜*/
+); /*삭제된 레코드 저장 테이블*/
+
+create trigger trg_deletedMemvberTBL /*트리거 이름*/
+	on memberTBL /*트리거를 부착할 테이블*/
+	after delete /*삭제후에 작동하게 지정*/
+as
+	/*delted 테이블의 내용을 백업 테이블에 삽입*/
+	insert into deletedMemberTBL
+		select memberID, memberName, memberAddress, getdate() from deleted;
+
+delete from [dbo].[memberTBL] where memberName = '당탕이';
+
+select * from [dbo].[memberTBL];
+select * from [dbo].deletedMemberTBL;
+
+-- DB 백업
+/* 
+데이터베이스 => 데이터베이스 복원을 누름
+*/
+ /*확인*/
+select * from productTBL; 
+/*조회*/
+delete from productTBL;
