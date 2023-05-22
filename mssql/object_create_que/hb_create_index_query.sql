@@ -21,7 +21,8 @@ FROM sys.index_columns ic
 WHERE i.[type] = 2;
 
 -- db_khb_srv의 인덱스 생성 쿼리문
-SELECT 'CREATE ' + 
+SELECT "테이블명", 
+       'CREATE ' + 
         CASE WHEN "유니크 여부" = 0 THEN 'INDEX ' 
              ELSE 'UNIQUE INDEX ' END +
         "인덱스명" + ' ON ' +
