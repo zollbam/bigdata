@@ -1,10 +1,13 @@
 /*
-³¯Â¥ : 2023-05-19
-ÇÑ¹æ Å×½ºÆ® DBÀÎ db_khb_srv¿¡¼­ ÀÎµ¦½º¸¦ »ı¼ºÇÏ´Â Äõ¸®¸¦ ¸¸µé¾î ÁÖ´Â Äõ¸®¹® ÀÛ¼º
+ë‚ ì§œ : 2023-05-19
+í•œë°© í…ŒìŠ¤íŠ¸ DBì¸ db_khb_srvì—ì„œ ì¸ë±ìŠ¤ë¥¼ ìƒì„±í•˜ëŠ” ì¿¼ë¦¬ë¥¼ ë§Œë“¤ì–´ ì£¼ëŠ” ì¿¼ë¦¬ë¬¸ ì‘ì„±
  */
+-- í•´ë‹¹ DBì— ìˆëŠ” í…Œì´ë¸”ëª…ê³¼ ì¸ë±ìŠ¤
+SELECT object_name(object_id) "í…Œì´ë¸”ëª…", name "ì¸ë±ìŠ¤ëª…"
+FROM SYS.indexes WHERE object_name(object_id) LIKE 'tb_com%';
 
--- db_khb_srvÀÇ ÀüÃ¼ ÀÎµ¦½º Á¤º¸
-SELECT i.name "ÀÎµ¦½º¸í", i.is_unique "À¯´ÏÅ© ¿©ºÎ", t.schema_id, s.name "½ºÅ°¸¶¸í", ic.object_id, t.name "Å×ÀÌºí¸í", ic.index_column_id, ic.column_id, c.name "ÄÃ·³¸í"
+-- db_khb_srvì˜ ì „ì²´ ì¸ë±ìŠ¤ ì •ë³´
+SELECT i.name "ì¸ë±ìŠ¤ëª…", i.is_unique "ìœ ë‹ˆí¬ ì—¬ë¶€", t.schema_id, s.name "ìŠ¤í‚¤ë§ˆëª…", ic.object_id, t.name "í…Œì´ë¸”ëª…", ic.index_column_id, ic.column_id, c.name "ì»¬ëŸ¼ëª…"
 FROM sys.index_columns ic 
      	INNER JOIN 
      sys.tables t 
@@ -20,40 +23,40 @@ FROM sys.index_columns ic
      		ON i.object_id = ic.object_id AND i.index_id = ic.index_id 
 WHERE i.[type] = 2;
 
--- db_khb_srvÀÇ ÀÎµ¦½º »ı¼º Äõ¸®¹®
-SELECT "Å×ÀÌºí¸í", 
+-- db_khb_srvì˜ ì¸ë±ìŠ¤ ìƒì„± ì¿¼ë¦¬ë¬¸
+SELECT "í…Œì´ë¸”ëª…", 
        'CREATE ' + 
-        CASE WHEN "À¯´ÏÅ© ¿©ºÎ" = 0 THEN 'INDEX ' 
+        CASE WHEN "ìœ ë‹ˆí¬ ì—¬ë¶€" = 0 THEN 'INDEX ' 
              ELSE 'UNIQUE INDEX ' END +
-        "ÀÎµ¦½º¸í" + ' ON ' +
-        "½ºÅ°¸¶¸í" + '.' +
-        "Å×ÀÌºí¸í" + ' (' + "ÄÃ·³¸í" + ');'
+        "ì¸ë±ìŠ¤ëª…" + ' ON ' +
+        "ìŠ¤í‚¤ë§ˆëª…" + '.' +
+        "í…Œì´ë¸”ëª…" + ' (' + "ì»¬ëŸ¼ëª…" + ');'
 FROM (
-	SELECT i.name "ÀÎµ¦½º¸í", i.is_unique "À¯´ÏÅ© ¿©ºÎ", t.schema_id, s.name "½ºÅ°¸¶¸í", ic.object_id, t.name "Å×ÀÌºí¸í", ic.index_column_id, ic.column_id, c.name "ÄÃ·³¸í"
-	FROM sys.index_columns ic /*°´Ã¼ ¹øÈ£, ÀÎµ¦½º ÄÃ·³ id, ÄÃ·³ id*/
+	SELECT i.name "ì¸ë±ìŠ¤ëª…", i.is_unique "ìœ ë‹ˆí¬ ì—¬ë¶€", t.schema_id, s.name "ìŠ¤í‚¤ë§ˆëª…", ic.object_id, t.name "í…Œì´ë¸”ëª…", ic.index_column_id, ic.column_id, c.name "ì»¬ëŸ¼ëª…"
+	FROM sys.index_columns ic /*ê°ì²´ ë²ˆí˜¸, ì¸ë±ìŠ¤ ì»¬ëŸ¼ id, ì»¬ëŸ¼ id*/
 	     	INNER JOIN 
-	     sys.tables t /*½ºÅ°¸¶ id, Å×ÀÌºí¸í*/
+	     sys.tables t /*ìŠ¤í‚¤ë§ˆ id, í…Œì´ë¸”ëª…*/
 	     		ON ic.object_id = t.object_id 
 	     	INNER JOIN 
-	     sys.schemas s /*½ºÅ°¸¶¸í*/
+	     sys.schemas s /*ìŠ¤í‚¤ë§ˆëª…*/
 	     		ON s.schema_id = t.schema_id
 	     	INNER JOIN
-	     sys.columns c /*ÄÃ·³¸í*/
+	     sys.columns c /*ì»¬ëŸ¼ëª…*/
 	     		ON c.object_id = ic.object_id AND c.column_id = ic.column_id
 	     	INNER JOIN
-	     sys.indexes i /*ÀÎµ¦½º¸í, À¯´ÏÅ©¿©ºÎ*/
+	     sys.indexes i /*ì¸ë±ìŠ¤ëª…, ìœ ë‹ˆí¬ì—¬ë¶€*/
 	     		ON i.object_id = ic.object_id AND i.index_id = ic.index_id 
 	WHERE i.[type] = 2
 ) ii ;
 
 /*
-sys.indexesÀÇ type
- - 0 = Èü
- - 1 = Å¬·¯½ºÅÍÇü rowstore(B-tree)
- - 2 = ºñÅ¬·¯½ºÅÍÇü rowstore(B-tree)
+sys.indexesì˜ type
+ - 0 = í™
+ - 1 = í´ëŸ¬ìŠ¤í„°í˜• rowstore(B-tree)
+ - 2 = ë¹„í´ëŸ¬ìŠ¤í„°í˜• rowstore(B-tree)
  - 3 = XML
- - 4 = °ø°£
- - 5 = Å¬·¯½ºÅÍÇü columnstore ÀÎµ¦½ºÀÔ´Ï´Ù. Àû¿ë ´ë»ó: SQL Server 2014(12.x) ÀÌ»ó
- - 6 = ºñÅ¬·¯½ºÅÍÇü columnstore ÀÎµ¦½ºÀÔ´Ï´Ù. Àû¿ë ´ë»ó: SQL Server 2012(11.x) ÀÌ»ó
- - 7 = ºñÅ¬·¯½ºÅÍÇü ÇØ½Ã ÀÎµ¦½ºÀÔ´Ï´Ù. Àû¿ë ´ë»ó: SQL Server 2014(12.x) ÀÌ»ó
+ - 4 = ê³µê°„
+ - 5 = í´ëŸ¬ìŠ¤í„°í˜• columnstore ì¸ë±ìŠ¤ì…ë‹ˆë‹¤. ì ìš© ëŒ€ìƒ: SQL Server 2014(12.x) ì´ìƒ
+ - 6 = ë¹„í´ëŸ¬ìŠ¤í„°í˜• columnstore ì¸ë±ìŠ¤ì…ë‹ˆë‹¤. ì ìš© ëŒ€ìƒ: SQL Server 2012(11.x) ì´ìƒ
+ - 7 = ë¹„í´ëŸ¬ìŠ¤í„°í˜• í•´ì‹œ ì¸ë±ìŠ¤ì…ë‹ˆë‹¤. ì ìš© ëŒ€ìƒ: SQL Server 2014(12.x) ì´ìƒ
 */
