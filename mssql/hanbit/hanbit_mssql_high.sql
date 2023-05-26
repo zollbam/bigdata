@@ -39,7 +39,7 @@ Transact-SQL 고급
   - filestream: 2GB이상 대용량 데이터
 
 사용자 정의 데이터 형식
- - create type [데이터형식명] from [데이터형식(ex. char(5) not null)]
+ - create type [데이터형식명] from [데이터형식(ex. char(5) not null)];
 
 변수 사용 => 일시적으로 사용되므로 재사용 불가
  - 변수 선언: declare @변수이름 데이터형식
