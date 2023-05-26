@@ -1,42 +1,49 @@
 /*
-ë‚ ì§œ : 2023-05-23
-í•œë°© í…ŒìŠ¤íŠ¸ DBì¸ db_khb_srvì—ì„œ í…Œì´ë¸”ë¥¼ ìƒì„±í•˜ëŠ” ì¿¼ë¦¬ë¥¼ ë§Œë“¤ì–´ ì£¼ëŠ” ì¿¼ë¦¬ë¬¸ ìž‘ì„±
- */
--- í…Œì´ë¸”ì˜ ì—´ ì •ë³´
-SELECT c.TABLE_NAME"í…Œì´ë¸”ëª…", c.COLUMN_NAME "ì»¬ëŸ¼ëª…", 
-       CASE WHEN c.DATA_TYPE IN ('decimal') THEN c.DATA_TYPE + '(' + CAST(c.NUMERIC_PRECISION AS varchar) + ', ' + CAST(c.NUMERIC_SCALE AS varchar) + ')'
+³¯Â¥ : 2023-05-23
+ÇÑ¹æ Å×½ºÆ® DBÀÎ db_khb_srv¿¡¼­ Å×ÀÌºí¸¦ »ý¼ºÇÏ´Â Äõ¸®¸¦ ¸¸µé¾î ÁÖ´Â Äõ¸®¹® ÀÛ¼º
+ */--object_name(major_id)='tb_com_banner_info'
+-- Å×ÀÌºíÀÇ ¿­ Á¤º¸
+SELECT DISTINCT 
+       c.TABLE_NAME"Å×ÀÌºí¸í", c.COLUMN_NAME "ÄÃ·³¸í", 
+       CASE WHEN c.DATA_TYPE IN ('decimal', 'numeric') THEN c.DATA_TYPE + '(' + CAST(c.NUMERIC_PRECISION AS varchar) + ', ' + CAST(c.NUMERIC_SCALE AS varchar) + ')'
             WHEN c.DATA_TYPE IN ('char', 'varchar', 'nvarchar') THEN c.DATA_TYPE + '(' + CAST(c.CHARACTER_MAXIMUM_LENGTH AS varchar) + ')'
             ELSE c.DATA_TYPE
-       END "íƒ€ìž… í˜•ì‹",
+       END "Å¸ÀÔ Çü½Ä",
        CASE WHEN c.IS_NULLABLE = 'NO' THEN ' NOT NULL'
             ELSE ''
-       END "NULLë¶€ë¶€"
+       END "NULL¿©ºÎ",
+       ep.value 
 FROM information_schema.columns c
      INNER JOIN
      information_schema.constraint_column_usage ccu
-     	ON c.TABLE_NAME = ccu.TABLE_NAME;
+     	ON c.TABLE_NAME = ccu.TABLE_NAME
+     LEFT JOIN
+     sys.extended_properties ep
+     	ON c.TABLE_NAME = object_name(ep.major_id) AND c.ORDINAL_POSITION = ep.minor_id
+WHERE c.COLUMN_NAME LIKE '%_'
+ORDER BY 1;
 
--- í•„ìš” ì—´ë§Œ ì¶”ì¶œ
+-- ÇÊ¿ä ¿­¸¸ ÃßÃâ
 SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, 
        NUMERIC_PRECISION, NUMERIC_SCALE, DATETIME_PRECISION
 FROM information_schema.columns;
 /*IS_NULLABLE => NO(not null) YES(null)*/
 
--- ì—´ì •ë³´ê°€ í…ìŠ¤íŠ¸ë¡œ ì €ìž¥
+-- ¿­Á¤º¸°¡ ÅØ½ºÆ®·Î ÀúÀå
 SELECT * FROM information_schema.columns;
 
--- ì—´ì •ë³´ê°€ ìˆ«ìžë¡œ ì €ìž¥
+-- ¿­Á¤º¸°¡ ¼ýÀÚ·Î ÀúÀå
 SELECT * FROM sys.columns;
 
--- í…Œì´ë¸” PK
+-- Å×ÀÌºí PK
 SELECT * FROM information_schema.constraint_column_usage;
 SELECT * FROM sys.objects WHERE type ='pk';
 
--- í…Œì´ë¸” ìƒì„± ìŠ¤í¬ë¦½íŠ¸ ìž‘ì„± ì¤€ë¹„ í…Œì´ë¸”
-SELECT c.TABLE_NAME "í…Œì´ë¸”ëª…", 
+-- Å×ÀÌºí »ý¼º ½ºÅ©¸³Æ® ÀÛ¼º ÁØºñ Å×ÀÌºí
+SELECT c.TABLE_NAME "Å×ÀÌºí¸í", 
        c.COLUMN_NAME + ' ' + 
-       CASE WHEN c.DATA_TYPE IN ('decimal') THEN c.DATA_TYPE + '(' + CAST(c.NUMERIC_PRECISION AS varchar) + ', ' + CAST(c.NUMERIC_SCALE AS varchar) + ')'
-            WHEN c.DATA_TYPE IN ('char', 'varchar') THEN c.DATA_TYPE + '(' + CAST(c.CHARACTER_MAXIMUM_LENGTH AS varchar) + ')'
+       CASE WHEN c.DATA_TYPE IN ('decimal', 'numeric') THEN c.DATA_TYPE + '(' + CAST(c.NUMERIC_PRECISION AS varchar) + ', ' + CAST(c.NUMERIC_SCALE AS varchar) + ')'
+            WHEN c.DATA_TYPE IN ('char', 'varchar', 'nchar', 'nvarchar') THEN c.DATA_TYPE + '(' + CAST(c.CHARACTER_MAXIMUM_LENGTH AS varchar) + ')'
             ELSE c.DATA_TYPE
        END + 
        CASE WHEN c.IS_NULLABLE = 'NO' THEN ' NOT NULL'
@@ -44,19 +51,19 @@ SELECT c.TABLE_NAME "í…Œì´ë¸”ëª…",
        END +
        CASE WHEN c.COLUMN_DEFAULT IS NOT NULL THEN ' defualt ' + c.COLUMN_DEFAULT
             ELSE ''
-       END "ì—´ ì •ë³´", 
+       END "¿­ Á¤º¸", 
        ccu.COLUMN_NAME "pk_col"
 FROM information_schema.columns c
      INNER JOIN
      information_schema.constraint_column_usage ccu
      	ON c.TABLE_NAME = ccu.TABLE_NAME;
 
--- ê° í…Œì´ë¸”ë³„ í…Œì´ë¸” ìž‘ì„± ì¿¼ë¦¬ë¬¸
-SELECT c2.TABLE_NAME "í…Œì´ë¸”ëª…", 
+-- °¢ Å×ÀÌºíº° Å×ÀÌºí ÀÛ¼º Äõ¸®¹®
+SELECT c2.TABLE_NAME "Å×ÀÌºí¸í", 
        'CREATE TABLE ' + c2.TABLE_SCHEMA + '.' + c2.TABLE_NAME + ' (' +
 	   stuff((SELECT ', ' + c1.COLUMN_NAME + ' ' + 
-		          CASE WHEN c1.DATA_TYPE IN ('decimal') THEN c1.DATA_TYPE + '(' + CAST(c1.NUMERIC_PRECISION AS varchar) + ', ' + CAST(c1.NUMERIC_SCALE AS varchar) + ')'
-	                   WHEN c1.DATA_TYPE IN ('char', 'varchar') THEN c1.DATA_TYPE + '(' + CAST(c1.CHARACTER_MAXIMUM_LENGTH AS varchar) + ')'
+		          CASE WHEN c1.DATA_TYPE IN ('decimal', 'numeric') THEN c1.DATA_TYPE + '(' + CAST(c1.NUMERIC_PRECISION AS varchar) + ', ' + CAST(c1.NUMERIC_SCALE AS varchar) + ')'
+	                   WHEN c1.DATA_TYPE IN ('char', 'varchar', 'nchar', 'nvarchar') THEN c1.DATA_TYPE + '(' + CAST(c1.CHARACTER_MAXIMUM_LENGTH AS varchar) + ')'
 	                   ELSE c1.DATA_TYPE
 	              END + 
 	              CASE WHEN c1.IS_NULLABLE = 'NO' THEN ' NOT NULL'
@@ -68,11 +75,12 @@ SELECT c2.TABLE_NAME "í…Œì´ë¸”ëª…",
               FROM information_schema.columns c1
               WHERE c1.TABLE_NAME = c2.TABLE_name
               	FOR xml PATH('')), 1, 2, '') + 
-       CASE WHEN ccu.COLUMN_NAME != '' THEN ', primary key (' +  ccu.COLUMN_NAME + '));' END "í…Œì´ë¸”ë³„ ìž‘ì„± ìŠ¤í¬ë¦½íŠ¸"
+       CASE WHEN ccu.COLUMN_NAME != '' THEN ', primary key (' +  ccu.COLUMN_NAME + '));' END "Å×ÀÌºíº° ÀÛ¼º ½ºÅ©¸³Æ®"
 FROM information_schema.columns c2
      INNER JOIN
      information_schema.constraint_column_usage ccu
      	ON c2.TABLE_NAME = ccu.TABLE_NAME
 GROUP BY c2.TABLE_NAME, c2.TABLE_SCHEMA, ccu.COLUMN_NAME;
+
 
 

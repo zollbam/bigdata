@@ -1,18 +1,18 @@
--- ë²„ì „í™•ì¸
+-- ¹öÀüÈ®ÀÎ
 SELECT @@version;
 
--- ë‚˜ë§Œì˜ geo í…Œì´ë¸”
--- * í…Œì´ë¸” ì‚­ì œ
+-- ³ª¸¸ÀÇ geo Å×ÀÌºí
+-- * Å×ÀÌºí »èÁ¦
 DROP TABLE ex_geo_fun_tbl;
 
--- * ë ˆì½”ë“œ ì‚­ì œ
+-- * ·¹ÄÚµå »èÁ¦
 DELETE FROM ex_geo_fun_tbl WHERE id = 23;
 
--- *ìë™ ì…ë ¥ê°’ ì´ˆê¸°í™”
+-- *ÀÚµ¿ ÀÔ·Â°ª ÃÊ±âÈ­
 DBCC CHECKIDENT(ex_geo_fun_tbl, reseed, 22);
 SELECT * FROM ex_geo_fun_tbl;
 
--- * í…Œì´ë¸” ìƒì„±
+-- * Å×ÀÌºí »ı¼º
 CREATE TABLE ex_geo_fun_tbl (
 	id int IDENTITY(1,1),
 	geomone geometry,
@@ -20,22 +20,22 @@ CREATE TABLE ex_geo_fun_tbl (
 	geomtwo geometry,
 	geomtwo_desc AS geomtwo.STAsText(),
 );
-/*í…Œì´ë¸” ìƒì„±ì‹œ í•¨ìˆ˜ë¥¼ ì´ìš©í•˜ì—¬ ê°’ì„ ë„£ëŠ” ë°©ë²•ë„ ì‚¬ìš© ê°€ëŠ¥*/
+/*Å×ÀÌºí »ı¼º½Ã ÇÔ¼ö¸¦ ÀÌ¿ëÇÏ¿© °ªÀ» ³Ö´Â ¹æ¹ıµµ »ç¿ë °¡´É*/
 
--- * ë³€ìˆ˜ ì„ ì–¸ ë° ë ˆì½”ë“œ ì¶”ê°€
+-- * º¯¼ö ¼±¾ğ ¹× ·¹ÄÚµå Ãß°¡
 DECLARE @a geometry = 'MULTILINESTRING ((1 2, 3 2, 4 0), (0 0, 1 1))'
 DECLARE @b geometry = 'MULTILINESTRING ((0 0, 1 0, 0 1), (0 0, 4 2))'
 INSERT INTO ex_geo_fun_tbl(geomone, geomtwo) VALUES (@a, @b);
 
--- * í…Œì´ë¸” í™•ì¸
+-- * Å×ÀÌºí È®ÀÎ
 SELECT * FROM ex_geo_fun_tbl;
 
--- geoí•¨ìˆ˜ ì˜ˆì œ
--- * ST[geomtype]From[ë¬¸ì„œíƒ€ì…]
+-- geoÇÔ¼ö ¿¹Á¦
+-- * ST[geomtype]From[¹®¼­Å¸ÀÔ]
 /*
- - ë¬¸ì„œíƒ€ì…ì„ geomtypeìœ¼ë¡œ ë°”ê¾¸ì–´ì£¼ëŠ” ì—­í• 
-   ì¸ìˆ˜ì— sridë„ ì ì–´ì•¼ í•¨
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ¹®¼­Å¸ÀÔÀ» geomtypeÀ¸·Î ¹Ù²Ù¾îÁÖ´Â ¿ªÇÒ
+   ÀÎ¼ö¿¡ sridµµ Àû¾î¾ß ÇÔ
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 
 1. geomtype
  - Geom
@@ -46,16 +46,16 @@ SELECT * FROM ex_geo_fun_tbl;
  - MLine
  - MPoly
  - GeomColl
-2. ë¬¸ì„œíƒ€ì…
+2. ¹®¼­Å¸ÀÔ
  - Text
  - WKB
 */
 
 -- * GeomFromGml
 /*
- - GML(Geography Markup Language)ì˜ SQL Server í•˜ìœ„ ì§‘í•©ì— í‘œí˜„ì´ ì§€ì •ëœ ê²½ìš° geometryë¥¼ ìƒì„±
+ - GML(Geography Markup Language)ÀÇ SQL Server ÇÏÀ§ ÁıÇÕ¿¡ Ç¥ÇöÀÌ ÁöÁ¤µÈ °æ¿ì geometry¸¦ »ı¼º
    GeomFromGml(GML_input, SRID)
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 DECLARE @x xml = '<LineString xmlns="http://www.opengis.net/gml"> <posList>100 100 20 180 180 180</posList> </LineString>'  
 DECLARE @g geometry = geometry::GeomFromGml(@x, 0)
@@ -63,10 +63,10 @@ SELECT @g.ToString();
 
 -- * Parse
 /*
- - OGC(Open Geospatial Consortium) WKT(Well-Known Text) í‘œí˜„ì˜ geometry ì¸ìŠ¤í„´ìŠ¤ë¥¼ ë°˜í™˜
-   Parse ( 'geometry_tagged_text' ) => ê¸°ë³¸ì ìœ¼ë¡œ sridê°€ 0ìœ¼ë¡œ ê°€ì • ë˜ì–´
-   STGeomAsText()ì˜ sridê°€ 0ì´ë©´ ê²°ê³¼ëŠ” ë™ì¼
- - ë°˜í™˜ íƒ€ì… : geometry
+ - OGC(Open Geospatial Consortium) WKT(Well-Known Text) Ç¥ÇöÀÇ geometry ÀÎ½ºÅÏ½º¸¦ ¹İÈ¯
+   Parse ( 'geometry_tagged_text' ) => ±âº»ÀûÀ¸·Î srid°¡ 0À¸·Î °¡Á¤ µÇ¾î
+   STGeomAsText()ÀÇ srid°¡ 0ÀÌ¸é °á°ú´Â µ¿ÀÏ
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 DECLARE @g geometry = geometry::Parse('LINESTRING (100 100 1 2, 20 180 3 4, 180 180 -1 -2)')  
 SELECT @g.ToString();
@@ -77,8 +77,8 @@ SELECT @g.ToString();
 
 -- * STAsBinary
 /*
- - geometryì˜ ê°’ì„ OGC WKBí‘œí˜„ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : varbinary(max)
+ - geometryÀÇ °ªÀ» OGC WKBÇ¥ÇöÀ» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : varbinary(max)
 */
 SELECT geomone_desc ,
        geomone "one_hex",
@@ -90,8 +90,8 @@ FROM ex_geo_fun_tbl;
 
 -- * AsBinaryZM
 /*
- - geometryì˜ Z(ë†’ì´)ì™€ M(ì¸¡ì •ê°’) ê°’ì„ ì‚¬ìš©í•˜ì—¬ ë³´ê°•ëœ OGC WKBí‘œí˜„ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : varbinary(max)
+ - geometryÀÇ Z(³ôÀÌ)¿Í M(ÃøÁ¤°ª) °ªÀ» »ç¿ëÇÏ¿© º¸°­µÈ OGC WKBÇ¥ÇöÀ» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : varbinary(max)
 */
 SELECT geomone_desc ,
        geomone "one_hex",
@@ -103,8 +103,8 @@ FROM ex_geo_fun_tbl;
 
 -- * AsGml
 /*
- - geometryì˜ GML(Geography Markup Language) í‘œí˜„ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : xml
+ - geometryÀÇ GML(Geography Markup Language) Ç¥ÇöÀ» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : xml
 */
 SELECT geomone_desc, 
        geomone.AsGml() "one_asgml",
@@ -115,19 +115,19 @@ FROM ex_geo_fun_tbl;
 
 -- * STAsText
 /*
- - geometryì˜ ê°’ì„ OGC WKTí‘œí˜„ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : nvarchar(max)
+ - geometryÀÇ °ªÀ» OGC WKTÇ¥ÇöÀ» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : nvarchar(max)
 */
-SELECT geomone_desc, -- ì—´ìì²´ì— ì´ë¯¸ STAsTextë¥¼ ì‚¬ìš©
+SELECT geomone_desc, -- ¿­ÀÚÃ¼¿¡ ÀÌ¹Ì STAsText¸¦ »ç¿ë
        geomone,
-	   geomtwo_desc, -- ì—´ìì²´ì— ì´ë¯¸ STAsTextë¥¼ ì‚¬ìš©
+	   geomtwo_desc, -- ¿­ÀÚÃ¼¿¡ ÀÌ¹Ì STAsText¸¦ »ç¿ë
        geomtwo 
 FROM ex_geo_fun_tbl;
 
 -- * AsTextZM
 /*
- - geometryì˜ Z(ë†’ì´)ì™€ M(ì¸¡ì •ê°’) ê°’ì„ ì‚¬ìš©í•˜ì—¬ ë³´ê°•ëœ OGC WKTí‘œí˜„ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : nvarchar(max)
+ - geometryÀÇ Z(³ôÀÌ)¿Í M(ÃøÁ¤°ª) °ªÀ» »ç¿ëÇÏ¿© º¸°­µÈ OGC WKTÇ¥ÇöÀ» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : nvarchar(max)
 */
 SELECT geomone,
        geomone.AsTextZM()
@@ -140,8 +140,8 @@ SELECT @g.STAsText() "text", @g.AsTextZM() "textzm";
 
 -- * ToString
 /*
- - geometryì—ì„œ ì–»ì–´ì§„ Z(ë†’ì´) ê°’ ë° M(ì¸¡ì •ê°’) ê°’ì„ ì‚¬ìš©í•˜ì—¬ ë³´ê°•ëœ geometry ì¸ìŠ¤í„´ìŠ¤ì˜ OGC WKTì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : nvarchar(max)
+ - geometry¿¡¼­ ¾ò¾îÁø Z(³ôÀÌ) °ª ¹× M(ÃøÁ¤°ª) °ªÀ» »ç¿ëÇÏ¿© º¸°­µÈ geometry ÀÎ½ºÅÏ½ºÀÇ OGC WKTÀ» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : nvarchar(max)
 */
 SELECT geomone_desc, 
        geomone.ToString() "one_tostring",
@@ -155,8 +155,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STDistance
 /*
- - ë‘ geometryì‚¬ì´ì˜ ê±°ë¦¬ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : float
+ - µÎ geometry»çÀÌÀÇ °Å¸® ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT id, geomone_desc, geomtwo_desc,
 	   geomone.STDistance(geomtwo) "distance"
@@ -164,8 +164,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STLength
 /*
- - ì…ë ¥ëœ geometryì˜ ê¸¸ì´ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : float
+ - ÀÔ·ÂµÈ geometryÀÇ ±æÀÌ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT id, geomone_desc,
 	   geomone.STLength() "length"
@@ -173,8 +173,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STCentroid
 /*
- - í•œê°œ ì´ìƒ ë‹¤ê°í˜•ìœ¼ë¡œ êµ¬ì„±ëœ geometryì˜ ì¤‘ì  ì¢Œí‘œ
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÇÑ°³ ÀÌ»ó ´Ù°¢ÇüÀ¸·Î ±¸¼ºµÈ geometryÀÇ ÁßÁ¡ ÁÂÇ¥
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.STCentroid().STAsText() "centroid_desc",
@@ -188,8 +188,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STPointOnSurface
 /*
- - geometryì˜ ë‚´ë¶€ì— ìˆëŠ” ì„ì˜ì˜ ì ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - geometryÀÇ ³»ºÎ¿¡ ÀÖ´Â ÀÓÀÇÀÇ Á¡À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STPointOnSurface().STAsText() "pointonsurface_desc",
@@ -198,8 +198,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STIntersection
 /*
- - 2ê°œ geometryì˜ êµì°¨ë˜ëŠ” ì˜ì—­ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - 2°³ geometryÀÇ ±³Â÷µÇ´Â ¿µ¿ª ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc, 
        geomtwo_desc, 
@@ -209,8 +209,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STUnion
 /*
- - 2ê°œì˜ geometryì˜ í•©ì§‘í•© geometryì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - 2°³ÀÇ geometryÀÇ ÇÕÁıÇÕ geometryÀ» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc, geomtwo_desc,
 	   geomone.STUnion(geomtwo).STAsText() "union_desc",
@@ -219,9 +219,9 @@ FROM ex_geo_fun_tbl;
 
 -- * STDifference
 /*
- - í•˜ë‚˜ì˜ geometryì—ì„œ ë˜ë‹¤ë¥¸ geometryë¥¼ ëºŒ
-  => geometryì„ ë„£ëŠ” ìˆœì„œì— ë”°ë¼ ë‹¤ë¥¸ geometryê°€ ìƒê¹€
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÇÏ³ªÀÇ geometry¿¡¼­ ¶Ç´Ù¸¥ geometry¸¦ »­
+  => geometryÀ» ³Ö´Â ¼ø¼­¿¡ µû¶ó ´Ù¸¥ geometry°¡ »ı±è
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc, geomtwo_desc,
 	   geomone.STDifference(geomtwo).STAsText() "difference_desc",
@@ -230,8 +230,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STSymDifference
 /*
- - í•˜ë‚˜ì˜ geometryì™€ ë˜ë‹¤ë¥¸ geometryë¥¼ unioní•œë‹¤ìŒ ê²¹ì¹˜ëŠ” ë¶€ë¶„ë§Œ ëºŒ
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÇÏ³ªÀÇ geometry¿Í ¶Ç´Ù¸¥ geometry¸¦ unionÇÑ´ÙÀ½ °ãÄ¡´Â ºÎºĞ¸¸ »­
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc, geomtwo_desc,
 	   geomone.STSymDifference(geomtwo).STAsText() "difference_desc",
@@ -240,8 +240,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STBuffer
 /*
- - í•´ë‹¹ geometryì˜ ë°˜ì§€ë¦„ ë°˜í¼ ë–¨ì–´ì§„ ì˜ì—­
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÇØ´ç geometryÀÇ ¹İÁö¸§ ¹İÅ­ ¶³¾îÁø ¿µ¿ª
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone.STAsText(),
 	   geomone.STBuffer(5).STAsText(),
@@ -251,9 +251,9 @@ FROM ex_geo_fun_tbl;
 
 -- * BufferWithCurves
 /*
- - ì…ë ¥ëœ geometryì™€ ê±°ë¦¬ê°€ distanceë³´ë‹¤ ì‘ê±°ë‚˜ ê°™ì€ ëª¨ë“ ì ì˜ ì§‘í•©ì„ geometryë¡œ ë°˜í™˜
+ - ÀÔ·ÂµÈ geometry¿Í °Å¸®°¡ distanceº¸´Ù ÀÛ°Å³ª °°Àº ¸ğµçÁ¡ÀÇ ÁıÇÕÀ» geometry·Î ¹İÈ¯
    => A.BufferWithCurves(distance)
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.BufferWithCurves(0.05).STAsText() "one_bufferwithcurves_desc",
@@ -263,12 +263,12 @@ FROM ex_geo_fun_tbl;
 
 -- * BufferWithTolerance
 /*
- - ì§€ì •ëœ í—ˆìš© ì˜¤ì°¨ë¥¼ ê³ ë ¤í•˜ì—¬ geometry ì¸ìŠ¤í„´ìŠ¤ì™€ì˜ ê±°ë¦¬ê°€ ì§€ì •ëœ ê°’ë³´ë‹¤ ì‘ê±°ë‚˜ ê°™ì€ ëª¨ë“  ì  ê°’ì˜ í•©ì§‘í•©ì„ ë‚˜íƒ€ë‚´ëŠ” ê¸°í•˜í•™ì  ê°œì²´ë¥¼ ë°˜í™˜
+ - ÁöÁ¤µÈ Çã¿ë ¿ÀÂ÷¸¦ °í·ÁÇÏ¿© geometry ÀÎ½ºÅÏ½º¿ÍÀÇ °Å¸®°¡ ÁöÁ¤µÈ °ªº¸´Ù ÀÛ°Å³ª °°Àº ¸ğµç Á¡ °ªÀÇ ÇÕÁıÇÕÀ» ³ªÅ¸³»´Â ±âÇÏÇĞÀû °³Ã¼¸¦ ¹İÈ¯
    => A.BufferWithTolerance(distance, tolerance, relative)
-        distance: ê±°ë¦¬ë¥¼ ì¸¡ì •í•˜ëŠ” float
-        tolerance: ë²„í¼ê±°ë¦¬ì— ëŒ€í•œ í—ˆìš© ì˜¤ì°¨ë¡œ float
-        relative: toleranceê°’ì´ ìƒëŒ€ì ì¸ì§€ ì ˆëŒ€ì ì¸ì§€ ì§€ì •í•˜ëŠ” ë¹„íŠ¸(0/1)
- - ë°˜í™˜ íƒ€ì… : geometry
+        distance: °Å¸®¸¦ ÃøÁ¤ÇÏ´Â float
+        tolerance: ¹öÆÛ°Å¸®¿¡ ´ëÇÑ Çã¿ë ¿ÀÂ÷·Î float
+        relative: tolerance°ªÀÌ »ó´ëÀûÀÎÁö Àı´ëÀûÀÎÁö ÁöÁ¤ÇÏ´Â ºñÆ®(0/1)
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.BufferWithTolerance(0.05,1.0,0).STAsText() "one_bufferwithtotolerance_desc",
@@ -278,8 +278,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STArea
 /*
- - í´ë¦¬ê³¤ì˜ ì˜ì—­ ë„“ì´ ê³„ì‚°
- - ë°˜í™˜ íƒ€ì… : float
+ - Æú¸®°ïÀÇ ¿µ¿ª ³ĞÀÌ °è»ê
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT geomone.STAsText(),
 	   geomone.STArea(),
@@ -289,8 +289,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STBoundary
 /*
- - geometryì˜ ê²½ê³„
- - ë°˜í™˜ íƒ€ì… : geometry
+ - geometryÀÇ °æ°è
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.STBoundary().STAsText() "boundary_desc",
@@ -300,9 +300,9 @@ FROM ex_geo_fun_tbl;
 
 -- * STDimension
 /*
- - geometryì˜ íƒ€ì…ì„ ìˆ«ì í˜•íƒœë¡œ
+ - geometryÀÇ Å¸ÀÔÀ» ¼ıÀÚ ÇüÅÂ·Î
    => -1(empty), 0(point), 1(linestring), 2(polygon)
- - ë°˜í™˜ íƒ€ì… : int
+ - ¹İÈ¯ Å¸ÀÔ : int
 */
 SELECT geomone_desc, 
        geomone.STDimension()
@@ -310,10 +310,10 @@ FROM ex_geo_fun_tbl;
 
 -- * STGeometryType
 /*
- - geometryì˜ íƒ€ì…ì„ ë¬¸ìì—´ í˜•íƒœë¡œ
-   => point, linestring, polygon, MultiLineString ë“±ìœ¼ë¡œ ë‚˜ì˜´
-   => emptyë¼ê³  ë‚˜ì˜¤ì§€ ì•Šê³  GeometryCollectionë¡œ ë‚˜ì˜´
- - ë°˜í™˜ íƒ€ì… : nvarchar(4000)
+ - geometryÀÇ Å¸ÀÔÀ» ¹®ÀÚ¿­ ÇüÅÂ·Î
+   => point, linestring, polygon, MultiLineString µîÀ¸·Î ³ª¿È
+   => empty¶ó°í ³ª¿ÀÁö ¾Ê°í GeometryCollection·Î ³ª¿È
+ - ¹İÈ¯ Å¸ÀÔ : nvarchar(4000)
 */
 SELECT geomone_desc, 
        geomone.STGeometryType()
@@ -321,10 +321,10 @@ FROM ex_geo_fun_tbl;
 
 -- * STConvexHull
 /*
- - geometryì˜ ë³¼ë¡ì§‘í•© ì˜ì—­
-   => ì…ë ¥ëœ geometryì„ ëª¨ë‘ í¬í•¨í•˜ëŠ” ì˜ì—­ì„ ìƒì„±
-   => ë„¤ëª¨ê°€ ë ìˆ˜ë„ ì›ì´ ë ìˆ˜ë„
- - ë°˜í™˜ íƒ€ì… : geometry
+ - geometryÀÇ º¼·ÏÁıÇÕ ¿µ¿ª
+   => ÀÔ·ÂµÈ geometryÀ» ¸ğµÎ Æ÷ÇÔÇÏ´Â ¿µ¿ªÀ» »ı¼º
+   => ³×¸ğ°¡ µÉ¼öµµ ¿øÀÌ µÉ¼öµµ
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.STConvexHull().STAsText() "convexhull_desc",
@@ -333,8 +333,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STEnvelope
 /*
- - ì…ë ¥ëœ geometryê°€ ëª¨ë‘ í¬í•¨ëœ MBR ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÀÔ·ÂµÈ geometry°¡ ¸ğµÎ Æ÷ÇÔµÈ MBR ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STEnvelope().STAsText() "envelope_desc",
@@ -343,8 +343,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STCurveToLine
 /*
- - geometryì˜ ë‹¤ê°í˜• ê·¼ì‚¬ê°’
- - ë°˜í™˜ íƒ€ì… : geometry
+ - geometryÀÇ ´Ù°¢Çü ±Ù»ç°ª
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id,
        geomone_desc,
@@ -355,11 +355,11 @@ FROM ex_geo_fun_tbl;
 
 -- * CurveToLineWithTolerance
 /*
- - geometryì˜ ë‹¤ê°í˜• ê·¼ì‚¬ê°’ì„ ë°˜í™˜
+ - geometryÀÇ ´Ù°¢Çü ±Ù»ç°ªÀ» ¹İÈ¯
    => CurveToLineWithTolerance(tolerance, relative)
-        tolerance: ë²„í¼ê±°ë¦¬ì— ëŒ€í•œ í—ˆìš© ì˜¤ì°¨ë¡œ float
-        relative: toleranceê°’ì´ ìƒëŒ€ì ì¸ì§€ ì ˆëŒ€ì ì¸ì§€ ì§€ì •í•˜ëŠ” ë¹„íŠ¸(0/1)
- - ë°˜í™˜ íƒ€ì… : geometry
+        tolerance: ¹öÆÛ°Å¸®¿¡ ´ëÇÑ Çã¿ë ¿ÀÂ÷·Î float
+        relative: tolerance°ªÀÌ »ó´ëÀûÀÎÁö Àı´ëÀûÀÎÁö ÁöÁ¤ÇÏ´Â ºñÆ®(0/1)
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.CurveToLineWithTolerance(3.0,0).STAsText() "one_curventolinetotolerance_desc",
@@ -369,10 +369,10 @@ FROM ex_geo_fun_tbl;
 
 -- * Reduce
 /*
- - ì§€ì •ëœ ê¸°í•˜ ë„í˜• ì¸ìŠ¤í„´ìŠ¤ì˜ ê·¼ì‚¬ê°’ì„ ë°˜í™˜
-   ê·¼ì‚¬ê°’ì€ ì§€ì •ëœ í—ˆìš©ì˜¤ì°¨ë¥¼ ê°€ì§„ ì¸ìŠ¤í„´ìŠ¤ì—ì„œ Douglas-Peucker ì•Œê³ ë¦¬ì¦˜ í™•ì¥ì„ ì‹¤í–‰í•˜ì—¬ ìƒì„±
+ - ÁöÁ¤µÈ ±âÇÏ µµÇü ÀÎ½ºÅÏ½ºÀÇ ±Ù»ç°ªÀ» ¹İÈ¯
+   ±Ù»ç°ªÀº ÁöÁ¤µÈ Çã¿ë¿ÀÂ÷¸¦ °¡Áø ÀÎ½ºÅÏ½º¿¡¼­ Douglas-Peucker ¾Ë°í¸®Áò È®ÀåÀ» ½ÇÇàÇÏ¿© »ı¼º
  - Reduce(tolerance)
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.Reduce(3.0).STAsText() "one_reduce_desc",
@@ -384,8 +384,8 @@ FROM ex_geo_fun_tbl;
 
 -- * ShortestLineTo
 /*
- - ë‘ geometry ì‚¬ì´ì˜ ìµœë‹¨ ê±°ë¦¬ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ë‘ ì ê³¼ í•¨ê»˜ LineStringë¥¼ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - µÎ geometry »çÀÌÀÇ ÃÖ´Ü °Å¸®¸¦ ³ªÅ¸³»´Â µÎ Á¡°ú ÇÔ²² LineString¸¦ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc, geomtwo_desc,
 	   geomone.ShortestLineTo(geomtwo).STAsText() "shortestlineto_desc",
@@ -394,8 +394,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STStartPoint
 /*
- - ì‹œì‘ì  ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ½ÃÀÛÁ¡ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STStartPoint().STAsText() "startpoint_desc",
@@ -404,8 +404,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STEndPoint
 /*
- - ëì  ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ³¡Á¡ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STEndPoint().STAsText() "endpoint_desc",
@@ -414,8 +414,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STPointN
 /*
- - geometryì˜ në²ˆì§¸ ì ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - geometryÀÇ n¹øÂ° Á¡À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STPointN(1).STAsText() "pointn_desc",
@@ -429,8 +429,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STNumPoints
 /*
- - geometryì˜ ì ì˜ ì´ ê°œìˆ˜ë¥¼ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : int
+ - geometryÀÇ Á¡ÀÇ ÃÑ °³¼ö¸¦ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : int
 */
 SELECT id, geomone_desc,
 	   geomone.STNumPoints() "numpoints"
@@ -438,8 +438,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STExteriorRing
 /*
- - ì…ë ¥ëœ geometryì˜ ì™¸ë¶€ ë§ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÀÔ·ÂµÈ geometryÀÇ ¿ÜºÎ ¸µ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STExteriorRing().STAsText() "envelope_desc",
@@ -453,8 +453,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STInteriorRingN
 /*
- - ì…ë ¥ëœ geometryì˜ në²ˆì§¸ ë‚´ë¶€ë§ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÀÔ·ÂµÈ geometryÀÇ n¹øÂ° ³»ºÎ¸µ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STInteriorRingN(1).STAsText() "interiorringn_desc",
@@ -463,8 +463,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STNumInteriorRing
 /*
- - geometryì˜ ë‚´ë¶€ ë§ ê°œìˆ˜ë¥¼ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : int
+ - geometryÀÇ ³»ºÎ ¸µ °³¼ö¸¦ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : int
 */
 SELECT id, geomone_desc,
 	   geomone.STNumInteriorRing() "numinteriorring"
@@ -472,8 +472,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STGeometryN
 /*
- - ì…ë ¥ëœ geometryì˜ në²ˆì§¸ ë„í˜• ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÀÔ·ÂµÈ geometryÀÇ n¹øÂ° µµÇü ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.STGeometryN(1).STAsText() "geometryn_desc",
@@ -487,8 +487,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STNumGeometries
 /*
- - geometryì˜ ê°œìˆ˜ë¥¼ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : int
+ - geometryÀÇ °³¼ö¸¦ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : int
 */
 SELECT id, geomone_desc,
 	   geomone.STNumGeometries() "numgeometries"
@@ -496,8 +496,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STCurveN
 /*
- - LineString, CircularString, CompoundCurveì˜ në²ˆì¬ ì„ ì„ ì¶œë ¥
- - ë°˜í™˜ íƒ€ì… : geometry
+ - LineString, CircularString, CompoundCurveÀÇ n¹øÀç ¼±À» Ãâ·Â
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geomone_desc,
 	   geomone.STCurveN(2).STAsText() "curven_desc",
@@ -512,8 +512,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STNumCurves
 /*
- - geometryì˜ ê³¡ì„  ìˆ˜ë¥¼ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : float
+ - geometryÀÇ °î¼± ¼ö¸¦ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT id, geomone_desc,
 	   geomone.STNumCurves() "numcurves"
@@ -521,8 +521,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STSrid
 /*
- - geometryì˜ Spatial Reference Identifier ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : int
+ - geometryÀÇ Spatial Reference Identifier ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : int
 */
 SELECT id, geomone_desc,
 	   geomone.STSrid "srid"
@@ -530,8 +530,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STX
 /*
- - pointì˜ Xì¢Œí‘œ(ê²½ë„) ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : float
+ - pointÀÇ XÁÂÇ¥(°æµµ) ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT id, geomone_desc, geomtwo_desc,
 	   geomone.STX "one_lng",
@@ -540,8 +540,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STY
 /*
- - pointì˜ Yì¢Œí‘œ(ìœ„ë„) ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : float
+ - pointÀÇ YÁÂÇ¥(À§µµ) ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT id, geomone_desc, geomtwo_desc,
 	   geomone.STY "one_lat",
@@ -550,8 +550,8 @@ FROM ex_geo_fun_tbl;
 
 -- * M
 /*
- - geometryì˜ M(ì¸¡ì •ê°’) ê°’
- - ë°˜í™˜ íƒ€ì… : float
+ - geometryÀÇ M(ÃøÁ¤°ª) °ª
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT id, geomone_desc,
 	   geomone.M "one_M",
@@ -561,8 +561,8 @@ FROM ex_geo_fun_tbl;
 
 -- * Z
 /*
- - geometryì˜ Z(ì¸¡ì •ê°’) ê°’
- - ë°˜í™˜ íƒ€ì… : float
+ - geometryÀÇ Z(ÃøÁ¤°ª) °ª
+ - ¹İÈ¯ Å¸ÀÔ : float
 */
 SELECT id, geomone_desc,
 	   geomone.Z "one_Z",
@@ -572,11 +572,11 @@ FROM ex_geo_fun_tbl;
 
 -- * IsValidDetailed
 /*
- - ì˜¬ë°”ë¥´ì§€ ì•Šì€ ê³µê°„ ê°œì²´ì˜ ë¬¸ì œë¥¼ ì‹ë³„í•˜ëŠ” ë° ë„ì›€ì´ ë˜ëŠ” ë©”ì‹œì§€ë¥¼ ë°˜í™˜
-     24400: ìœ íš¨
-     24401: ìœ íš¨í•˜ì§€ ì•Šìœ¼ë©° ì´ìœ ë¥¼ ì•Œ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.
-     ë“±ë“± ì—¬ëŸ¬ ë°˜í™˜ê°’ì— ëŒ€í•œ ì„¤ëª…ì´ ìˆë‹¤. => https://learn.microsoft.com/ko-kr/sql/t-sql/spatial-geometry/isvaliddetailed-geometry-datatype?view=sql-server-2016
- - ë°˜í™˜ íƒ€ì… : nvarchar(max)
+ - ¿Ã¹Ù¸£Áö ¾ÊÀº °ø°£ °³Ã¼ÀÇ ¹®Á¦¸¦ ½Äº°ÇÏ´Â µ¥ µµ¿òÀÌ µÇ´Â ¸Ş½ÃÁö¸¦ ¹İÈ¯
+     24400: À¯È¿
+     24401: À¯È¿ÇÏÁö ¾ÊÀ¸¸ç ÀÌÀ¯¸¦ ¾Ë ¼ö ¾ø½À´Ï´Ù.
+     µîµî ¿©·¯ ¹İÈ¯°ª¿¡ ´ëÇÑ ¼³¸íÀÌ ÀÖ´Ù. => https://learn.microsoft.com/ko-kr/sql/t-sql/spatial-geometry/isvaliddetailed-geometry-datatype?view=sql-server-2016
+ - ¹İÈ¯ Å¸ÀÔ : nvarchar(max)
 */
 SELECT id, geomone_desc,
 	   geomone.IsValidDetailed() "one_isvaliddetailed",
@@ -587,8 +587,8 @@ WHERE id = 23;
 
 -- * MakeValid
 /*
- - ì˜ëª»ëœ geometryë¥¼ ìœ íš¨í•œ OGC í˜•ì‹ì˜ geometryë¡œ ë³€í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - Àß¸øµÈ geometry¸¦ À¯È¿ÇÑ OGC Çü½ÄÀÇ geometry·Î º¯È¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc,
 	   geomone.MakeValid().STAsText() "one_makevalid_desc",
@@ -598,16 +598,16 @@ FROM ex_geo_fun_tbl;
 
 -- * MinDbCompatibilityLevel
 /*
- - geometry ë°ì´í„° í˜•ì‹ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì¸ì‹í•˜ëŠ” ìµœì†Œ ë°ì´í„°ë² ì´ìŠ¤ í˜¸í™˜ì„± ìˆ˜ì¤€ì„ ë°˜í™˜
-     80: SQL Server 2000ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
-     90: SQL Server 2005ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
-     100: SQL Server 2008 ë° 2008 R2ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
-     110: SQL Server 2012ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
-     120: SQL Server 2014ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
-     130: SQL Server 2016ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
-     140: SQL Server 2017ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
-     150: SQL Server 2019ì˜ ê¸°ë³¸ í˜¸í™˜ì„± ìˆ˜ì¤€
- - ë°˜í™˜ íƒ€ì… : int
+ - geometry µ¥ÀÌÅÍ Çü½Ä ÀÎ½ºÅÏ½º¸¦ ÀÎ½ÄÇÏ´Â ÃÖ¼Ò µ¥ÀÌÅÍº£ÀÌ½º È£È¯¼º ¼öÁØÀ» ¹İÈ¯
+     80: SQL Server 2000ÀÇ ±âº» È£È¯¼º ¼öÁØ
+     90: SQL Server 2005ÀÇ ±âº» È£È¯¼º ¼öÁØ
+     100: SQL Server 2008 ¹× 2008 R2ÀÇ ±âº» È£È¯¼º ¼öÁØ
+     110: SQL Server 2012ÀÇ ±âº» È£È¯¼º ¼öÁØ
+     120: SQL Server 2014ÀÇ ±âº» È£È¯¼º ¼öÁØ
+     130: SQL Server 2016ÀÇ ±âº» È£È¯¼º ¼öÁØ
+     140: SQL Server 2017ÀÇ ±âº» È£È¯¼º ¼öÁØ
+     150: SQL Server 2019ÀÇ ±âº» È£È¯¼º ¼öÁØ
+ - ¹İÈ¯ Å¸ÀÔ : int
 */
 SELECT id, geomone_desc,
 	   geomone.MinDbCompatibilityLevel() "one_mindbcompatibilitylevel",
@@ -617,33 +617,33 @@ FROM ex_geo_fun_tbl;
 
 -- * CollectionAggregate
 /*
- - geometryí˜•ì‹ ì§‘í•©ìœ¼ë¡œë¶€í„° GeometryCollection ìƒì„±
- - ë°˜í™˜ íƒ€ì… : geometry
+ - geometryÇü½Ä ÁıÇÕÀ¸·ÎºÎÅÍ GeometryCollection »ı¼º
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geometry::CollectionAggregate(geomone) "one_collectionaggregate"
 FROM ex_geo_fun_tbl;
-/*geomoneì—´ì˜ ëª¨ë“  geometryë‹¤ í•©ì³ì ¸ GeometryCollectionì´ ë¨*/
+/*geomone¿­ÀÇ ¸ğµç geometry´Ù ÇÕÃÄÁ® GeometryCollectionÀÌ µÊ*/
 
 -- * ConvexHullAggregate
 /*
- - ì œê³µëœ geometry ê°œì²´ ì§‘í•©ì— ëŒ€í•œ ë³¼ë¡ ì§‘í•©(convex hull)ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - Á¦°øµÈ geometry °³Ã¼ ÁıÇÕ¿¡ ´ëÇÑ º¼·Ï ÁıÇÕ(convex hull)À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geometry::ConvexHullAggregate(geomone) "one_convexhullaggregate"
 FROM ex_geo_fun_tbl;
 
 -- * EnvelopeAggregate
 /*
- - ì§€ì •ëœ geometry ê°œì²´ ì§‘í•©ì— ëŒ€í•œ ê²½ê³„ ìƒìë¥¼ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - ÁöÁ¤µÈ geometry °³Ã¼ ÁıÇÕ¿¡ ´ëÇÑ °æ°è »óÀÚ¸¦ ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geometry::EnvelopeAggregate(geomone) "one_envelopeaggregate"
 FROM ex_geo_fun_tbl;
 
 -- * UnionAggregate
 /*
- - geometry ê°œì²´ ì§‘í•©ì—ì„œ í†µí•© ì—°ì‚°ì„ ìˆ˜í–‰
- - ë°˜í™˜ íƒ€ì… : geometry
+ - geometry °³Ã¼ ÁıÇÕ¿¡¼­ ÅëÇÕ ¿¬»êÀ» ¼öÇà
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT geometry::UnionAggregate(geomone) "one_unionaggregate"
 FROM ex_geo_fun_tbl;
@@ -654,8 +654,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STIntersects
 /*
- - ë‘ê°œì˜ geometryêµì°¨ ë˜ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - µÎ°³ÀÇ geometry±³Â÷ µÇ¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc, geomtwo_desc,
        geomone.STIntersects(geomtwo) "stintersects"
@@ -663,8 +663,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STDisjoint
 /*
- - ë‘ê°œì˜ geometryêµì°¨ ë˜ì§€ ì•Šìœ¼ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - µÎ°³ÀÇ geometry±³Â÷ µÇÁö ¾ÊÀ¸¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc, geomtwo_desc,
        geomone.STDisjoint(geomtwo) "disjoint"
@@ -672,8 +672,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STEquals
 /*
- - ë‘ê°œì˜ geometryê°€ ì™„ì „ ë™ì¼í•˜ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : geometry
+ - µÎ°³ÀÇ geometry°¡ ¿ÏÀü µ¿ÀÏÇÏ¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : geometry
 */
 SELECT id, geomone_desc, geomtwo_desc,
        geomone.STEquals(geomtwo) "equals"
@@ -681,10 +681,10 @@ FROM ex_geo_fun_tbl;
 
 -- * STContains
 /*
- - í•˜ë‚˜ì˜ geometryì´ ë˜ ë‹¤ë¥¸ geometryì„ í¬í•¨ì‹œí‚¤ë©´ 1, ì•„ë‹ˆë©´ 0
-   => A.STContains(B)ì—ì„œ Aì™€ Bì˜ ìˆœì„œê°€ ì¤‘ìš”
-   => Aê°€ Bë³´ë‹¤ í° ì˜ì—­ì´ì—¬ì•¼ ì›í•˜ëŠ” ê°’ì„ ì¶œë ¥ í•  ìˆ˜ ìˆìŒ
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ÇÏ³ªÀÇ geometryÀÌ ¶Ç ´Ù¸¥ geometryÀ» Æ÷ÇÔ½ÃÅ°¸é 1, ¾Æ´Ï¸é 0
+   => A.STContains(B)¿¡¼­ A¿Í BÀÇ ¼ø¼­°¡ Áß¿ä
+   => A°¡ Bº¸´Ù Å« ¿µ¿ªÀÌ¿©¾ß ¿øÇÏ´Â °ªÀ» Ãâ·Â ÇÒ ¼ö ÀÖÀ½
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomtwo_desc,
@@ -694,10 +694,10 @@ FROM ex_geo_fun_tbl;
 
 -- * STWithin
 /*
- - í•˜ë‚˜ì˜ geometryì´ ë˜ ë‹¤ë¥¸ geometryì„ í¬í•¨ì‹œí‚¤ë©´ 1, ì•„ë‹ˆë©´ 0
-   => A.STContains(B)ì—ì„œ Aì™€ Bì˜ ìˆœì„œê°€ ì¤‘ìš”
-   => Bê°€ Aë³´ë‹¤ í° ì˜ì—­ì´ì—¬ì•¼ ì›í•˜ëŠ” ê°’ì„ ì¶œë ¥ í•  ìˆ˜ ìˆìŒ
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ÇÏ³ªÀÇ geometryÀÌ ¶Ç ´Ù¸¥ geometryÀ» Æ÷ÇÔ½ÃÅ°¸é 1, ¾Æ´Ï¸é 0
+   => A.STContains(B)¿¡¼­ A¿Í BÀÇ ¼ø¼­°¡ Áß¿ä
+   => B°¡ Aº¸´Ù Å« ¿µ¿ªÀÌ¿©¾ß ¿øÇÏ´Â °ªÀ» Ãâ·Â ÇÒ ¼ö ÀÖÀ½
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomtwo_desc,
@@ -707,8 +707,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STCrosses
 /*
- - í•˜ë‚˜ì˜ geometryì´ ë˜ ë‹¤ë¥¸ geometryê³¼ êµì°¨ë˜ë©´ 1
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ÇÏ³ªÀÇ geometryÀÌ ¶Ç ´Ù¸¥ geometry°ú ±³Â÷µÇ¸é 1
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomtwo_desc,
@@ -717,8 +717,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STOverlaps
 /*
- - í•˜ë‚˜ì˜ geometryì´ ë˜ ë‹¤ë¥¸ geometryê³¼ ê²¹ì¹˜ë©´ 1ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ÇÏ³ªÀÇ geometryÀÌ ¶Ç ´Ù¸¥ geometry°ú °ãÄ¡¸é 1À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomtwo_desc,
@@ -727,8 +727,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STIsEmpty
 /*
- - emptyì´ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - emptyÀÌ¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.STIsEmpty() "isempty" 
@@ -736,8 +736,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STIsClosed
 /*
- - ì‹œì‘ì ê³¼ ëì ì´ ë™ì¼í•˜ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ½ÃÀÛÁ¡°ú ³¡Á¡ÀÌ µ¿ÀÏÇÏ¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.STIsClosed() "isclosed" 
@@ -745,8 +745,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STIsSimple
 /*
- - geometryì´ ë¹„ì •ìƒì´ ì•„ë‹ˆë¼ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - geometryÀÌ ºñÁ¤»óÀÌ ¾Æ´Ï¶ó¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.STIsSimple() "issimple" 
@@ -754,8 +754,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STIsRing
 /*
- - STIsSimpleì™€ STIsClosed ëª¨ë‘ 1 ì´ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - STIsSimple¿Í STIsClosed ¸ğµÎ 1 ÀÌ¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.STIsRing() "isring" 
@@ -763,8 +763,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STIsValid
 /*
- - OGC í˜•ì‹ì„ ê¸°ë°˜ìœ¼ë¡œ ì˜¬ë°”ë¥´ê²Œ ì§€ì •ë˜ì–´ ìˆìœ¼ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - OGC Çü½ÄÀ» ±â¹İÀ¸·Î ¿Ã¹Ù¸£°Ô ÁöÁ¤µÇ¾î ÀÖÀ¸¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.STIsValid() "isvalid" 
@@ -772,9 +772,9 @@ FROM ex_geo_fun_tbl;
 
 -- * STRelate
 /*
- - í•˜ë‚˜ì˜ geometryì´ ë˜ ë‹¤ë¥¸ geometryê³¼ ì–´ë– í•œ ì—°ê´€ì´ ìˆìœ¼ë©´ 1 ë°˜í™˜
-   => ex) A.STRelate(B, 'FF*FF****') => disjointë¡œ ì˜ˆìƒ
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ÇÏ³ªÀÇ geometryÀÌ ¶Ç ´Ù¸¥ geometry°ú ¾î¶°ÇÑ ¿¬°üÀÌ ÀÖÀ¸¸é 1 ¹İÈ¯
+   => ex) A.STRelate(B, 'FF*FF****') => disjoint·Î ¿¹»ó
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
        geomtwo_desc,
@@ -783,8 +783,8 @@ FROM ex_geo_fun_tbl;
 
 -- * STTouches
 /*
- - í•˜ë‚˜ì˜ geometryì´ ë˜ ë‹¤ë¥¸ geometryê³¼ ê³µê°„ì ìœ¼ë¡œ ë§Œë‚˜ë©´ 1 ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ÇÏ³ªÀÇ geometryÀÌ ¶Ç ´Ù¸¥ geometry°ú °ø°£ÀûÀ¸·Î ¸¸³ª¸é 1 ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
        geomtwo_desc,
@@ -793,9 +793,9 @@ FROM ex_geo_fun_tbl;
 
 -- * Filter
 /*
- - ì¸ë±ìŠ¤ë¥¼ ì‚¬ìš©í•  ìˆ˜ ìˆë‹¤ê³  ê°€ì •í•˜ëŠ” ê²½ìš° 2ê°œì˜ geometryê°€ êµì°¨í•˜ëŠ”ì§€ í™•ì¸í•˜ëŠ” ë¹ ë¥¸ ì¸ë±ìŠ¤ ì „ìš© êµì°¨ë²•ì„ ì œê³µí•˜ëŠ” ë©”ì„œë“œ
-   2ê°œì˜ geometryê°€ êµì°¨í•  ê°€ëŠ¥ì„±ì´ ìˆìœ¼ë©´ 1ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - ÀÎµ¦½º¸¦ »ç¿ëÇÒ ¼ö ÀÖ´Ù°í °¡Á¤ÇÏ´Â °æ¿ì 2°³ÀÇ geometry°¡ ±³Â÷ÇÏ´ÂÁö È®ÀÎÇÏ´Â ºü¸¥ ÀÎµ¦½º Àü¿ë ±³Â÷¹ıÀ» Á¦°øÇÏ´Â ¸Ş¼­µå
+   2°³ÀÇ geometry°¡ ±³Â÷ÇÒ °¡´É¼ºÀÌ ÀÖÀ¸¸é 1À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
        geomtwo_desc,
@@ -804,8 +804,8 @@ FROM ex_geo_fun_tbl;
 
 -- * HasM
 /*
- - ê³µê°„ ê°œì²´ì— M ê°’ì´ í•˜ë‚˜ ì´ìƒ í¬í•¨ëœ ê²½ìš° 1(true)ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - °ø°£ °³Ã¼¿¡ M °ªÀÌ ÇÏ³ª ÀÌ»ó Æ÷ÇÔµÈ °æ¿ì 1(true)À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.HasM "hasm" 
@@ -813,8 +813,8 @@ FROM ex_geo_fun_tbl;
 
 -- * HasZ
 /*
- - ê³µê°„ ê°œì²´ì— Z ê°’ì´ í•˜ë‚˜ ì´ìƒ í¬í•¨ëœ ê²½ìš° 1(true)ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - °ø°£ °³Ã¼¿¡ Z °ªÀÌ ÇÏ³ª ÀÌ»ó Æ÷ÇÔµÈ °æ¿ì 1(true)À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.HasZ "hasz" 
@@ -822,8 +822,8 @@ FROM ex_geo_fun_tbl;
 
 -- * InstanceOf
 /*
- - geometryì˜ í˜•ì‹ì´ ì§€ì •ëœ í˜•ì‹ê³¼ ë™ì¼í•œ ê²½ìš° 1ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - geometryÀÇ Çü½ÄÀÌ ÁöÁ¤µÈ Çü½Ä°ú µ¿ÀÏÇÑ °æ¿ì 1À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.InstanceOf('point') "one_instanceof_desc",
@@ -833,8 +833,8 @@ FROM ex_geo_fun_tbl;
 
 -- * IsNull
 /*
- - geometryê°€ Nullì´ë©´ 1ì„ ë°˜í™˜
- - ë°˜í™˜ íƒ€ì… : bit(= 0 or 1)
+ - geometry°¡ NullÀÌ¸é 1À» ¹İÈ¯
+ - ¹İÈ¯ Å¸ÀÔ : bit(= 0 or 1)
 */
 SELECT geomone_desc,
 	   geomone.IsNull "one_isnull_desc",
