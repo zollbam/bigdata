@@ -154,5 +154,5 @@ select * from [dbo].deletedMemberTBL;
 */
  /*확인*/
 select * from productTBL; 
-/*조회*/
+/*삭제*/
 delete from productTBL;

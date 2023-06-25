@@ -220,6 +220,16 @@ from Sales.CreditCard
 where CardType = 'vista' /*vista일때*/
 order by ExpYear, ExpMonth; /*오래된 순으로*/
 go
+select count(*)
+from Sales.CreditCard
+where CardType = 'vista';
+/*총 행의 개수는 4665로 0.1% => 4.665개*/
+go
+select top 0.1 percent CreditCardID, ExpYear, ExpMonth /*0.1%*/
+from Sales.CreditCard
+where CardType = 'vista' /*vista일때*/
+order by ExpYear, ExpMonth; /*오래된 순으로*/
+go
 /*동일 점수를 가진 사람도 조회 해야 할 때는??*/
 select top(0.1)percent with ties CreditCardID, ExpYear, ExpMonth /*0.1%*/
 from Sales.CreditCard
@@ -228,6 +238,7 @@ order by ExpYear, ExpMonth; /*오래된 순으로*/
 /*
 with ties을 쓰지 않았을 때는 5행만 나왔지만
 with ties을 쓰면 122행이 나오게 됨
+ExpYear가 2005, ExpMonth가 1인 데이터 전부 출력
 */
 go
 /*랜덤 데이터 조회*/
@@ -302,6 +313,7 @@ select count(*) from Sales.Customer;
 도구 창의 profiler로 비교해본 결과 
 count로 한개 훨씬 성능이 좋은 것을 확인
 */
+go
 use sqlDB
 go
 select num, price, amount into #tempTbl

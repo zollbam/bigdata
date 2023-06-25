@@ -1,16 +1,16 @@
-/*
+ï»¿/*
 mssql
-³¯Â¥ 23-05-20
+ë‚ ì§œ 23-05-20
 
 https://youtu.be/DxONMn4Ks-A
 https://youtu.be/yC8VEPhYEyI
 https://youtu.be/HBSszA7ASzI
 https://youtu.be/2PXtppy1dQo
 
-Transact-SQL °í±Ş
+Transact-SQL ê³ ê¸‰
 
-µ¥ÀÌÅÍ Å¸ÀÔ
- 1. ¼ıÀÚÇü
+ë°ì´í„° íƒ€ì…
+ 1. ìˆ«ìí˜•
   - tinyint
   - smallint
   - int
@@ -18,17 +18,17 @@ Transact-SQL °í±Ş
   - decimal
   - smallmoney
   - money
- 2. ¹®ÀÚÇü
+ 2. ë¬¸ìí˜•
   - char
   - varchar
   - nchar
   - nvarchar
- 3. ³¯Â¥¿Í ½Ã°£
+ 3. ë‚ ì§œì™€ ì‹œê°„
   - datetime
   - datetime2
   - date
   - time
- 4. ±âÅ¸
+ 4. ê¸°íƒ€
   - rowversion
   - sysname
   - cursor
@@ -36,30 +36,30 @@ Transact-SQL °í±Ş
   - xml
   - geometry
   - geograpy
-  - filestream: 2GBÀÌ»ó ´ë¿ë·® µ¥ÀÌÅÍ
+  - filestream: 2GBì´ìƒ ëŒ€ìš©ëŸ‰ ë°ì´í„°
 
-»ç¿ëÀÚ Á¤ÀÇ µ¥ÀÌÅÍ Çü½Ä
- - create type [µ¥ÀÌÅÍÇü½Ä¸í] from [µ¥ÀÌÅÍÇü½Ä(ex. char(5) not null)];
+ì‚¬ìš©ì ì •ì˜ ë°ì´í„° í˜•ì‹
+ - create type [ë°ì´í„°í˜•ì‹ëª…] from [ë°ì´í„°í˜•ì‹(ex. char(5) not null)]
 
-º¯¼ö »ç¿ë => ÀÏ½ÃÀûÀ¸·Î »ç¿ëµÇ¹Ç·Î Àç»ç¿ë ºÒ°¡
- - º¯¼ö ¼±¾ğ: declare @º¯¼öÀÌ¸§ µ¥ÀÌÅÍÇü½Ä
- - º¯¼ö¿¡ °ª ´ëÀÔ: set @º¯¼öÀÌ¸§ = º¯¼öÀÇ °ª
- - º¯¼öÀÇ °ª Ãâ·Â: select @º¯¼öÀÌ¸§
+ë³€ìˆ˜ ì‚¬ìš© => ì¼ì‹œì ìœ¼ë¡œ ì‚¬ìš©ë˜ë¯€ë¡œ ì¬ì‚¬ìš© ë¶ˆê°€
+ - ë³€ìˆ˜ ì„ ì–¸: declare @ë³€ìˆ˜ì´ë¦„ ë°ì´í„°í˜•ì‹
+ - ë³€ìˆ˜ì— ê°’ ëŒ€ì…: set @ë³€ìˆ˜ì´ë¦„ = ë³€ìˆ˜ì˜ ê°’
+ - ë³€ìˆ˜ì˜ ê°’ ì¶œë ¥: select @ë³€ìˆ˜ì´ë¦„
 
-µ¥ÀÌÅÍ Çü½Ä º¯È¯ ÇÔ¼ö
- - cast ( expression as µ¥ÀÌÅÍÇü½Ä[±æÀÌ])
- - convert (µ¥ÀÌÅÍÇü½Ä(±æÀÌ), expression [, ½ºÅ¸ÀÏ])
- - try_convert (µ¥ÀÌÅÍÇü½Ä(±æÀÌ), expression [, ½ºÅ¸ÀÏ])
- - parse ( ¹®ÀÚ¿­ as µ¥ÀÌÅÍÇü½Ä )
- - try_parse ( ¹®ÀÚ¿­ as µ¥ÀÌÅÍÇü½Ä )
+ë°ì´í„° í˜•ì‹ ë³€í™˜ í•¨ìˆ˜
+ - cast ( expression as ë°ì´í„°í˜•ì‹[ê¸¸ì´])
+ - convert (ë°ì´í„°í˜•ì‹(ê¸¸ì´), expression [, ìŠ¤íƒ€ì¼])
+ - try_convert (ë°ì´í„°í˜•ì‹(ê¸¸ì´), expression [, ìŠ¤íƒ€ì¼])
+ - parse ( ë¬¸ìì—´ as ë°ì´í„°í˜•ì‹ )
+ - try_parse ( ë¬¸ìì—´ as ë°ì´í„°í˜•ì‹ )
 
-jsonÀº 2016¹öÀüºÎÅÍ »ı±è
+jsonì€ 2016ë²„ì „ë¶€í„° ìƒê¹€
 */
--- º¹¿ø
+-- ë³µì›
 restore database sqldb 
 	from disk = 'C:\Program Files\Microsoft SQL Server\MSSQL13.GYCOM\MSSQL\Backup\sqlDB.bak' with replace;
 
--- º¯¼ö
+-- ë³€ìˆ˜
 use sqlDB;
 go
 declare @myVar1 int;
@@ -69,7 +69,7 @@ declare @myVar4 nchar(20);
 set @myVar1 = 5;
 set @myVar2 = 3;
 set @myVar3 = 4.25;
-set @myVar4 = '°¡¼ö ÀÌ¸§ ==> ';
+set @myVar4 = 'ê°€ìˆ˜ ì´ë¦„ ==> ';
 
 select @myVar1;
 select @myVar2 + @myVar3;
@@ -79,58 +79,63 @@ declare @myVar1 int;
 set @myVar1 = 3;
 select top(@myVar1) name, height from userTbl order by height;
 
--- µ¥ÀÌÅÍ Çü½Ä º¯È¯ ÇÔ¼ö
+-- ë°ì´í„° í˜•ì‹ ë³€í™˜ í•¨ìˆ˜
 use sqlDB;
 go
-select avg(cast(amount as float) ) "Æò±Õ ±¸¸Å °³¼ö"from buyTbl;
+select avg(cast(amount as float) ) "í‰ê·  êµ¬ë§¤ ê°œìˆ˜"from buyTbl;
 go
-select avg(convert(float,amount) ) "Æò±Õ ±¸¸Å °³¼ö"from buyTbl;
+select avg(convert(float,amount) ) "í‰ê·  êµ¬ë§¤ ê°œìˆ˜"from buyTbl;
 go
-select price, amount, cast(cast(price as float)/amount as decimal(10,2)) "´Ü°¡/¼ö·®"
+select price, amount, cast(cast(price as float)/amount as decimal(10,2)) "ë‹¨ê°€/ìˆ˜ëŸ‰"
 from buyTbl;
-/*priceÀ» float·Î º¯°æÇÏ°í ´Ü°¡/¼ö·®ÇÑ °è»êÀ» ´Ù½Ã decimal(10,2)·Î º¯È¯*/
+/*priceì„ floatë¡œ ë³€ê²½í•˜ê³  ë‹¨ê°€/ìˆ˜ëŸ‰í•œ ê³„ì‚°ì„ ë‹¤ì‹œ decimal(10,2)ë¡œ ë³€í™˜*/
 go
-select parse('2019³â 9¿ù 9ÀÏ' as date);
-select parse('2019³â 9¿ù 35ÀÏ' as date);
-/*parseÀº ½ÇÆĞÇÏ¸é ¿À·ù¸Ş¼¼Áö*/
+select parse('2019ë…„ 9ì›” 9ì¼' as date);
+select parse('2019ë…„ 9ì›” 35ì¼' as date);
+/*parseì€ ì‹¤íŒ¨í•˜ë©´ ì˜¤ë¥˜ë©”ì„¸ì§€*/
 go
-select cast(123.45 as int); /*Á¤»ó½ÇÇà*/
-select try_parse(123.45 as int); /*¿À·ù¸Ş¼¼Áö*/
+select cast(123.45 as int); /*ì •ìƒì‹¤í–‰*/
+select try_parse(123.45 as int); /*ì˜¤ë¥˜ë©”ì„¸ì§€*/
 select try_parse('123.45' as int); /*null*/
-select try_parse('2019³â 9¿ù 35ÀÏ' as date);
-/*try_parse´Â ½ÇÆĞÇÏ¸é null°ª ¹İÈ¯*/
+select try_parse('2019ë…„ 9ì›” 35ì¼' as date);
+/*
+try_parseëŠ” ì¸ìˆ˜1ì— numericì´ ë˜ë©´ ì•ˆ ëœë‹¤.
+try_parseëŠ” ì‹¤íŒ¨í•˜ë©´ nullê°’ ë°˜í™˜
+*/
 go
-/*¾Ï½ÃÀûÀÎ Çüº¯È¯*/
+/*ì•”ì‹œì ì¸ í˜•ë³€í™˜*/
 declare @myVar1 char(3);
 set @myVar1 = '100';
-select @myVar1 + '200'; /*¹®ÀÚ + ¹®ÀÚ => ±×´ë·Î ¹®ÀÚ*/
-select @myVar1 + 200; /*¹®ÀÚ + Á¤¼ö => ¾Ï½ÃÀûÀ¸·Î Á¤¼ö·Î º¯È¯*/
-select @myVar1 + 200.0; /*¹®ÀÚ + ½Ç¼ö => ¾Ï½ÃÀûÀ¸·Î ½Ç¼ö·Î º¯È¯*/
+select @myVar1 + '200'; /*ë¬¸ì + ë¬¸ì => ê·¸ëŒ€ë¡œ ë¬¸ì*/
+select @myVar1 + 200; /*ë¬¸ì + ì •ìˆ˜ => ì•”ì‹œì ìœ¼ë¡œ ì •ìˆ˜ë¡œ ë³€í™˜*/
+select @myVar1 + 200.0; /*ë¬¸ì + ì‹¤ìˆ˜ => ì•”ì‹œì ìœ¼ë¡œ ì‹¤ìˆ˜ë¡œ ë³€í™˜*/
 
--- ½ºÄ®¶óÇÔ¼ö
-/*±¸¼ºÇÔ¼ö: ÇöÀç ±¸¼º¿¡ ´ëÇÑ Á¤º¸*/
+-- ìŠ¤ì¹¼ë¼í•¨ìˆ˜
+/*êµ¬ì„±í•¨ìˆ˜: í˜„ì¬ êµ¬ì„±ì— ëŒ€í•œ ì •ë³´*/
+/*í˜„ì¬ ì„¤ì •ëœ ì–´ì–´ì˜ ì½”ë“œë²ˆí˜¸*/
 select @@langid;
+/*í˜„ì¬ ì„¤ì •ëœ ì–¸ì–´ì˜ ì½”ë“œ í™•ì¸*/
 select @@language;
-/*ÇöÀç ¼³Á¤µÈ ¾ğ¾îÀÇ ÄÚµå ¹øÈ£ ¹× ¾ğ¾î È®ÀÎ*/
 exec sp_helplanguage;
-/*´Ù¸¥³ª¶óÀÇ ¾ğ¾î¿¡ ´ëÇÑ id¸¦ È®ÀÎ*/
+/*ë‹¤ë¥¸ë‚˜ë¼ì˜ ì–¸ì–´ì— ëŒ€í•œ idë¥¼ í™•ì¸*/
 go
-/*ÇöÀç ÀÎ½ºÅÏ½ºÀÇ ÀÌ¸§À» È®ÀÎ*/
+/*í˜„ì¬ ì¸ìŠ¤í„´ìŠ¤ì˜ ì´ë¦„ì„ í™•ì¸*/
 select @@SERVERNAME; 
 go
-/*ÇöÀç ¼­ºñ½ºÀÇ ÀÌ¸§À» È®ÀÎ*/
+/*í˜„ì¬ ì„œë¹„ìŠ¤ì˜ ì´ë¦„ì„ í™•ì¸*/
 select @@SERVICENAME;
 go
-/*ÇöÀç »ç¿ëÀÚ ÇÁ·Î¼¼½ºÀÇ ¼¼¼Ç ID¸¦ ¹İÈ¯*/
+/*í˜„ì¬ ì‚¬ìš©ì í”„ë¡œì„¸ìŠ¤ì˜ ì„¸ì…˜ IDë¥¼ ë°˜í™˜*/
 select @@SPID;
+select * from sys.dm_exec_sessions;
 go
-/*ÇöÀç ¹öÀü È®ÀÎ*/
+/*í˜„ì¬ ë²„ì „ í™•ì¸*/
 select @@VERSION;
 
-/*³¯Â¥ ÇÔ¼ö*/
-select sysdatetime(); /*ÇöÀç ½Ã°£ ³¯Â¥(³ª³ëÃÊ)*/
+/*ë‚ ì§œ í•¨ìˆ˜*/
+select sysdatetime(); /*í˜„ì¬ ì‹œê°„ ë‚ ì§œ(ë‚˜ë…¸ì´ˆ)*/
 go
-select getdate(); /*ÇöÀç ½Ã°£ ³¯Â¥(¹Ğ¸®ÃÊ)*/
+select getdate(); /*í˜„ì¬ ì‹œê°„ ë‚ ì§œ(ë°€ë¦¬ì´ˆ)*/
 go
 select dateadd(day, 100, '2019/10/10');
 go
@@ -150,72 +155,73 @@ datetime2fromparts
 datetimefromparts
 datetimeoffsetfromparts
 smalldatetimefromparts
-timefromparts ·Îµµ ½Ã°£ µ¥ÀÌÅÍ Çü½Ä ¸¸µé±â °¡´É*/
+timefromparts ë¡œë„ ì‹œê°„ ë°ì´í„° í˜•ì‹ ë§Œë“¤ê¸° ê°€ëŠ¥*/
 go
-/*ÀÔ·ÂÇÑ ³¯Â¥ÀÇ ¸¶Áö³¯ ³¯Â¥ ¹İÈ¯*/
+/*ì…ë ¥í•œ ë‚ ì§œì˜ ë§ˆì§€ë‚  ë‚ ì§œ ë°˜í™˜*/
 select EOMONTH('2019-02-12');
 select EOMONTH('2020-02-12');
-select EOMONTH('2020-02-12', 3); /*ÀÔ·Â ³¯Â¥ÀÇ 3°³¿ù ÈÄ ¸¶Áö¸· ³¯Â¥*/
+select EOMONTH('2020-02-12', 3); /*ì…ë ¥ ë‚ ì§œì˜ 3ê°œì›” í›„ ë§ˆì§€ë§‰ ë‚ ì§œ*/
 go
 select abs(-12);
 go
 select round(123.24255,2);
 select round(-12.4588633,2);
 go
-select rand(); /*0~1»çÀÌ ·£´ı*/
+select rand(); /*0~1ì‚¬ì´ ëœë¤*/
 go
 select SQRT(4);
 go
 select power(4,2);
 
-/*¸ŞÅ¸µ¥ÀÌÅÍ ÇÔ¼ö*/
-/*Å×ÀÌºíÀÇ ÄÃ·³ ±æÀÌ ¹İÈ¯*/
-select COL_LENGTH('[dbo].[buyTbl]','num');
-select COL_LENGTH('[dbo].[buyTbl]','price');
-select COL_LENGTH('[dbo].[buyTbl]','userID');
+/*ë©”íƒ€ë°ì´í„° í•¨ìˆ˜*/
+/*í…Œì´ë¸”ì˜ ì»¬ëŸ¼ ê¸¸ì´ ë°˜í™˜*/
+select COL_LENGTH('[sqldb].[dbo].[buyTbl]','num');
+select COL_LENGTH('[sqldb].[dbo].[buyTbl]','price');
+select COL_LENGTH('[sqldb].[dbo].[buyTbl]','userID');
+select * from INFORMATION_SCHEMA.columns where TABLE_name='buytbl';
 go
-/*dbÀÇ id¿Í ÀÌ¸§ ¹İÈ¯*/
+/*dbì˜ idì™€ ì´ë¦„ ë°˜í™˜*/
 select db_id('AdventureWorks');
 select db_name(6);
 exec sp_helpdb;
 /*
-sp_helpdbÀÇ dbid¿­·Î id È®ÀÎÇÏ°í
-sp_helpdbÀÇ name¿­·Î name È®ÀÎ
+sp_helpdbì˜ dbidì—´ë¡œ id í™•ì¸í•˜ê³ 
+sp_helpdbì˜ nameì—´ë¡œ name í™•ì¸
 */
 go
 select object_id('userTbl');
 select object_name(565577053);
 select * from sys.objects where name='userTbl';
 /*
-sys.objectsÀÇ object_id¿­·Î id È®ÀÎÇÏ°í
-sys.objectsÀÇ name¿­·Î name È®ÀÎ
+sys.objectsì˜ object_idì—´ë¡œ id í™•ì¸í•˜ê³ 
+sys.objectsì˜ nameì—´ë¡œ name í™•ì¸
 */
 
-/*³í¸® ÇÔ¼ö*/
-/*¿©·¯ °ªÁß ÁöÁ¤µÈ À§Ä¡ÀÇ °ª ¹İÈ¯*/
+/*ë…¼ë¦¬ í•¨ìˆ˜*/
+/*ì—¬ëŸ¬ ê°’ì¤‘ ì§€ì •ëœ ìœ„ì¹˜ì˜ ê°’ ë°˜í™˜*/
 select choose(2,'SQL','Server','2016','DVD');
 select choose(5,'SQL','Server','2016','DVD'); 
 go
-select iif(100>200, '¸Â´Ù', 'Æ²¸®´Ù')
+select iif(100>200, 'ë§ë‹¤', 'í‹€ë¦¬ë‹¤');
 
-/*¹®ÀÚ¿­ ÇÔ¼ö*/
-/*¹®ÀÚ¿­ => ¾Æ½ºÅ° ÄÚµå*/
+/*ë¬¸ìì—´ í•¨ìˆ˜*/
+/*ë¬¸ìì—´ => ì•„ìŠ¤í‚¤ ì½”ë“œ*/
 select ascii('A');
 go
-/*¾Æ½ºÅ° ÄÚµå => ¹®ÀÚ¿­*/
-select char(65);
+/*ì•„ìŠ¤í‚¤ ì½”ë“œ => ë¬¸ìì—´*/
+select	;
 go
 select concat('A','B');
 select 'A' + 'B';
-/*¹®ÀÚ¿­ => À¯´ÏÄÚµå*/
-select unicode('°¡');
+/*ë¬¸ìì—´ => ìœ ë‹ˆì½”ë“œ*/
+select unicode('ê°€');
 go
-/*À¯´ÏÄÚµå => ¹®ÀÚ¿­*/
+/*ìœ ë‹ˆì½”ë“œ => ë¬¸ìì—´*/
 select nchar(44032);
 go
 select charindex('Server','SQL Server 2016');
 select charindex('Server','SQL server 2016');
-/*´ë¼Ò¹®ÀÚ ±¸ºĞ X*/
+/*ëŒ€ì†Œë¬¸ì êµ¬ë¶„ X*/
 go
 select left('SQL server 2016', 5);
 select right('SQL server 2016', 8);
@@ -227,7 +233,7 @@ select lower('SQL server 2016');
 select upper('SQL server 2016');
 go
 select len(ltrim('  SQL server 2016  '));
-/*¿À¸¥ÂÊ °ø¹éÀº °¡º¯±æÀÌ ¶§¹®¿¡ »ç¶óÁö´Â °É·Î ¿¹»ó*/
+/*ì˜¤ë¥¸ìª½ ê³µë°±ì€ ê°€ë³€ê¸¸ì´ ë•Œë¬¸ì— ì‚¬ë¼ì§€ëŠ” ê±¸ë¡œ ì˜ˆìƒ*/
 select len(rtrim(' SQL   '));
 go
 select replace('ABC','c','S');
@@ -236,18 +242,18 @@ select replicate('ABC',3);
 go 
 select reverse('ABC');
 go
-/*°ø¹é ¹İÈ¯*/
+/*ê³µë°± ë°˜í™˜*/
 select space(5);
 select len(space(5) + '1');
 go
 select str(5);
 go
-select stuff('SQL ¼­¹ö 2016', 5, 2, 'Server');
+select stuff('SQL ì„œë²„ 2016', 5, 2, 'Server');
 go
 select format(getdate(), 'yyyy:MM:dd');
-/*MMÀº ¿ù, mmÀº ºĞ*/
+/*MMì€ ì›”, mmì€ ë¶„*/
 
--- ´ë¿ë·® µ¥ÀÌÅÍ ÀÔ·Â ¿¹Á¦
+-- ëŒ€ìš©ëŸ‰ ë°ì´í„° ì…ë ¥ ì˜ˆì œ
 use sqlDB;
 go
 create table maxTbl(
@@ -255,157 +261,157 @@ create table maxTbl(
 	col2 nvarchar(max),
 );
 insert into maxTbl values
-	(REPLICATE('A',1000000), REPLICATE('°¡',1000000));
+	(REPLICATE('A',1000000), REPLICATE('ê°€',1000000));
 select len(col1) "varchar(max)", len(col2) "nvarchar(max)" from maxTbl;
 go
 insert into maxTbl values
 	(REPLICATE(cast('A' as varchar(max)),1000000), 
-	 REPLICATE(convert(nvarchar(max),'°¡'),1000000));
+	 REPLICATE(convert(nvarchar(max),'ê°€'),1000000));
 select len(col1) "varchar(max)", len(col2) "nvarchar(max)" from maxTbl;
 go
 update maxTbl set col1 = replace((select col1 from maxTbl), 'A', 'B'),
-                  col2 = replace((select col2 from maxTbl), '°¡', '³ª');
+                  col2 = replace((select col2 from maxTbl), 'ê°€', 'ë‚˜');
 select reverse(col1) from maxTbl;
 select substring(col2, 999991,10) from maxTbl;
 go
 update maxTbl set col1 = stuff(col1,999991,10,replicate('C',10)),
-                  col2 = stuff(col2,999991,10,replicate('´Ù',10));
+                  col2 = stuff(col2,999991,10,replicate('ë‹¤',10));
 select substring(col1, 999981,20), substring(col2, 999981,20) from maxTbl;
 go
 update maxTbl set col1.write('DDDDD', 999995,5),
-                  col2.write('¶ó¶ó¶ó¶ó¶ó', 999995,5);
+                  col2.write('ë¼ë¼ë¼ë¼ë¼', 999995,5);
 select substring(col1, 999981,21), substring(col2, 999981,20) from maxTbl;
 
--- ¼øÀ§ÇÔ¼ö
+-- ìˆœìœ„í•¨ìˆ˜
 use sqldb;
 go
-/*Å°°¡ Å« ¼ø¼­´ë·Î*/
-select row_number() over(order by height desc) "Å°Å«¼øÀ§", name, addr, height
+/*í‚¤ê°€ í° ìˆœì„œëŒ€ë¡œ*/
+select row_number() over(order by height desc) "í‚¤í°ìˆœìœ„", name, addr, height
 from userTbl;
 go
-/*Å°°¡ Å« ¼ø¼­´ë·Î + Å°°¡ °°À¸¸é ÀÌ¸§À» ¿À¸§Â÷ ¼ø¼­´ë·Î*/
-select row_number() over(order by height desc, name) "Å°Å«¼øÀ§", name, addr, height
+/*í‚¤ê°€ í° ìˆœì„œëŒ€ë¡œ + í‚¤ê°€ ê°™ìœ¼ë©´ ì´ë¦„ì„ ì˜¤ë¦„ì°¨ ìˆœì„œëŒ€ë¡œ*/
+select row_number() over(order by height desc, name) "í‚¤í°ìˆœìœ„", name, addr, height
 from userTbl;
 go
-/*ÁÖ¼Òº°·Î Å°°¡ Å« ¼ø¼­´ë·Î*/
-select addr, row_number() over(partition by addr order by height desc, name) "Å°Å«¼øÀ§", name, height
+/*ì£¼ì†Œë³„ë¡œ í‚¤ê°€ í° ìˆœì„œëŒ€ë¡œ*/
+select addr, row_number() over(partition by addr order by height desc, name) "í‚¤í°ìˆœìœ„", name, height
 from userTbl;
-/*partition by´Â group by¿Í ºñ½ÁÇÑ ±â´É*/
+/*partition byëŠ” group byì™€ ë¹„ìŠ·í•œ ê¸°ëŠ¥*/
 go
-/*rank´Â Áßº¹µÈ °ªÀÌ ÀÖ´Â°æ¿ì °°Àº µî¼ö*/
-select addr, rank() over(order by height desc) "Å°Å«¼øÀ§", name, height
+/*rankëŠ” ì¤‘ë³µëœ ê°’ì´ ìˆëŠ”ê²½ìš° ê°™ì€ ë“±ìˆ˜*/
+select addr, rank() over(order by height desc) "í‚¤í°ìˆœìœ„", name, height
 from userTbl;
-/*2µîÀÌ 2¸í ÀÖÀ¸¸é ´ÙÀ½ µî¼ö´Â 4µî*/
+/*2ë“±ì´ 2ëª… ìˆìœ¼ë©´ ë‹¤ìŒ ë“±ìˆ˜ëŠ” 4ë“±*/
 go
-/*rank´Â Áßº¹µÈ °ªÀÌ ÀÖ´Â°æ¿ì °°Àº µî¼ö*/
-select addr, dense_rank() over(order by height desc) "Å°Å«¼øÀ§", name, height
+/*rankëŠ” ì¤‘ë³µëœ ê°’ì´ ìˆëŠ”ê²½ìš° ê°™ì€ ë“±ìˆ˜*/
+select addr, dense_rank() over(order by height desc) "í‚¤í°ìˆœìœ„", name, height
 from userTbl;
-/*2µîÀÌ 2¸í ÀÖÀ¸¸é ´ÙÀ½ µî¼ö´Â 3µî*/
+/*2ë“±ì´ 2ëª… ìˆìœ¼ë©´ ë‹¤ìŒ ë“±ìˆ˜ëŠ” 3ë“±*/
 go
-/*¼øÀ§ º°·Î ±×·ìÀ» ¸¸µé±â*/
-select addr, ntile(2) over(order by height desc) "Å°Å«¼øÀ§", name, height
+/*ìˆœìœ„ ë³„ë¡œ ê·¸ë£¹ì„ ë§Œë“¤ê¸°*/
+select addr, ntile(2) over(order by height desc) "í‚¤í°ìˆœìœ„", name, height
 from userTbl;
-/*Å°°¡ Å« ÆÀ, ÀÛÀº ÆÀ*/
+/*í‚¤ê°€ í° íŒ€, ì‘ì€ íŒ€*/
 go
-select addr, ntile(3) over(order by height desc) "Å°Å«¼øÀ§", name, height
+select addr, ntile(3) over(order by height desc) "í‚¤í°ìˆœìœ„", name, height
 from userTbl;
-/*Å°°¡ Å« ÆÀ, Å°°¡ Áß°£ÆÀ, ÀÛÀº ÆÀ*/
+/*í‚¤ê°€ í° íŒ€, í‚¤ê°€ ì¤‘ê°„íŒ€, ì‘ì€ íŒ€*/
 
--- ºĞ¼®ÇÔ¼ö
-/*´ÙÀ½ »ç¶÷°ú Å° Â÷ÀÌ°¡ ±Ã±İ*/
+-- ë¶„ì„í•¨ìˆ˜
+/*ë‹¤ìŒ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´ê°€ ê¶ê¸ˆ*/
 use sqldb;
 go
-select name,addr, height as "Å°",
-       height - (lead(height, 1, 1) over (order by height desc)) as"´ÙÀ½ »ç¶÷°ú Å° Â÷ÀÌ"
+select name,addr, height as "í‚¤",
+       height - (lead(height, 1, 1) over (order by height desc)) as"ë‹¤ìŒ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 go
-select name,addr, height as "Å°",
-       height - (lead(height, 1, 0) over (order by height desc)) as"´ÙÀ½ »ç¶÷°ú Å° Â÷ÀÌ"
+select name,addr, height as "í‚¤",
+       height - (lead(height, 1, 0) over (order by height desc)) as"ë‹¤ìŒ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 go
-select name,addr, height as "Å°",
-       height - (lead(height, 2, 0) over (order by height desc)) as"´ÙÀ½ »ç¶÷°ú Å° Â÷ÀÌ"
+select name,addr, height as "í‚¤",
+       height - (lead(height, 2, 0) over (order by height desc)) as"ë‹¤ìŒ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 /*
-2¹øÂ° ÀÎ¼ö´Â ¸îÄ­ ´ÙÀ½ °ÍÀ» ºñ±³ÇÏÁö ÀÌ°í
-3¹øÂ° ÀÎ¼ö´Â ±âº»°ªÀ» ÀÇ¹ÌÇÏ¿© ¸¶Áö¸·¿¡ °ª°ú °è»ê
+2ë²ˆì§¸ ì¸ìˆ˜ëŠ” ëª‡ì¹¸ ë‹¤ìŒ ê²ƒì„ ë¹„êµí•˜ì§€ ì´ê³ 
+3ë²ˆì§¸ ì¸ìˆ˜ëŠ” ê¸°ë³¸ê°’ì„ ì˜ë¯¸í•˜ì—¬ ë§ˆì§€ë§‰ì— ê°’ê³¼ ê³„ì‚°
 */
 go
-/*ÀÌÀü »ç¶÷°ú Å° Â÷ÀÌ°¡ ±Ã±İ*/
-select name,addr, height as "Å°",
-       height - (lag(height, 1, 0) over (order by height desc)) as"ÀÌÀü »ç¶÷°ú Å° Â÷ÀÌ"
+/*ì´ì „ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´ê°€ ê¶ê¸ˆ*/
+select name,addr, height as "í‚¤",
+       height - (lag(height, 1, 0) over (order by height desc)) as"ì´ì „ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 go
-select name,addr, height as "Å°",
-       height - (lag(height, 1, 1) over (order by height desc)) as"ÀÌÀü »ç¶÷°ú Å° Â÷ÀÌ"
+select name,addr, height as "í‚¤",
+       height - (lag(height, 1, 1) over (order by height desc)) as"ì´ì „ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 go
-select name,addr, height as "Å°",
-       height - (lag(height, 2, 0) over (order by height desc)) as"ÀÌÀü »ç¶÷°ú Å° Â÷ÀÌ"
+select name,addr, height as "í‚¤",
+       height - (lag(height, 2, 0) over (order by height desc)) as"ì´ì „ ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 go
-/*°¡Àå Å« »ç¶÷°ú ºñ±³*/
-select name,addr, height as "Å°",
-       height - (first_value(height) over (order by height desc)) as"Å° Å« »ç¶÷°ú Å° Â÷ÀÌ"
+/*ê°€ì¥ í° ì‚¬ëŒê³¼ ë¹„êµ*/
+select name,addr, height as "í‚¤",
+       height - (first_value(height) over (order by height desc)) as"í‚¤ í° ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 go
-select name,addr, height as "Å°",
-       height - (first_value(height) over (partition by addr order by height desc)) as"Áö¿ªº° Å° Å« »ç¶÷°ú Å° Â÷ÀÌ"
+select name,addr, height as "í‚¤",
+       height - (first_value(height) over (partition by addr order by height desc)) as"ì§€ì—­ë³„ í‚¤ í° ì‚¬ëŒê³¼ í‚¤ ì°¨ì´"
 from usertbl;
 go
-/*¹éºĞÀ²*/
-select addr, name, height "°¡ÀÔÀÏ",
-       (CUME_DIST() over (partition by addr order by height desc)) * 100 "´©ÀûÀÎ¿ø ¹éºĞÀ² %"
+/*ë°±ë¶„ìœ¨*/
+select addr, name, height "ê°€ì…ì¼",
+       (CUME_DIST() over (partition by addr order by height desc)) * 100 "ëˆ„ì ì¸ì› ë°±ë¶„ìœ¨ %"
 from usertbl;
 go
-/*Áß¾Ó°ª*/
+/*ì¤‘ì•™ê°’*/
 select distinct addr,
-       percentile_cont(0.5) within group (order by height) over (partition by addr) "Áö¿ªº° Áß¾Ó°ª"
+       percentile_cont(0.5) within group (order by height) over (partition by addr) "ì§€ì—­ë³„ ì¤‘ì•™ê°’"
 from usertbl;
 go
 select distinct addr,
-       percentile_cont(0.25) within group (order by height) over (partition by addr) "Áö¿ªº° Áß¾Ó°ª"
+       percentile_cont(0.25) within group (order by height) over (partition by addr) "ì§€ì—­ë³„ í•˜ìœ„ 25%"
 from usertbl
-where addr='¼­¿ï';
-/*percentile_cont´Â Á¤È®ÇÑ Áß°£°ª ¼ıÀÚ¸¦ ³ªÅ¸³»¹Ç·Î ¿­¾È¿¡ ÀÖ´Â °ªÀÌ ¾È ³ª¿Ã ¼ö ÀÖÀ½*/
+where addr='ì„œìš¸';
+/*percentile_contëŠ” ì •í™•í•œ ì¤‘ê°„ê°’ ìˆ«ìë¥¼ ë‚˜íƒ€ë‚´ë¯€ë¡œ ì—´ì•ˆì— ìˆëŠ” ê°’ì´ ì•ˆ ë‚˜ì˜¬ ìˆ˜ ìˆìŒ*/
 go
 select distinct addr,
-       percentile_disc(0.5) within group (order by height) over (partition by addr) "Áö¿ªº° Á¤È®ÇÑ À§Ä¡°ª"
+       percentile_disc(0.5) within group (order by height) over (partition by addr) "ì§€ì—­ë³„ ì •í™•í•œ ìœ„ì¹˜ê°’"
 from usertbl;
-/*percentile_disc´Â Á¤È®ÇÑ Áß°£°ª À§Ä¡°¡ ³ªÅ¸³ª¹Ç·Î ¹«Á¶°Ç ¿­¾È¿¡ ÀÖ´Â °ªÀÌ ¹İÈ¯*/
+/*percentile_discëŠ” ì •í™•í•œ ì¤‘ê°„ê°’ ìœ„ì¹˜ê°€ ë‚˜íƒ€ë‚˜ë¯€ë¡œ ë¬´ì¡°ê±´ ì—´ì•ˆì— ìˆëŠ” ê°’ì´ ë°˜í™˜*/
 
 -- pivot/unpivot
 /*
 pivot: long => wide
 unpivot: wide => long
 */
-/*pivot ¿¹Á¦*/
+/*pivot ì˜ˆì œ*/
 create table pivottest(
 	uname nchar(3),
 	season nchar(2),
 	amount int
 );
 insert into pivottest values
-	('±è¹ü¼ö', '°Ü¿ï', 10),
-    ('À±Á¾½Å', '¿©¸§', 15),
-	('±è¹ü¼ö', '°¡À»', 25),
-	('±è¹ü¼ö', 'º½', 3),
-	('±è¹ü¼ö', 'º½', 37),
-	('À±Á¾½Å', '°Ü¿ï', 40),
-	('±è¹ü¼ö', '¿©¸§', 14),
-	('±è¹ü¼ö', '°Ü¿ï', 22),
-	('À±Á¾½Å', '¿©¸§', 64);
+	('ê¹€ë²”ìˆ˜', 'ê²¨ìš¸', 10),
+    ('ìœ¤ì¢…ì‹ ', 'ì—¬ë¦„', 15),
+	('ê¹€ë²”ìˆ˜', 'ê°€ì„', 25),
+	('ê¹€ë²”ìˆ˜', 'ë´„', 3),
+	('ê¹€ë²”ìˆ˜', 'ë´„', 37),
+	('ìœ¤ì¢…ì‹ ', 'ê²¨ìš¸', 40),
+	('ê¹€ë²”ìˆ˜', 'ì—¬ë¦„', 14),
+	('ê¹€ë²”ìˆ˜', 'ê²¨ìš¸', 22),
+	('ìœ¤ì¢…ì‹ ', 'ì—¬ë¦„', 64);
 select * from pivottest
 pivot(sum(amount)
       for season
-	  in ([º½],[¿©¸§],[°¡À»],[°Ü¿ï])) "resultpivot";
+	  in ([ë´„],[ì—¬ë¦„],[ê°€ì„],[ê²¨ìš¸])) "resultpivot";
 select * from pivottest
-pivot(sum(amount) /*ÇÕ°è*/
-      for season /*¾î¶² ¿­À» ¿­ÀÌ¸§À¸·Î ÁöÁ¤ÇÒÁö*/
-	  in ([°Ü¿ï],[°¡À»],[¿©¸§],[º½])) "resultpivot"; /*¿­ ¼ø¼­*/
+pivot(sum(amount) /*í•©ê³„*/
+      for season /*ì–´ë–¤ ì—´ì„ ì—´ì´ë¦„ìœ¼ë¡œ ì§€ì •í• ì§€*/
+	  in ([ê²¨ìš¸],[ê°€ì„],[ì—¬ë¦„],[ë´„])) "resultpivot"; /*ì—´ ìˆœì„œ*/
 
 -- json
-/*Å×ÀÌºí => json*/
+/*í…Œì´ë¸” => json*/
 use sqldb;
 go
 select name, height 
@@ -415,9 +421,9 @@ for json auto;
 go
 declare @json varchar(max)
 set @json=N'{"userTBL" :
-                 [ {"name":"ÀÓÀç¹ü", "height":182},
-				   {"name":"ÀÌ½Â±â", "height":182},
-				   {"name":"¼º½Ã°æ", "height":186} ]
+                 [ {"name":"ì„ì¬ë²”", "height":182},
+				   {"name":"ì´ìŠ¹ê¸°", "height":182},
+				   {"name":"ì„±ì‹œê²½", "height":186} ]
 		     }'
 select isjson(@json);
 select json_query(@json, '$.userTBL');
@@ -428,24 +434,24 @@ with (
 		name nchar(8) '$.name',
 		height int '$.height');
 
--- xml Âü°í
+-- xml ì°¸ê³ 
 select name, height 
 from usertbl
 where height >= 180
 for xml path('');
 
--- Á¶ÀÎ
+-- ì¡°ì¸
 /*inner join*/
 use sqldb;
 go
-select b.userid, u.name, b.prodName, u.addr, u.mobile1 + u.mobile2 "¿¬¶ôÃ³"
+select b.userid, u.name, b.prodName, u.addr, u.mobile1 + u.mobile2 "ì—°ë½ì²˜"
 from buyTbl b
      inner join
 	 userTbl u
 		on b.userID = u.userID;
 -- where b.userID = 'JYP';
 go
-/*¼îÇÎÀ» ÇÑ¹øÀÌ¶óµµ ÇÑ »ç¶÷ Ã£±â*/
+/*ì‡¼í•‘ì„ í•œë²ˆì´ë¼ë„ í•œ ì‚¬ëŒ ì°¾ê¸°*/
 select distinct b.userid, u.name, u.addr
 from buyTbl b
      inner join
@@ -453,21 +459,21 @@ from buyTbl b
 		on b.userID = u.userID;
 go
 /*right outer join*/
-select b.userid, u.name, b.prodName, u.addr, u.mobile1 + u.mobile2 "¿¬¶ôÃ³"
+select b.userid, u.name, b.prodName, u.addr, u.mobile1 + u.mobile2 "ì—°ë½ì²˜"
 from buyTbl b
      right outer join
 	 userTbl u
 		on b.userID = u.userID;
 go
 /*left outer join*/
-select b.userid, u.name, b.prodName, u.addr, u.mobile1 + u.mobile2 "¿¬¶ôÃ³"
+select b.userid, u.name, b.prodName, u.addr, u.mobile1 + u.mobile2 "ì—°ë½ì²˜"
 from userTbl u
      left outer join
 	 buyTbl b
 		on u.userID = b.userID;
 go
-/*±¸¸Å ¸ñ·ÏÀÌ ¾ø´Â À¯Àú¸¸ »ÌÀÚ*/
-select u.userid, u.name, b.prodname, u.addr, u.mobile1 + u.mobile2 "¿¬¶ôÃ³"
+/*êµ¬ë§¤ ëª©ë¡ì´ ì—†ëŠ” ìœ ì €ë§Œ ë½‘ì*/
+select u.userid, u.name, b.prodname, u.addr, u.mobile1 + u.mobile2 "ì—°ë½ì²˜"
 from userTbl u
      left outer join
 	 buytbl b
@@ -475,7 +481,7 @@ from userTbl u
 where b.prodName is null
 order by u.userID;
 go
-/*3°³Å×ÀÌºí Á¶ÀÎ ¿¹Á¦*/
+/*3ê°œí…Œì´ë¸” ì¡°ì¸ ì˜ˆì œ*/
 use sqldb;
 go
 create table stdTbl (
@@ -484,33 +490,33 @@ create table stdTbl (
 	primary key (name)
 );
 insert into stdTbl values 
-	('±è¹ü¼ö', '°æ³²'),
-	('¼º½Ã°æ', '¼­¿ï'),
-	('Á¶¿ëÇÊ', '°æ±â'),
-	('ÀºÁö¿ø', '°æºÏ'),
-	('¹ÙºñÅ´', '¼­¿ï');
+	('ê¹€ë²”ìˆ˜', 'ê²½ë‚¨'),
+	('ì„±ì‹œê²½', 'ì„œìš¸'),
+	('ì¡°ìš©í•„', 'ê²½ê¸°'),
+	('ì€ì§€ì›', 'ê²½ë¶'),
+	('ë°”ë¹„í‚´', 'ì„œìš¸');
 create table clubTbl (
 	club_name nvarchar(4),
 	club_room nvarchar(4),
 	primary key (club_name)
 );
 insert into clubTbl values 
-	('¼ö¿µ', '101È£'),
-	('¹ÙµÏ', '102È£'),
-	('Ãà±¸', '103È£'),
-	('ºÀ»ç', '104È£');
+	('ìˆ˜ì˜', '101í˜¸'),
+	('ë°”ë‘‘', '102í˜¸'),
+	('ì¶•êµ¬', '103í˜¸'),
+	('ë´‰ì‚¬', '104í˜¸');
 create table stdclubTbl (
 	no int,
 	name nvarchar(3) foreign key references stdTbl(name),
 	club_name nvarchar(4) foreign key references clubTbl(club_name),
 );
 insert into stdclubTbl values 
-	(1, '±è¹ü¼ö', '¹ÙµÏ'),
-	(2, '±è¹ü¼ö', 'Ãà±¸'),
-	(3, 'Á¶¿ëÇÊ', 'Ãà±¸'),
-	(4, 'ÀºÁö¿ø', 'Ãà±¸'),
-	(5, 'ÀºÁö¿ø', 'ºÀ»ç'),
-	(6, '¹ÙºñÅ´', 'ºÀ»ç');
+	(1, 'ê¹€ë²”ìˆ˜', 'ë°”ë‘‘'),
+	(2, 'ê¹€ë²”ìˆ˜', 'ì¶•êµ¬'),
+	(3, 'ì¡°ìš©í•„', 'ì¶•êµ¬'),
+	(4, 'ì€ì§€ì›', 'ì¶•êµ¬'),
+	(5, 'ì€ì§€ì›', 'ë´‰ì‚¬'),
+	(6, 'ë°”ë¹„í‚´', 'ë´‰ì‚¬');
 select s.name, s.addr, c.club_name, c.club_room
 from stdTbl s
 	 inner join
@@ -542,9 +548,9 @@ from stdTbl s
 		on sc.club_name = c.club_name
 order by 1;
 /*
-¼ö¿µÀ» ¹è¿ì´Â ÇĞ»ıÀº 1¸íµµ ¾øÀ½
-¼º½Ã°æÀº µ¿¾Æ¸®¿¡ °¡ÀÔ X
-±è¹ü¼ö¿Í ÀºÁö¿øÀº µ¿¾Æ¸® 2°³ °¡ÀÔ
+ìˆ˜ì˜ì„ ë°°ìš°ëŠ” í•™ìƒì€ 1ëª…ë„ ì—†ìŒ
+ì„±ì‹œê²½ì€ ë™ì•„ë¦¬ì— ê°€ì… X
+ê¹€ë²”ìˆ˜ì™€ ì€ì§€ì›ì€ ë™ì•„ë¦¬ 2ê°œ ê°€ì…
 */
 go
 /*cross join*/
@@ -553,14 +559,14 @@ go
 select *
 from buytbl cross join usertbl;
 go
-/*count_big => count¿Í °°Àº ±â´ÉÀÌÁö¸¸ ¿À¹öÇÃ·Î¿ì µÉ ¶§ »ç¿ë*/
+/*count_big => countì™€ ê°™ì€ ê¸°ëŠ¥ì´ì§€ë§Œ ì˜¤ë²„í”Œë¡œìš° ë  ë•Œ ì‚¬ìš©*/
 use AdventureWorks;
 go
-select count_big(*) "µ¥ÀÌÅÍ°³¼ö"
+select count_big(*) "ë°ì´í„°ê°œìˆ˜"
 from sales.salesorderdetail
      cross join
 	 sales.salesorderheader;
-/*12¸¸ °Ç X 3¸¸ °Ç = 36¾ï °Ç*/
+/*12ë§Œ ê±´ X 3ë§Œ ê±´ = 36ì–µ ê±´*/
 go
 /*self join*/
 use sqldb;
@@ -571,19 +577,19 @@ create table emptbl (
 	department nvarchar(3)
 );
 insert into emptbl values
-	('³ª»çÀå', null, null),
-	('±èÀç¹«','³ª»çÀå','Àç¹«ºÎ'),
-	('±èºÎÀå','±èÀç¹«','Àç¹«ºÎ'),
-	('ÀÌºÎÀå','±èÀç¹«','Àç¹«ºÎ'),
-	('¿ì´ë¸®','ÀÌºÎÀå','Àç¹«ºÎ'),
-	('Áö»ç¿ø','ÀÌºÎÀå','Àç¹«ºÎ'),
-	('ÀÌ¿µ¾÷','³ª»çÀå','¿µ¾÷ºÎ'),
-	('ÇÑ°úÀå','ÀÌ¿©¾÷','¿µ¾÷ºÎ'),
-	('ÃÖÁ¤º¸','³ª»çÀå','Á¤º¸ºÎ'),
-	('À±Â÷Àå','ÃÖÁ¤º¸','Á¤º¸ºÎ'),
-	('ÀÌÁÖÀÓ','À±Â÷Àå','Á¤º¸ºÎ');
+	('ë‚˜ì‚¬ì¥', null, null),
+	('ê¹€ì¬ë¬´','ë‚˜ì‚¬ì¥','ì¬ë¬´ë¶€'),
+	('ê¹€ë¶€ì¥','ê¹€ì¬ë¬´','ì¬ë¬´ë¶€'),
+	('ì´ë¶€ì¥','ê¹€ì¬ë¬´','ì¬ë¬´ë¶€'),
+	('ìš°ëŒ€ë¦¬','ì´ë¶€ì¥','ì¬ë¬´ë¶€'),
+	('ì§€ì‚¬ì›','ì´ë¶€ì¥','ì¬ë¬´ë¶€'),
+	('ì´ì˜ì—…','ë‚˜ì‚¬ì¥','ì˜ì—…ë¶€'),
+	('í•œê³¼ì¥','ì´ì—¬ì—…','ì˜ì—…ë¶€'),
+	('ìµœì •ë³´','ë‚˜ì‚¬ì¥','ì •ë³´ë¶€'),
+	('ìœ¤ì°¨ì¥','ìµœì •ë³´','ì •ë³´ë¶€'),
+	('ì´ì£¼ì„','ìœ¤ì°¨ì¥','ì •ë³´ë¶€');
 go
-select e1.emp "ºÎÇÏÁ÷¿ø", e2.emp "Á÷¼Ó»ó°ü", e2.department "Á÷¼Ó»ó°üºÎ¼­"
+select e1.emp "ë¶€í•˜ì§ì›", e2.emp "ì§ì†ìƒê´€", e2.department "ì§ì†ìƒê´€ë¶€ì„œ"
 from emptbl e1
      inner join
 	 emptbl e2
@@ -597,14 +603,14 @@ go
 select name, addr from stdTbl
 union 
 select club_name, club_room from clubTbl;
-/*union all°ú unionÀÇ Â÷ÀÌ´Â Áßº¹ Á¦°Å*/
+/*union allê³¼ unionì˜ ì°¨ì´ëŠ” ì¤‘ë³µ ì œê±°*/
 go
-/*except => Â÷ÁıÇÕ*/
+/*except => ì°¨ì§‘í•©*/
 select name, mobile1 + mobile2 from userTbl
 except
 select name, mobile1 + mobile2 from userTbl where mobile1 is null;
 go
-/*intersect => ±³ÁıÇÕ*/
+/*intersect => êµì§‘í•©*/
 select name, mobile1 + mobile2 from userTbl
 intersect
 select name, mobile1 + mobile2 from userTbl where mobile1 is null;
@@ -616,11 +622,11 @@ set @var1 = 100
 
 if @var1 = 100
 	begin
-		print '@var1ÀÌ 100ÀÌ´Ù'
+		print '@var1ì´ 100ì´ë‹¤'
 	end
 else
 	begin
-		print '@var1ÀÌ 100ÀÌ ¾Æ´Ï´Ù'
+		print '@var1ì´ 100ì´ ì•„ë‹ˆë‹¤'
 	end;
 go
 use AdventureWorks;
@@ -629,7 +635,7 @@ declare @curDate smalldatetime
 declare @years decimal(5,2)
 declare @days int
 
-select @hireDate = HireDate /*»ç¿ø¹øÈ£ 111ÀÇ ÀÔ»çÀÏÀÌ @hireDate¿¡ ´ëÀÔ*/
+select @hireDate = HireDate /*ì‚¬ì›ë²ˆí˜¸ 111ì˜ ì…ì‚¬ì¼ì´ @hireDateì— ëŒ€ì…*/
 from HumanResources.Employee
 where BusinessEntityID = 111
 set @curDate = getdate()
@@ -638,13 +644,13 @@ set @days = datediff(day, @hireDate, @curDate)
 
 if @years >= 5
 	begin
-		print N'ÀÔ»çÇÑ Áö' + cast(@days as nchar(5)) + N'ÀÏÀÌ³ª Áö³µ½À´Ï´Ù'
-		print N'ÃàÇÏÇÕ´Ï´Ù'
+		print N'ì…ì‚¬í•œ ì§€' + cast(@days as nchar(5)) + N'ì¼ì´ë‚˜ ì§€ë‚¬ìŠµë‹ˆë‹¤'
+		print N'ì¶•í•˜í•©ë‹ˆë‹¤'
 	end
 else
 	begin
-		print N'ÀÔ»çÇÑ Áö' + cast(@days as nchar(5)) + N'ÀÏ¹Û¿¡ ¾È µÇ¾ú³×¿ä'
-		print N'¿­½ÉÈ÷ ÀÏÇÏ¼¼¿ä'
+		print N'ì…ì‚¬í•œ ì§€' + cast(@days as nchar(5)) + N'ì¼ë°–ì— ì•ˆ ë˜ì—ˆë„¤ìš”'
+		print N'ì—´ì‹¬íˆ ì¼í•˜ì„¸ìš”'
 	end;
 
 -- case
@@ -663,8 +669,8 @@ else
 				set @credit = 'D'
 			else
 				set @credit = 'F';
-print N'ÃëµæÁ¡¼ö ==> ' + cast(@point as nchar(3))
-print N'ÇĞÁ¡ ==> ' + @credit;
+print N'ì·¨ë“ì ìˆ˜ ==> ' + cast(@point as nchar(3))
+print N'í•™ì  ==> ' + @credit;
 go
 declare @point int = 55, @credit nchar(1)
 
@@ -676,25 +682,25 @@ set @credit = case
 				else 'F'
 			  end
 
-print N'ÃëµæÁ¡¼ö ==> ' + cast(@point as nchar(3))
-print N'ÇĞÁ¡ ==> ' + @credit;
+print N'ì·¨ë“ì ìˆ˜ ==> ' + cast(@point as nchar(3))
+print N'í•™ì  ==> ' + @credit;
 go
-/*case ¿¹Á¦*/
+/*case ì˜ˆì œ*/
 use sqldb;
 
-select u.userID, u.name, sum(price * amount) "ÃÑ±¸¸Å¾×",
+select u.userID, u.name, sum(price * amount) "ì´êµ¬ë§¤ì•¡",
        case 
-	     when sum(price * amount) >= 1500 then 'ÃÖ¿ì¼ö°í°´'
-	     when sum(price * amount) >= 1000 then '¿ì¼ö°í°´'
-	     when sum(price * amount) >= 1 then 'ÀÏ¹İ°í°´'
-	     else 'À¯·ÉÈ¸¿ø'
-	   end "°í°´µî±Ş"
+	     when sum(price * amount) >= 1500 then 'ìµœìš°ìˆ˜ê³ ê°'
+	     when sum(price * amount) >= 1000 then 'ìš°ìˆ˜ê³ ê°'
+	     when sum(price * amount) >= 1 then 'ì¼ë°˜ê³ ê°'
+	     else 'ìœ ë ¹íšŒì›'
+	   end "ê³ ê°ë“±ê¸‰"
 from buyTbl b
 	 right join
 	 userTbl u
 		on b.userID = u.userID
 group by u.userID, u.name
-order by "ÃÑ±¸¸Å¾×" desc;
+order by "ì´êµ¬ë§¤ì•¡" desc;
 
 -- while(break, continue, return)
 declare @i int = 1
@@ -706,7 +712,7 @@ while (@i <= 100)
 		set @i +=1
 	end
 
-print N'ÃÑ ÇÕÀº ' + cast(@hap as varchar);
+print N'ì´ í•©ì€ ' + cast(@hap as varchar);
 go
 declare @i int = 1
 declare @hap bigint = 0
@@ -725,7 +731,7 @@ while (@i <= 100)
 			end
 	end
 
-print N'7ÀÇ ¹è¼ö¸¦ »« ÃÑ ÇÕÀº ' + cast(@hap as varchar);
+print N'7ì˜ ë°°ìˆ˜ë¥¼ ëº€ ì´ í•©ì€ ' + cast(@hap as varchar);
 go
 declare @i int = 1
 declare @hap bigint = 0
@@ -749,9 +755,9 @@ while (@i <= 100)
 				end
 	end
 
-print N'7ÀÇ ¹è¼ö¸¦ »« ÃÑ ÇÕ¿¡¼­ 1000ÀÌ ³Ñ¾ú´Ù!!!!' + char(13) + char(10) + 
-      N'@iÀÇ °ªÀº ' + cast(@i as varchar) + 'ÀÌ°í' +  char(13) + char(10) + 
-	  N'ÀÌ¶§ ÃÑ ÇÕÀº' + cast(@hap as varchar);
+print N'7ì˜ ë°°ìˆ˜ë¥¼ ëº€ ì´ í•©ì—ì„œ 1000ì´ ë„˜ì—ˆë‹¤!!!!' + char(13) + char(10) + 
+      N'@iì˜ ê°’ì€ ' + cast(@i as varchar) + 'ì´ê³ ' +  char(13) + char(10) + 
+	  N'ì´ë•Œ ì´ í•©ì€' + cast(@hap as varchar);
 go
 /*goto*/
 declare @i int = 1
@@ -770,64 +776,64 @@ while (@i <= 100)
 	end
 
 endprint:
-  print N'7ÀÇ ¹è¼ö¸¦ »« ÃÑ ÇÕ¿¡¼­ 1000ÀÌ ³Ñ¾ú´Ù!!!!' + char(13) + char(10) + 
-        N'@iÀÇ °ªÀº ' + cast(@i as varchar) + 'ÀÌ°í' + char(13) + char(10) + 
-	    N'ÀÌ¶§ ÃÑ ÇÕÀº' + cast(@hap as varchar);
+  print N'7ì˜ ë°°ìˆ˜ë¥¼ ëº€ ì´ í•©ì—ì„œ 1000ì´ ë„˜ì—ˆë‹¤!!!!' + char(13) + char(10) + 
+        N'@iì˜ ê°’ì€ ' + cast(@i as varchar) + 'ì´ê³ ' + char(13) + char(10) + 
+	    N'ì´ë•Œ ì´ í•©ì€' + cast(@hap as varchar);
 go
 /*waitfor*/
 waitfor delay '00:00:05';
-print N'5ÃÊ°£ ¸ØÃá ÈÄ ÁøÇàµÇ¾úÀ½';
+print N'5ì´ˆê°„ ë©ˆì¶˜ í›„ ì§„í–‰ë˜ì—ˆìŒ';
 
 waitfor time '00:39:00';
-print N'00½Ã 39ºĞ 00ÃÊ±îÁö ¸ØÃá ÈÄ ÁøÇàµÇ¾úÀ½';
+print N'00ì‹œ 39ë¶„ 00ì´ˆê¹Œì§€ ë©ˆì¶˜ í›„ ì§„í–‰ë˜ì—ˆìŒ';
 
 -- try - catch
 /*
 begin try
-	[¿ø·¡ »ç¿ëÇÏ´ø SQL ¹®Àåµé]
+	[ì›ë˜ ì‚¬ìš©í•˜ë˜ SQL ë¬¸ì¥ë“¤]
 end try
 begin catch
-	[¸¸¾à begin ,,, try¿¡¼­ ¿À·ù°¡ ¹ß»ıÇÏ¸é Ã³¸®ÇÒ ÀÏ]
+	[ë§Œì•½ begin ,,, tryì—ì„œ ì˜¤ë¥˜ê°€ ë°œìƒí•˜ë©´ ì²˜ë¦¬í•  ì¼]
 end catch
 */
 use sqldb;
 begin try
 	 insert into usertbl values
-		('LSG','ÀÌ»ó±¸', 1988, '¼­¿ï', null, null, 170, getdate())
-		print N'Á¤»óÀûÀ¸·Î ÀÔ·ÂµÇ¾ú´Ù'
+		('LSG','ì´ìƒêµ¬', 1988, 'ì„œìš¸', null, null, 170, getdate())
+		print N'ì •ìƒì ìœ¼ë¡œ ì…ë ¥ë˜ì—ˆë‹¤'
 end try
 begin catch
-	print N'¿À·ù°¡ ¹ß»ıÇß´Ù ¤Ì¤Ì'
-	print N'¿À·ù ¹øÈ£'
+	print N'ì˜¤ë¥˜ê°€ ë°œìƒí–ˆë‹¤ ã…œã…œ'
+	print N'ì˜¤ë¥˜ ë²ˆí˜¸'
 	print error_number()
-	print N'¿À·ù ¸Ş¼¼Áö'
+	print N'ì˜¤ë¥˜ ë©”ì„¸ì§€'
 	print error_message()
-	print N'¿À·ù »óÅÂ ÄÚµå'
+	print N'ì˜¤ë¥˜ ìƒíƒœ ì½”ë“œ'
 	print error_state()
-	print N'¿À·ù ½É°¢µµ'
+	print N'ì˜¤ë¥˜ ì‹¬ê°ë„'
 	print error_severity()
-	print N'¿À·ù ¹ß»ı Çà¹øÈ£'
+	print N'ì˜¤ë¥˜ ë°œìƒ í–‰ë²ˆí˜¸'
 	print error_line()
-	print N'¿À·ù ¹ß»ı ÇÁ·Î½ÃÀú/Æ®¸®°Å'
+	print N'ì˜¤ë¥˜ ë°œìƒ í”„ë¡œì‹œì €/íŠ¸ë¦¬ê±°'
 	print error_procedure()
 end catch
 
--- raiserrpr, throw => ¿À·ù °­Á¦ ¹ß»ı
-raiserror(N'ÀÌ°Ç Raiseerror ¿À·ù¹ß»ı', 16, 1);
-/*16Àº ¿À·ù ½É°¢µµ, 1Àº ¿À·ù »óÅÂ*/
-raiserror(N'ÀÌ°Ç Raiseerror ¿À·ù¹ß»ı', 14, 2);
-throw 55555, N'ÀÌ°Ç THROW ¿À·ù ¹ß»ı' , 1;
+-- raiserrpr, throw => ì˜¤ë¥˜ ê°•ì œ ë°œìƒ
+raiserror(N'ì´ê±´ Raiseerror ì˜¤ë¥˜ë°œìƒ', 16, 1);
+/*16ì€ ì˜¤ë¥˜ ì‹¬ê°ë„, 1ì€ ì˜¤ë¥˜ ìƒíƒœ*/
+raiserror(N'ì´ê±´ Raiseerror ì˜¤ë¥˜ë°œìƒ', 14, 2);
+throw 55555, N'ì´ê±´ THROW ì˜¤ë¥˜ ë°œìƒ' , 1;
 /*
-55555´Â ¿¡·¯ ¹øÈ£
-throw¿¡¼­ ¿À·ù ½É°¢µµ´Â Ç×»ó 16
+55555ëŠ” ì—ëŸ¬ ë²ˆí˜¸
+throwì—ì„œ ì˜¤ë¥˜ ì‹¬ê°ë„ëŠ” í•­ìƒ 16
 */
 
--- µ¿Àû SQL
+-- ë™ì  SQL
 use sqlDB;
 declare @sql varchar(100)
 set @sql = 'select * from userTbl where userid = ''EJW'''
 exec(@sql);
-/*exec @sql·Î ½ÇÇàÇÏ¸é ¿À·ù ¹ß»ı*/
+/*exec @sqlë¡œ ì‹¤í–‰í•˜ë©´ ì˜¤ë¥˜ ë°œìƒ*/
 go
 use sqlDB;
 declare @curdate date
