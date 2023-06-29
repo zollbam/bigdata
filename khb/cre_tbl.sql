@@ -5,6 +5,38 @@
 작 성 자 : 조건영
 */
 
+-- 테이블의 열 정보(열번호 맞게 => comment 전부 보여줌)
+SELECT DISTINCT
+       object_name(c.object_id) "테이블명" , c.NAME "컬럼명",
+       CASE WHEN type_name(c.system_type_id) IN ('decimal', 'numeric') 
+                THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ', ' + CAST(c.SCALE AS varchar) + ')'
+            WHEN type_name(c.system_type_id) IN ('char', 'varchar') 
+                THEN type_name(c.system_type_id) + '(' + CAST(c.MAX_LENGTH AS varchar) + ')'
+            WHEN type_name(c.system_type_id) IN ('nchar', 'nvarchar') 
+                THEN type_name(c.system_type_id) + '(' + CAST(c.MAX_LENGTH/2 AS varchar) + ')'
+            ELSE type_name(c.system_type_id)
+       END "시스템 타입",
+       type_name(c.user_type_id) "사용자 타입",
+       CASE WHEN c.IS_NULLABLE = 0 THEN ' NOT NULL'
+            ELSE ''
+       END "NULL여부",
+       ep.value "컬럼명(한글)",
+       c.column_id
+FROM sys.columns c
+     INNER JOIN
+     information_schema.constraint_column_usage ccu
+     	ON object_name(c.object_id) = ccu.TABLE_NAME
+     LEFT JOIN
+     sys.extended_properties ep
+     	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
+--WHERE c.name LIKE '%_%' -- AND ep.value IS NULL
+      -- AND object_name(c.object_id) = 'tb_com_gtwy_svc'
+--WHERE CAST(ep.value AS varchar) LIKE '%공인%'
+--WHERE c.NAME LIKE '%fuel%'
+WHERE object_name(c.object_id) LIKE 'tb_atlfsl_dlng_info'
+ORDER BY 1, c.column_id;
+
+
 -- 테이블 생성 쿼리(161 + 시스템 타입)
 SELECT DISTINCT c2.TABLE_NAME "테이블명",
        'CREATE TABLE ' + c2.TABLE_SCHEMA + '.' + c2.TABLE_NAME + ' (' + char(13) + '  ' +
@@ -202,7 +234,7 @@ SET STATISTICS io OFF;
 SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_atlfsl_dlng_info => 31640 ms
-CREATE TABLE sc_khb_srv.tb_atlfsl_dlng_info (
+CREATE TABLE sc_khb_srv.tb_atlfsl_dlng_info (  
   atlfsl_dlng_info_pk sc_khb_srv.pk_n9 NOT NULL
 , atlfsl_bsc_info_pk sc_khb_srv.pk_n9
 , dlng_se_cd sc_khb_srv.cd_v20
@@ -215,6 +247,7 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_dlng_info (
 , premium sc_khb_srv.premium_n18
 , reg_dt sc_khb_srv.dt
 , mdfcn_dt sc_khb_srv.dt
+, mng_amt sc_khb_srv.amt_n18
 );
 
 BULK INSERT sc_khb_srv.tb_atlfsl_dlng_info
@@ -455,11 +488,14 @@ SET STATISTICS io ON;
 -- tb_com_banner_info => 61 ms
 CREATE TABLE sc_khb_srv.tb_com_banner_info (
   banner_info_pk sc_khb_srv.pk_n9 NOT NULL
+, banner_ty_cd sc_khb_srv.cd_v20
 , banner_se_cd sc_khb_srv.cd_v20
-, url sc_khb_srv.url_nv4000
-, img_url sc_khb_srv.url_nv4000
+, thumb_img_url sc_khb_srv.url_nv4000
 , banner_ordr sc_khb_srv.ordr_n5
 , use_yn sc_khb_srv.yn_c1
+, url sc_khb_srv.url_nv4000
+, img_url sc_khb_srv.url_nv4000
+, dtl_cn sc_khb_srv.cn_nvmax
 , reg_id sc_khb_srv.id_nv100
 , reg_dt sc_khb_srv.dt
 , mdfcn_id sc_khb_srv.id_nv100
@@ -993,6 +1029,7 @@ CREATE TABLE sc_khb_srv.tb_com_thema_info (
 , reg_dt sc_khb_srv.dt
 , mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
+, rprs_yn sc_khb_srv.yn_c1
 );
 
 BULK INSERT sc_khb_srv.tb_com_thema_info
@@ -1338,19 +1375,19 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_user_atlfsl_img_info => 15414 ms
 CREATE TABLE sc_khb_srv.tb_user_atlfsl_img_info (
-  user_atlfsl_img_info_pk numeric(9, 0) NOT NULL
-, user_atlfsl_info_pk numeric(9, 0)
-, sort_ordr numeric(5, 0)
-, img_file_nm nvarchar(500)
-, img_url nvarchar(4000)
-, thumb_img_url nvarchar(4000)
-, srvr_img_file_nm nvarchar(500)
-, local_img_file_nm nvarchar(500)
-, thumb_img_file_nm nvarchar(500)
-, reg_id nvarchar(100)
-, reg_dt datetime
-, mdfcn_id nvarchar(100)
-, mdfcn_dt datetime
+  user_atlfsl_img_info_pk sc_khb_srv.pk_n9 NOT NULL
+, user_atlfsl_info_pk sc_khb_srv.pk_n9
+, sort_ordr sc_khb_srv.ordr_n5
+, img_file_nm sc_khb_srv.nm_nv500
+, img_url sc_khb_srv.url_nv4000
+, thumb_img_url sc_khb_srv.url_nv4000
+, srvr_img_file_nm sc_khb_srv.nm_nv500
+, local_img_file_nm sc_khb_srv.nm_nv500
+, thumb_img_file_nm sc_khb_srv.nm_nv500
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 );
 
 BULK INSERT sc_khb_srv.tb_user_atlfsl_img_info
@@ -1369,34 +1406,34 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_user_atlfsl_info => 706 ms
 CREATE TABLE sc_khb_srv.tb_user_atlfsl_info (
-  user_atlfsl_info_pk numeric(9, 0) NOT NULL
-, user_no_pk numeric(9, 0)
-, preocupy_lrea_cnt varchar(20)
-, atlfsl_knd_cd varchar(20)
-, dlng_se_cd varchar(20)
-, atlfsl_stts_cd varchar(20)
-, ctpv_cd_pk numeric(9, 0)
-, ctpv_nm nvarchar(500)
-, sgg_cd_pk numeric(9, 0)
-, sgg_nm nvarchar(500)
-, emd_li_cd_pk numeric(9, 0)
-, all_emd_li_nm nvarchar(500)
-, mno numeric(4, 0)
-, sno numeric(4, 0)
-, aptcmpl_nm nvarchar(500)
-, ho_nm nvarchar(500)
-, lat numeric(12, 10)
-, lot numeric(13, 10)
-, trde_pc decimal(10, 0)
-, lfsts_pc decimal(10, 0)
-, mtht_yyt_pc decimal(10, 0)
-, room_cnt numeric(15, 0)
-, btr_cnt numeric(15, 0)
-, lrea_office_atmc_chc_yn char(1)
-, reg_id nvarchar(100)
-, reg_dt datetime
-, mdfcn_id nvarchar(100)
-, mdfcn_dt datetime
+  user_atlfsl_info_pk sc_khb_srv.pk_n9 NOT NULL
+, user_no_pk sc_khb_srv.pk_n9
+, preocupy_lrea_cnt sc_khb_srv.cd_v20
+, atlfsl_knd_cd sc_khb_srv.cd_v20
+, dlng_se_cd sc_khb_srv.cd_v20
+, atlfsl_stts_cd sc_khb_srv.cd_v20
+, ctpv_cd_pk sc_khb_srv.pk_n9
+, ctpv_nm sc_khb_srv.nm_nv500
+, sgg_cd_pk sc_khb_srv.pk_n9
+, sgg_nm sc_khb_srv.nm_nv500
+, emd_li_cd_pk sc_khb_srv.pk_n9
+, all_emd_li_nm sc_khb_srv.nm_nv500
+, mno sc_khb_srv.mno_n4
+, sno sc_khb_srv.sno_n4
+, aptcmpl_nm sc_khb_srv.nm_nv500
+, ho_nm sc_khb_srv.nm_nv500
+, lat sc_khb_srv.lat_n12_10
+, lot sc_khb_srv.lot_n13_10
+, trde_pc sc_khb_srv.pc_n10
+, lfsts_pc sc_khb_srv.pc_n10
+, mtht_yyt_pc sc_khb_srv.pc_n10
+, room_cnt sc_khb_srv.cnt_n15
+, btr_cnt sc_khb_srv.cnt_n15
+, lrea_office_atmc_chc_yn sc_khb_srv.yn_c1
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 );
 
 BULK INSERT sc_khb_srv.tb_user_atlfsl_info
@@ -1415,14 +1452,14 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_user_atlfsl_preocupy_info
 CREATE TABLE sc_khb_srv.tb_user_atlfsl_preocupy_info (
-  user_mapng_info_pk numeric(9, 0) NOT NULL
-, user_atlfsl_info_pk numeric(9, 0)
-, lrea_office_info_pk numeric(9, 0)
-, preocupy_yn char(1)
-, reg_id nvarchar(100)
-, reg_dt datetime
-, mdfcn_id nvarchar(100)
-, mdfcn_dt datetime
+  user_mapng_info_pk sc_khb_srv.pk_n9 NOT NULL
+, user_atlfsl_info_pk sc_khb_srv.pk_n9
+, lrea_office_info_pk sc_khb_srv.pk_n9
+, preocupy_yn sc_khb_srv.yn_c1
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 );
 
 BULK INSERT sc_khb_srv.tb_user_atlfsl_preocupy_info
@@ -1501,9 +1538,6 @@ grant select, insert, delete, update on sc_khb_srv.tb_svc_bass_info to us_khb_co
 grant select, insert, delete, update on sc_khb_srv.tb_user_atlfsl_img_info to us_khb_com;
 grant select, insert, delete, update on sc_khb_srv.tb_user_atlfsl_info to us_khb_com;
 grant select, insert, delete, update on sc_khb_srv.tb_user_atlfsl_preocupy_info to us_khb_com;
-
--- 일기씨
-grant select, insert, delete, update on sc_khb_srv.tb_itrst_atlfsl_info to us_khb_mptl;
 
 
 -- 나머지 유저에게는 tb_com_error_log DML권한 주기

@@ -426,7 +426,7 @@ SELECT object_name(object_id),
 select max(atlfsl_batch_hstry_pk) from sc_khb_srv.tb_atlfsl_batch_hstry; -- null
 select max(atlfsl_bsc_info_pk) from sc_khb_srv.tb_atlfsl_bsc_info; -- 20849889
 select max(atlfsl_cfr_fclt_info_pk) from sc_khb_srv.tb_atlfsl_cfr_fclt_info; -- 20848921
-select max(atlfsl_cmrc_dtl_info_pk) from sc_khb_srv.tb_atlfsl_cmrc_dtl_info; -- 3098700
+select max(atlfsl_cmrc_dtl_info_pk) from sc_khb_srv.tb_atlfsl_cmrc_dtl_info; -- 3098700 
 select max(atlfsl_dlng_info_pk) from sc_khb_srv.tb_atlfsl_dlng_info; -- 20848925
 select max(atlfsl_etc_dtl_info_pk) from sc_khb_srv.tb_atlfsl_etc_dtl_info; -- 3760091
 select max(atlfsl_etc_info_pk) from sc_khb_srv.tb_atlfsl_etc_info; -- 20848921
@@ -439,20 +439,20 @@ select max(banner_info_pk) from sc_khb_srv.tb_com_banner_info; -- 13
 select max(bbs_pk) from sc_khb_srv.tb_com_bbs; -- 172
 select max(bbs_cmnt_pk) from sc_khb_srv.tb_com_bbs_cmnt; -- 67
 select max(code_pk) from sc_khb_srv.tb_com_code; -- 1165
-select max(crtfc_pk) from sc_khb_srv.tb_com_crtfc_tmpr; -- 10
+select max(crtfc_pk) from sc_khb_srv.tb_com_crtfc_tmpr; -- 51
 select max(ctpv_cd_pk) from sc_khb_srv.tb_com_ctpv_cd; -- 17
 select max(emd_li_cd_pk) from sc_khb_srv.tb_com_emd_li_cd; -- 24371
-select max(error_log_pk) from sc_khb_srv.tb_com_error_log; -- 1067
+select max(error_log_pk) from sc_khb_srv.tb_com_error_log; -- 1915
 select max(faq_no_pk) from sc_khb_srv.tb_com_faq; -- null
 select max(file_no_pk) from sc_khb_srv.tb_com_file; -- null
 select max(file_no_pk) from sc_khb_srv.tb_com_file_mapng; -- null
 select max(group_no_pk) from sc_khb_srv.tb_com_group; -- 6
 select max(com_group_author_pk) from sc_khb_srv.tb_com_group_author; -- 10
-select max(gtwy_svc_pk) from sc_khb_srv.tb_com_gtwy_svc; -- 155
-select max(com_gtwy_svc_author_pk) from sc_khb_srv.tb_com_gtwy_svc_author; -- 229
-select max(job_schdl_info_pk) from sc_khb_srv.tb_com_job_schdl_info; -- 12
-select max(login_hist_pk) from sc_khb_srv.tb_com_login_hist; -- 308
-select max(menu_no_pk) from sc_khb_srv.tb_com_menu; -- 24
+select max(gtwy_svc_pk) from sc_khb_srv.tb_com_gtwy_svc; -- 208
+select max(com_gtwy_svc_author_pk) from sc_khb_srv.tb_com_gtwy_svc_author; -- 291
+select max(job_schdl_info_pk) from sc_khb_srv.tb_com_job_schdl_info; -- 14
+select max(login_hist_pk) from sc_khb_srv.tb_com_login_hist; -- 601
+select max(menu_no_pk) from sc_khb_srv.tb_com_menu; -- 33
 select max(com_menu_author_pk) from sc_khb_srv.tb_com_menu_author; -- 38
 select max(notice_no_pk) from sc_khb_srv.tb_com_notice; -- 2
 select max(qna_no_pk) from sc_khb_srv.tb_com_qna; -- null
@@ -477,13 +477,14 @@ select max(svc_pk) from sc_khb_srv.tb_svc_bass_info; -- 2
 select max(user_atlfsl_img_info_pk) from sc_khb_srv.tb_user_atlfsl_img_info; -- 158442
 select max(user_atlfsl_info_pk) from sc_khb_srv.tb_user_atlfsl_info; -- 20905
 select max(user_mapng_info_pk) from sc_khb_srv.tb_user_atlfsl_preocupy_info; -- 23200
-$data = iconv("euc-kr","utf-8",$data);
+
 -- 시퀀스 업데이트(162)
 /*
 ALTER SEQUENCE sc_khb_srv.sq_com_author RESTART WITH 5;
 */
 SELECT name, current_value
   FROM sys.sequences
+ WHERE name = 'sq_atlfsl_dlng_info'
  ORDER BY 1;
 
 ALTER SEQUENCE sc_khb_srv.sq_atlfsl_batch_hstry RESTART WITH 1;
@@ -498,10 +499,10 @@ ALTER SEQUENCE sc_khb_srv.sq_atlfsl_land_usg_info RESTART WITH 20848922;
 ALTER SEQUENCE sc_khb_srv.sq_atlfsl_reside_gnrl_dtl_info RESTART WITH 4154100;
 ALTER SEQUENCE sc_khb_srv.sq_atlfsl_reside_set_dtl_info RESTART WITH 9840744;
 ALTER SEQUENCE sc_khb_srv.sq_com_author RESTART WITH 5;
-ALTER SEQUENCE sc_khb_srv.sq_com_banner_info RESTART WITH 20;
+ALTER SEQUENCE sc_khb_srv.sq_com_banner_info RESTART WITH 14;
 ALTER SEQUENCE sc_khb_srv.sq_com_bbs RESTART WITH 173;
 ALTER SEQUENCE sc_khb_srv.sq_com_bbs_cmnt RESTART WITH 68;
-ALTER SEQUENCE sc_khb_srv.sq_com_code RESTART WITH 1166;
+ALTER SEQUENCE sc_khb_srv.sq_com_code RESTART WITH 1256;
 ALTER SEQUENCE sc_khb_srv.sq_com_crtfc_tmpr RESTART WITH 11;
 ALTER SEQUENCE sc_khb_srv.sq_com_ctpv_cd RESTART WITH 18;
 ALTER SEQUENCE sc_khb_srv.sq_com_emd_li_cd RESTART WITH 24372;
@@ -541,69 +542,36 @@ ALTER SEQUENCE sc_khb_srv.sq_user_atlfsl_img_info RESTART WITH 158443;
 ALTER SEQUENCE sc_khb_srv.sq_user_atlfsl_info RESTART WITH 20906;
 ALTER SEQUENCE sc_khb_srv.sq_user_atlfsl_preocupy_info RESTART WITH 23201;
 
--- com유저에게 시퀀스 권한(161)
-/*
-grant UPDATE on sc_khb_srv.sq_com_author to us_khb_com;
-*/
-SELECT name "시퀀스명",
-  'grant update on sc_khb_srv.' + name + ' to us_khb_com;' "com에게 시퀀스 권한 부여"
+-- 시퀀스에게 권한 주기
+DECLARE @user_name nvarchar(100) = 'us_khb_mptl'
+SELECT 
+  name
+, 'grant update on sc_khb_srv.' + name + ' to ' + @user_name + ';' "시퀀스 권한 주기"
   FROM sys.sequences
+ WHERE name NOT LIKE '%com%'
+       AND 
+       name NOT IN ('sq_atlfsl_batch_hstry', 'sq_svc_bass_info')
  ORDER BY 1;
 
-grant update on sc_khb_srv.sq_atlfsl_batch_hstry to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_bsc_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_cfr_fclt_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_cmrc_dtl_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_dlng_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_etc_dtl_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_etc_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_img_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_land_usg_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_reside_gnrl_dtl_info to us_khb_com;
-grant update on sc_khb_srv.sq_atlfsl_reside_set_dtl_info to us_khb_com;
-grant update on sc_khb_srv.sq_com_author to us_khb_com;
-grant update on sc_khb_srv.sq_com_banner_info to us_khb_com;
-grant update on sc_khb_srv.sq_com_bbs to us_khb_com;
-grant update on sc_khb_srv.sq_com_bbs_cmnt to us_khb_com;
-grant update on sc_khb_srv.sq_com_code to us_khb_com;
-grant update on sc_khb_srv.sq_com_crtfc_tmpr to us_khb_com;
-grant update on sc_khb_srv.sq_com_ctpv_cd to us_khb_com;
-grant update on sc_khb_srv.sq_com_emd_li_cd to us_khb_com;
-grant update on sc_khb_srv.sq_com_error_log to us_khb_com;
-grant update on sc_khb_srv.sq_com_faq to us_khb_com;
-grant update on sc_khb_srv.sq_com_file to us_khb_com;
-grant update on sc_khb_srv.sq_com_file_mapng to us_khb_com;
-grant update on sc_khb_srv.sq_com_group to us_khb_com;
-grant update on sc_khb_srv.sq_com_group_author to us_khb_com;
-grant update on sc_khb_srv.sq_com_gtwy_svc to us_khb_com;
-grant update on sc_khb_srv.sq_com_gtwy_svc_author to us_khb_com;
-grant update on sc_khb_srv.sq_com_job_schdl_info to us_khb_com;
-grant update on sc_khb_srv.sq_com_login_hist to us_khb_com;
-grant update on sc_khb_srv.sq_com_menu to us_khb_com;
-grant update on sc_khb_srv.sq_com_menu_author to us_khb_com;
-grant update on sc_khb_srv.sq_com_notice to us_khb_com;
-grant update on sc_khb_srv.sq_com_qna to us_khb_com;
-grant update on sc_khb_srv.sq_com_recsroom to us_khb_com;
-grant update on sc_khb_srv.sq_com_scrin to us_khb_com;
-grant update on sc_khb_srv.sq_com_scrin_author to us_khb_com;
-grant update on sc_khb_srv.sq_com_sgg_cd to us_khb_com;
-grant update on sc_khb_srv.sq_com_stplat_hist to us_khb_com;
-grant update on sc_khb_srv.sq_com_stplat_info to us_khb_com;
-grant update on sc_khb_srv.sq_com_stplat_mapng to us_khb_com;
-grant update on sc_khb_srv.sq_com_svc_ip_manage to us_khb_com;
-grant update on sc_khb_srv.sq_com_thema_info to us_khb_com;
-grant update on sc_khb_srv.sq_com_user to us_khb_com;
-grant update on sc_khb_srv.sq_com_user_author to us_khb_com;
-grant update on sc_khb_srv.sq_com_user_group to us_khb_com;
-grant update on sc_khb_srv.sq_hsmp_dtl_info to us_khb_com;
-grant update on sc_khb_srv.sq_hsmp_info to us_khb_com;
-grant update on sc_khb_srv.sq_itrst_atlfsl_info to us_khb_com;
-grant update on sc_khb_srv.sq_lrea_office_info to us_khb_com;
-grant update on sc_khb_srv.sq_lttot_info to us_khb_com;
-grant update on sc_khb_srv.sq_svc_bass_info to us_khb_com;
-grant update on sc_khb_srv.sq_user_atlfsl_img_info to us_khb_com;
-grant update on sc_khb_srv.sq_user_atlfsl_info to us_khb_com;
-grant update on sc_khb_srv.sq_user_atlfsl_preocupy_info to us_khb_com;
+grant update on sc_khb_srv.sq_atlfsl_bsc_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_cfr_fclt_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_cmrc_dtl_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_dlng_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_etc_dtl_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_etc_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_img_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_land_usg_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_reside_gnrl_dtl_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_atlfsl_reside_set_dtl_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_hsmp_dtl_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_hsmp_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_itrst_atlfsl_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_lrea_office_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_lttot_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_user_atlfsl_img_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_user_atlfsl_info to us_khb_mptl;
+grant update on sc_khb_srv.sq_user_atlfsl_preocupy_info to us_khb_mptl;
+
 
 -- 다른 유저에게 sq_com_error_log 권한 주기
 grant update on sc_khb_srv.sq_com_error_log to us_khb_dev;

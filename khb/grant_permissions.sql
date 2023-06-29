@@ -8,7 +8,9 @@
 -- 권한 정보 조회
 SELECT 
   class_desc
-, object_name(major_id) "객체명"
+, CASE WHEN class_desc = 'TYPE' THEN type_name(major_id) 
+       ELSE object_name(major_id) 
+  END "객체명"
 , user_name(grantee_principal_id) "권한 받은 유저"
 , stuff((SELECT ', ' + permission_name 
            FROM sys.DATABASE_permissions
@@ -17,7 +19,6 @@ SELECT
   FROM sys.DATABASE_permissions dp
  WHERE class_desc != 'DATABASE' AND grantee_principal_id != 0
  GROUP BY class_desc, major_id, grantee_principal_id
- ORDER BY 2,3;
 
 -- 권한 부여 스크립트 작성 쿼리문(프로시저 & 함수)
 SELECT 

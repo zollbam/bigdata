@@ -316,6 +316,7 @@ add constraint fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info
 foreign key (user_atlfsl_info_pk) 
 	references sc_khb_srv.tb_user_atlfsl_info(user_atlfsl_info_pk);
 
+ALTER TABLE sc_khb_srv.tb_user_atlfsl_img_info DROP CONSTRAINT fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info; 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 alter table sc_khb_srv.tb_user_atlfsl_info 
@@ -323,6 +324,7 @@ add constraint fk_tb_user_atlfsl_info_tb_com_user
 foreign key (user_no_pk) 
 	references sc_khb_srv.tb_com_user(user_no_pk);
 
+ALTER TABLE sc_khb_srv.tb_user_atlfsl_info DROP CONSTRAINT fk_tb_user_atlfsl_info_tb_com_user; 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 alter table sc_khb_srv.tb_user_atlfsl_preocupy_info 
@@ -330,6 +332,7 @@ add constraint fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info
 foreign key (user_atlfsl_info_pk) 
 	references sc_khb_srv.tb_user_atlfsl_info(user_atlfsl_info_pk);
 
+ALTER TABLE sc_khb_srv.tb_user_atlfsl_preocupy_info DROP CONSTRAINT fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info  ; 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 
