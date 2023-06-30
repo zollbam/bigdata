@@ -20,22 +20,21 @@ SELECT DISTINCT
        CASE WHEN c.IS_NULLABLE = 0 THEN ' NOT NULL'
             ELSE ''
        END "NULL여부",
-       ep.value "컬럼명(한글)",
+--       ep.value "컬럼명(한글)",
        c.column_id
 FROM sys.columns c
-     INNER JOIN
-     information_schema.constraint_column_usage ccu
-     	ON object_name(c.object_id) = ccu.TABLE_NAME
-     LEFT JOIN
-     sys.extended_properties ep
-     	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
+--     INNER JOIN
+--     information_schema.constraint_column_usage ccu
+--     	ON object_name(c.object_id) = ccu.TABLE_NAME
+--     LEFT JOIN
+--     sys.extended_properties ep
+--     	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 --WHERE c.name LIKE '%_%' -- AND ep.value IS NULL
       -- AND object_name(c.object_id) = 'tb_com_gtwy_svc'
 --WHERE CAST(ep.value AS varchar) LIKE '%공인%'
 --WHERE c.NAME LIKE '%fuel%'
-WHERE object_name(c.object_id) LIKE 'tb_atlfsl_dlng_info'
+WHERE object_name(c.object_id) LIKE 'tb_com_banner_info_tmp'
 ORDER BY 1, c.column_id;
-
 
 -- 테이블 생성 쿼리(161 + 시스템 타입)
 SELECT DISTINCT c2.TABLE_NAME "테이블명",
@@ -574,7 +573,7 @@ SET STATISTICS io ON;
 CREATE TABLE sc_khb_srv.tb_com_code (
   code_pk sc_khb_srv.pk_n9 NOT NULL
 , parnts_code_pk sc_khb_srv.pk_n9
-, code sc_khb_srv.code_v20 NOT NULL
+, code sc_khb_srv.cd_v20 NOT NULL
 , code_nm sc_khb_srv.nm_nv500 NOT NULL
 , sort_ordr sc_khb_srv.ordr_n5
 , use_at sc_khb_srv.at_c1
@@ -583,7 +582,7 @@ CREATE TABLE sc_khb_srv.tb_com_code (
 , updt_id sc_khb_srv.id_nv100
 , updt_dt sc_khb_srv.dt
 , rm_cn sc_khb_srv.cn_nv4000
-, parent_code sc_khb_srv.code_v20
+, parent_code sc_khb_srv.cd_v20
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
 );
 
@@ -1055,7 +1054,7 @@ CREATE TABLE sc_khb_srv.tb_com_user (
 , password varchar(500)
 , moblphon_no sc_khb_srv.no_v200
 , email sc_khb_srv.email_v320
-, user_se_code sc_khb_srv.code_v20
+, user_se_code sc_khb_srv.cd_v20
 , sbscrb_de sc_khb_srv.de_v10
 , password_change_de sc_khb_srv.de_v10
 , last_login_dt sc_khb_srv.dt
