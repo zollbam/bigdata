@@ -11,6 +11,8 @@ SELECT
 , 'alter table ' + TABLE_SCHEMA + '.' + TABLE_NAME + ' drop constraint ' + CONSTRAINT_NAME + ';'
   FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
  WHERE CONSTRAINT_NAME LIKE '%pk_%'
+       AND 
+       CONSTRAINT_SCHEMA = 'sc_khb_srv'
  ORDER BY 1;
 
 -- 테이블에 primary key 제약조건 만들기
@@ -33,11 +35,12 @@ SELECT object_name(c.object_id) "테이블명",
 이 쿼리문은 테이블과 열 만 생성하고 pk가 하나일 때 유용 => 다른 DB의 pk를 복제 하는 것은 아니다!! 
 */
 
--- pk제약조건 복제(161)
+-- pk제약조건 조회
 SELECT TABLE_NAME, COLUMN_NAME, CONSTRAINT_NAME
   FROM information_schema.constraint_column_usage
  ORDER BY 1;
- 
+
+-- 
 SELECT ccu.TABLE_NAME,
        CASE WHEN ccu.COLUMN_NAME != '' THEN 'alter table ' + ccu.TABLE_SCHEMA + '.' + ccu.TABLE_NAME + 
                                             ' add constraint ' + ccu.CONSTRAINT_NAME + ' primary key (' + stuff((SELECT ', ' + COLUMN_NAME
@@ -70,14 +73,15 @@ SELECT *
 
 -- fk를 만들기 위한 정보(161)
 SELECT 
-  object_name(constraint_object_id)
-, object_name(parent_object_id)
-, parent_object_id
-, parent_column_id
-, object_name(referenced_object_id)
-, referenced_object_id
-, referenced_column_id
-  FROM sys.foreign_key_columns fkc;
+  object_name(constraint_object_id) "fk_name"
+, object_name(parent_object_id) "table_name"
+, parent_object_id "table_id"
+, parent_column_id "column_id"
+, object_name(referenced_object_id) "refer_table_name"
+, referenced_object_id "refer_table_id"
+, referenced_column_id "refer_column_id"
+  FROM sys.foreign_key_columns fkc
+ ORDER BY 1;
 
 SELECT 
   a.constraint_name
@@ -255,11 +259,13 @@ foreign key (bbs_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
-alter table sc_khb_srv.tb_com_emd_li_cd 
-add constraint fk_tb_com_emd_li_cd_tb_com_ctpv_cd 
-foreign key (ctpv_cd_pk) 
-	references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
-
+-- 일단 보류
+--alter table sc_khb_srv.tb_com_emd_li_cd 
+--add constraint fk_tb_com_emd_li_cd_tb_com_ctpv_cd 
+--foreign key (ctpv_cd_pk) 
+--	references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
+--
+--ALTER TABLE sc_khb_srv.tb_com_emd_li_cd  DROP CONSTRAINT fk_tb_com_emd_li_cd_tb_com_ctpv_cd;
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 alter table sc_khb_srv.tb_com_emd_li_cd 
@@ -297,10 +303,12 @@ foreign key (user_no_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
-alter table sc_khb_srv.tb_itrst_atlfsl_info 
-add constraint fk_tb_itrst_atlfsl_info_tb_lrea_office_info 
-foreign key (lrea_office_info_pk) 
-	references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
+--일단 보류
+--alter table sc_khb_srv.tb_itrst_atlfsl_info 
+--add constraint fk_tb_itrst_atlfsl_info_tb_lrea_office_info 
+--foreign key (lrea_office_info_pk) 
+--	references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
+
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -315,30 +323,39 @@ alter table sc_khb_srv.tb_user_atlfsl_img_info
 add constraint fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info 
 foreign key (user_atlfsl_info_pk) 
 	references sc_khb_srv.tb_user_atlfsl_info(user_atlfsl_info_pk);
-
-ALTER TABLE sc_khb_srv.tb_user_atlfsl_img_info DROP CONSTRAINT fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info; 
+ 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 alter table sc_khb_srv.tb_user_atlfsl_info 
 add constraint fk_tb_user_atlfsl_info_tb_com_user 
 foreign key (user_no_pk) 
 	references sc_khb_srv.tb_com_user(user_no_pk);
-
-ALTER TABLE sc_khb_srv.tb_user_atlfsl_info DROP CONSTRAINT fk_tb_user_atlfsl_info_tb_com_user; 
+ 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 alter table sc_khb_srv.tb_user_atlfsl_preocupy_info 
 add constraint fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info 
 foreign key (user_atlfsl_info_pk) 
 	references sc_khb_srv.tb_user_atlfsl_info(user_atlfsl_info_pk);
-
-ALTER TABLE sc_khb_srv.tb_user_atlfsl_preocupy_info DROP CONSTRAINT fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info  ; 
+ 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 
+alter table sc_khb_srv.tb_com_job_schdl_hstry 
+add constraint fk_tb_com_job_schdl_hstry_tb_com_job_schdl_info 
+foreign key (job_schdl_info_pk) 
+    references sc_khb_srv.tb_com_job_schdl_info(job_schdl_info_pk);
 
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
 
+alter table sc_khb_srv.tb_atlfsl_bsc_info 
+add constraint fk_tb_atlfsl_bsc_info_tb_lrea_office_info 
+foreign key (lrea_office_info_pk) 
+    references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
 
+/*tb_atlfsl_bsc_info에 중개사 번호가 0인 데이터 존재해서 실패!!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
 
 
 

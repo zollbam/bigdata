@@ -288,7 +288,7 @@ SELECT *
  WHERE ARTICLE_D_NO = 3043522;
 
 -- trade_info
-select 
+select count(*)
   IFNULL(REPLACE(ti.TRADE_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(ti.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(ti.TRADE_TYPE,CONCAT(CHAR(10)), ''), '')
@@ -309,7 +309,7 @@ into outfile '/var/lib/mysql/backup/trade_info.txt'
        INNER JOIN
        hanbang.product_info pi2 
            ON ti.PRODUCT_NO = pi2.PRODUCT_NO
- WHERE ti.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
+ WHERE ti.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0);
  LIMIT 10000000;
 
 SELECT count(*)
@@ -925,7 +925,7 @@ SELECT count(*)
                       SELECT DANJI_NO
                         FROM danji_info);
 
--- tb_hsmp_info
+-- danji_info
 select 
   IFNULL(REPLACE(DANJI_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(DANJI_NAME,CONCAT(CHAR(10)), ''), '')

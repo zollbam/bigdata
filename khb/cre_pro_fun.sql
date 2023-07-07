@@ -1,7 +1,7 @@
 /*
 프로시저, 함수를 생성하는 쿼리문을 추추하는 파일
 작성 일시: 23-06-25
-수정 일시: 23-06-29
+수정 일시: 23-07-03
 작 성 자 : 조건영
 */
 
@@ -41,18 +41,19 @@ SELECT
 
 
 -- fc_emd_li_point
-create function sc_khb_srv.fc_emd_li_point (@emdLiCdPk int)
-returns geometry
+CREATE function sc_khb_srv.fc_emd_li_point (@emdLiCdPk int)
+returns nvarchar(max)
 begin
-    declare @emdLiPoint geometry;
+    declare @emdLiPoint nvarchar(max);
 
-    select @emdLiPoint = geometry::STGeomFromText(concat('POINT(', json_value(emd_li_crdnt, '$.lng'),' ', json_value(emd_li_crdnt, '$.lat'), ')'), 4326)
+    select @emdLiPoint = geometry::STGeomFromText(concat('POINT(', json_value(emd_li_crdnt, '$.lng'),' ', json_value(emd_li_crdnt, '$.lat'), ')'), 4326).ToString()
       from db_khb_srv.sc_khb_srv.tb_com_emd_li_cd
-     where emd_li_cd_pk = @emdLiCdPk;
-        
-    return cast(@emdLiPoint as geometry)
+     where emd_li_cd_pk = @emdLiCdPk
+       and emd_li_crdnt <> '';
+ 
+    return @emdLiPoint
+END;
 
-end ;
 
 grant EXECUTE on sc_khb_srv.fc_emd_li_point to us_khb_adm;
 grant EXECUTE on sc_khb_srv.fc_emd_li_point to us_khb_com;
@@ -171,28 +172,6 @@ as
 
 grant EXECUTE on sc_khb_srv.pc_com_author_del to us_khb_com;
 
--- pc_com_group_del
-create procedure sc_khb_srv.pc_com_group_del
-(
-    @groupNoPk numeric
-)
-as
-
-    declare @rowCnt int;
-
-    select @rowCnt = count(*)
-      from sc_khb_srv.tb_com_group tcg 
-     where parnts_group_no_pk = @groupNoPk;
-
-    if @rowCnt = 1
-        begin
-            delete from sc_khb_srv.tb_com_user_group where group_no_pk = @groupNoPk;
-            delete from sc_khb_srv.tb_com_group_author where group_no_pk = @groupNoPk;
-            delete from sc_khb_srv.tb_com_group where group_no_pk = @groupNoPk;
-        end;
-
-grant EXECUTE on sc_khb_srv.pc_com_group_del to us_khb_com;
-
 -- pc_com_group_copy
 create procedure sc_khb_srv.pc_com_group_copy
 (
@@ -242,7 +221,27 @@ as
 
 grant EXECUTE on sc_khb_srv.pc_com_group_copy to us_khb_com;
 
+-- pc_com_group_del
+create procedure sc_khb_srv.pc_com_group_del
+(
+    @groupNoPk numeric
+)
+as
 
+    declare @rowCnt int;
+
+    select @rowCnt = count(*)
+      from sc_khb_srv.tb_com_group tcg 
+     where parnts_group_no_pk = @groupNoPk;
+
+    if @rowCnt = 1
+        begin
+            delete from sc_khb_srv.tb_com_user_group where group_no_pk = @groupNoPk;
+            delete from sc_khb_srv.tb_com_group_author where group_no_pk = @groupNoPk;
+            delete from sc_khb_srv.tb_com_group where group_no_pk = @groupNoPk;
+        end;
+
+ GRANT EXECUTE on sc_khb_srv.pc_com_group_del to us_khb_com;
 
 
 
