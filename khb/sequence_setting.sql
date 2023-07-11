@@ -1,8 +1,10 @@
 /*
 시퀀스를 생성 및 업데이트
 시작 일시: 23-06-28
-수정 일시: 23-07-04
+수정 일시: 23-07-11
 작 성 자: 조건영
+작성 목적 : 시퀀스의 생성 및 권한 부여
+사용 DB : mssql 2016
 */
 
 -- 시퀀스 생성 쿼리문 스크립트 작성(161)
@@ -659,17 +661,17 @@ alter sequence sc_khb_srv.sq_com_device_info restart with 1;
 alter sequence sc_khb_srv.sq_com_device_ntcn_mapng_info restart with 1;
 alter sequence sc_khb_srv.sq_com_device_stng_info restart with 1;
 alter sequence sc_khb_srv.sq_com_emd_li_cd restart with 24372;
-alter sequence sc_khb_srv.sq_com_error_log restart with 2313;
+alter sequence sc_khb_srv.sq_com_error_log restart with 2582;
 alter sequence sc_khb_srv.sq_com_faq restart with 1;
 alter sequence sc_khb_srv.sq_com_file restart with 1;
 alter sequence sc_khb_srv.sq_com_file_mapng restart with 1;
 alter sequence sc_khb_srv.sq_com_group restart with 7;
 alter sequence sc_khb_srv.sq_com_group_author restart with 11;
-alter sequence sc_khb_srv.sq_com_gtwy_svc restart with 243;
-alter sequence sc_khb_srv.sq_com_gtwy_svc_author restart with 344;
+alter sequence sc_khb_srv.sq_com_gtwy_svc restart with 258;
+alter sequence sc_khb_srv.sq_com_gtwy_svc_author restart with 361;
 alter sequence sc_khb_srv.sq_com_job_schdl_hstry restart with 1;
 alter sequence sc_khb_srv.sq_com_job_schdl_info restart with 15;
-alter sequence sc_khb_srv.sq_com_login_hist restart with 761;
+alter sequence sc_khb_srv.sq_com_login_hist restart with 794;
 alter sequence sc_khb_srv.sq_com_menu restart with 46;
 alter sequence sc_khb_srv.sq_com_menu_author restart with 48;
 alter sequence sc_khb_srv.sq_com_notice restart with 3;
@@ -678,8 +680,8 @@ alter sequence sc_khb_srv.sq_com_push_meta_info restart with 1;
 alter sequence sc_khb_srv.sq_com_qna restart with 1;
 alter sequence sc_khb_srv.sq_com_recsroom restart with 1;
 alter sequence sc_khb_srv.sq_com_rss_info restart with 1;
-alter sequence sc_khb_srv.sq_com_scrin restart with 92;
-alter sequence sc_khb_srv.sq_com_scrin_author restart with 91;
+alter sequence sc_khb_srv.sq_com_scrin restart with 96;
+alter sequence sc_khb_srv.sq_com_scrin_author restart with 95;
 alter sequence sc_khb_srv.sq_com_sgg_cd restart with 253;
 alter sequence sc_khb_srv.sq_com_stplat_hist restart with 1;
 alter sequence sc_khb_srv.sq_com_stplat_info restart with 1;

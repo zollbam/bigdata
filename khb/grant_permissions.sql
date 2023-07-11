@@ -22,7 +22,7 @@ SELECT
 
 -- 권한 부여 스크립트 작성 쿼리문(테이블)
 SELECT 
-  class_desc
+  class_desc "클래스 설명"
 , object_name(major_id) "객체명"
 , user_name(grantee_principal_id) "권한 받은 유저"
 , 'grant ' + 
@@ -32,16 +32,16 @@ SELECT
             FOR xml PATH('')),1,2,'') + 
   ' on sc_khb_srv.' + 
   object_name(major_id) + 
-  ' to ' + user_name(grantee_principal_id) + ';'
+  ' to ' + user_name(grantee_principal_id) + ';' "권한부여 쿼리"
   FROM sys.DATABASE_permissions dp
  WHERE class_desc != 'DATABASE' 
        AND 
        grantee_principal_id != 0
        AND 
-       object_name(major_id) = ANY(SELECT name FROM sys.tables)
+       object_name(major_id) = ANY(SELECT name FROM sys.tables WHERE schema_id = 5)
  GROUP BY class_desc, major_id, grantee_principal_id
  ORDER BY 2,3;
-
+SELECT * FROM sys.tables;
 -- 권한 부여 스크립트 작성 쿼리문(사용자 타입)
 SELECT 
   class_desc

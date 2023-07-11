@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 23-07-03
+수정 일시: 23-07-10
 작 성 자 : 조건영
 */
 
@@ -9,9 +9,9 @@
 SELECT DISTINCT
        object_name(c.object_id) "테이블명" , c.NAME "컬럼명",
        CASE WHEN type_name(c.system_type_id) = 'numeric'
-                THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ', ' + CAST(c.SCALE AS varchar) + ')'
-            WHEN type_name(c.system_type_id) = 'decimal'
                 THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ')'
+            WHEN type_name(c.system_type_id) = 'decimal'
+                THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ', ' + CAST(c.SCALE AS varchar) + ')'
             WHEN type_name(c.system_type_id) IN ('char', 'varchar') 
                 THEN type_name(c.system_type_id) + '(' + CAST(c.MAX_LENGTH AS varchar) + ')'
             WHEN type_name(c.system_type_id) IN ('nchar', 'nvarchar') 
@@ -37,8 +37,37 @@ FROM sys.columns c
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 WHERE ccu.TABLE_SCHEMA = 'sc_khb_srv'
       AND
-      object_name(c.object_id) = 'tb_com_user_ntcn_mapng_info'
+      object_name(c.object_id) = 'tb_atlfsl_bsc_info'
 ORDER BY 1, c.column_id;
+
+-- 컬럼 이름에 맞는 사용자 타입 찾기
+SELECT 
+  TABLE_SCHEMA "schema_name" 
+, TABLE_NAME "table_name"
+, COLUMN_NAME "column_name"
+, CASE WHEN charindex('_', COLUMN_NAME) = 0 THEN COLUMN_NAME
+       ELSE substring(RIGHT(COLUMN_NAME,5), charindex('_', RIGHT(COLUMN_NAME,5)) +1, len(RIGHT(COLUMN_NAME,5)))
+  END + 
+  CASE WHEN DATA_TYPE = 'decimal' THEN concat('_', 'd', NUMERIC_PRECISION, '_', NUMERIC_SCALE)
+       WHEN DATA_TYPE = 'numeric' THEN concat('_', 'n', NUMERIC_PRECISION)
+       WHEN DATA_TYPE = 'char' THEN concat('_', 'c', CHARACTER_MAXIMUM_LENGTH)
+       WHEN DATA_TYPE = 'nchar' THEN concat('_', 'nc', CHARACTER_MAXIMUM_LENGTH)
+       WHEN DATA_TYPE = 'varchar' THEN CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_vmax'
+                                            ELSE concat('_', 'v', CHARACTER_MAXIMUM_LENGTH)
+                                       END
+       WHEN DATA_TYPE = 'nvarchar' THEN CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_nvmax'
+                                             ELSE concat('_', 'nv', CHARACTER_MAXIMUM_LENGTH)
+                                        END
+       WHEN DATA_TYPE IN ('date', 'datetime') THEN ''
+  END  + 
+  CASE WHEN IS_NULLABLE = 'NO' THEN ' NOT NULL'
+	   ELSE ''
+  END "make_user_type"
+  FROM information_schema.columns
+ WHERE TABLE_NAME = 'tb_svc_bass_info';
+/*
+시스템 타입을 사용자 타입으로 변경하기 위해 만든 쿼리
+*/
 
 -- 테이블 생성 쿼리(161 + 시스템 타입)
 SELECT DISTINCT c2.TABLE_NAME "테이블명",
@@ -71,6 +100,7 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
 --       information_schema.constraint_column_usage ccu
 --           ON c2.TABLE_NAME = ccu.TABLE_NAME AND c2.COLUMN_NAME = ccu.COLUMN_NAME
 -- WHERE ccu.CONSTRAINT_NAME LIKE 'pk%'
+ WHERE c2.TABLE_SCHEMA = 'sc_khb_srv'
  GROUP BY c2.TABLE_SCHEMA, c2.TABLE_NAME -- , ccu.TABLE_NAME, ccu.COLUMN_NAME
  ORDER BY 1;
 
@@ -93,6 +123,7 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
                           AND 
                           sc.name = c1.COLUMN_NAME
               WHERE c1.TABLE_NAME = c2.TABLE_name
+              ORDER BY ORDINAL_POSITION
               	FOR xml PATH('')), 1, 2, ''), 
        '&#x0D;', '') + ');' "테이블별 작성 스크립트"
 --       CASE WHEN ccu.COLUMN_NAME != '' THEN ', primary key (' + stuff((SELECT ', ' + COLUMN_NAME
@@ -144,49 +175,77 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_atlfsl_bsc_info => 63477 ms
 CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
-  atlfsl_bsc_info_pk sc_khb_srv.pk_n9 NOT NULL
+  atlfsl_bsc_info_pk sc_khb_srv.pk_n18 NOT NULL
 , asoc_atlfsl_no sc_khb_srv.no_n15
 , asoc_app_intrlck_no sc_khb_srv.no_n15
-, lrea_office_info_pk sc_khb_srv.pk_n9
-, atlfsl_crdnt sc_khb_srv.crdnt_v500
+, lrea_office_info_pk sc_khb_srv.pk_n18
+, ctpv_cd_pk sc_khb_srv.pk_n18
+, sgg_cd_pk sc_khb_srv.pk_n18
+, emd_li_cd_pk sc_khb_srv.pk_n18
+, hsmp_info_pk sc_khb_srv.pk_n18
+, hsmp_dtl_info_pk sc_khb_srv.pk_n18
+, atlfsl_ty_cd sc_khb_srv.cd_v20
+, atlfsl_dtl_ty_cd sc_khb_srv.cd_v20
 , atlfsl_knd_cd sc_khb_srv.cd_v20
-, dtl_atlfsl_ty_cd sc_khb_srv.cd_v20
 , stdg_dong_cd sc_khb_srv.cd_v20
-, ctpv_cd_pk sc_khb_srv.pk_n9
-, sgg_cd_pk sc_khb_srv.pk_n9
-, emd_li_cd_pk sc_khb_srv.pk_n9
-, dong_innb sc_khb_srv.innb_v20
+, stdg_cd sc_khb_srv.cd_v20
 , stdg_innb sc_khb_srv.innb_v20
+, dong_innb sc_khb_srv.innb_v20
 , mno sc_khb_srv.mno_n4
 , sno sc_khb_srv.sno_n4
-, use_yn sc_khb_srv.yn_c1
-, hsmp_info_pk sc_khb_srv.pk_n9
-, hsmp_dtl_info_pk sc_khb_srv.pk_n9
-, thema_cd_list sc_khb_srv.list_nv1000
-, atlfsl_lot sc_khb_srv.lot_n13_10
-, atlfsl_lat sc_khb_srv.lat_n12_10
 , aptcmpl_nm sc_khb_srv.nm_nv500
 , ho_nm sc_khb_srv.nm_nv500
+, atlfsl_crdnt sc_khb_srv.crdnt_v500
+, atlfsl_lot sc_khb_srv.lot_d13_10
+, atlfsl_lat sc_khb_srv.lat_d12_10
 , atlfsl_trsm_dt sc_khb_srv.dt
-, dtl_scrn_prsl_cnt sc_khb_srv.cnt_n15
-, pic_no sc_khb_srv.cnt_n15
-, pic_nm sc_khb_srv.nm_nv500
-, pic_telno sc_khb_srv.telno_v30
-, area sc_khb_srv.area_n19_9
-, room_cnt sc_khb_srv.cnt_n15
 , bldg_aptcmpl_indct_yn sc_khb_srv.yn_c1
 , pyeong_indct_yn sc_khb_srv.yn_c1
 , vr_exst_yn sc_khb_srv.yn_c1
 , img_exst_yn sc_khb_srv.yn_c1
-, reg_dt sc_khb_srv.dt
-, mdfcn_dt sc_khb_srv.dt
+, thema_cd_list sc_khb_srv.list_nv1000
+, pic_no sc_khb_srv.no_n15
+, pic_nm sc_khb_srv.nm_nv500
+, pic_telno sc_khb_srv.telno_v30
+, dtl_scrn_prsl_cnt sc_khb_srv.cnt_n15
+, prvuse_area sc_khb_srv.area_d19_9
+, sply_area sc_khb_srv.area_d19_9
+, plot_area sc_khb_srv.area_d19_9
+, arch_area sc_khb_srv.area_d19_9
+, room_cnt sc_khb_srv.cnt_n15
+, toilet_cnt sc_khb_srv.cnt_n15
 , atlfsl_inq_cnt sc_khb_srv.cnt_n15
+, flr_expsr_mthd_cd sc_khb_srv.cd_v20
+, now_flr_expsr_mthd_cd sc_khb_srv.cd_v20
+, flr_cnt sc_khb_srv.cnt_n15
+, top_flr_cnt sc_khb_srv.cnt_n15
+, grnd_flr_cnt sc_khb_srv.cnt_n15
+, udgd_flr_cnt sc_khb_srv.cnt_n15
+, stairs_stle_cd sc_khb_srv.cd_v20
+, drc_cd sc_khb_srv.cd_v20
+, blcn_cd sc_khb_srv.cd_v20
+, pstn_expln_cn sc_khb_srv.cn_nvmax
+, parkng_psblty_yn sc_khb_srv.yn_c1
+, parkng_cnt sc_khb_srv.cnt_n15
+, cmcn_day sc_khb_srv.day_nv100
+, financ_amt sc_khb_srv.amt_n18
+, use_yn sc_khb_srv.yn_c1
 , clustr_info_stts_cd sc_khb_srv.cd_v20
 , push_stts_cd sc_khb_srv.cd_v20
+, reg_dt sc_khb_srv.dt
+, mdfcn_dt sc_khb_srv.dt
 );
 
+--BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
+--       FROM 'D:\migra_data\product_info.txt'
+--       WITH (
+--             CODEPAGE = '65001',
+--             FIELDTERMINATOR = '||',
+--             ROWTERMINATOR = '0x0a'
+--);
+
 BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
-       FROM 'D:\migra_data\product_info.txt'
+       FROM 'D:\migra_data\product_info_new.txt'
        WITH (
              CODEPAGE = '65001',
              FIELDTERMINATOR = '||',
@@ -369,7 +428,7 @@ SET STATISTICS io ON;
 CREATE TABLE sc_khb_srv.tb_atlfsl_img_info (
   atlfsl_img_info_pk sc_khb_srv.pk_n18 NOT NULL
 , atlfsl_bsc_info_pk sc_khb_srv.pk_n18 NOT NULL
-, img_sn sc_khb_srv.sn_v20
+, img_sn sc_khb_srv.sn_v200
 , img_ty_cd sc_khb_srv.cd_v20
 , img_file_nm sc_khb_srv.nm_nv500
 , img_expln_cn sc_khb_srv.cn_nv4000
@@ -520,23 +579,27 @@ alter table sc_khb_srv.tb_atlfsl_reside_set_dtl_info add constraint pk_tb_atlfsl
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_author
 CREATE TABLE sc_khb_srv.tb_com_author (
-  author_no_pk sc_khb_srv.decimal NOT NULL
-, parnts_author_no_pk sc_khb_srv.decimal
-, author_nm sc_khb_srv.nvarchar
-, rm_cn sc_khb_srv.nvarchar
-, use_at sc_khb_srv.char
-, valid_pd_begin_dt sc_khb_srv.datetime
-, valid_pd_end_dt sc_khb_srv.datetime
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, orgnzt_manage_at sc_khb_srv.char
+  author_no_pk sc_khb_srv.pk_n18 NOT NULL
+, parnts_author_no_pk sc_khb_srv.pk_n18
+, author_nm sc_khb_srv.nm_nv500
+, rm_cn sc_khb_srv.cn_nv4000
+, use_at sc_khb_srv.at_c1
+, valid_pd_begin_dt sc_khb_srv.dt
+, valid_pd_end_dt sc_khb_srv.dt
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, orgnzt_manage_at sc_khb_srv.at_c1
 );
 
 alter table sc_khb_srv.tb_com_author add constraint pk_tb_com_author primary key(author_no_pk);
+
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -627,18 +690,18 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_com_code
 CREATE TABLE sc_khb_srv.tb_com_code (
-  code_pk sc_khb_srv.decimal NOT NULL
-, parnts_code_pk sc_khb_srv.decimal
-, code sc_khb_srv.varchar NOT NULL
-, code_nm sc_khb_srv.nvarchar NOT NULL
-, sort_ordr sc_khb_srv.decimal
-, use_at sc_khb_srv.char
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, rm_cn sc_khb_srv.nvarchar
-, parent_code sc_khb_srv.varchar
+  code_pk sc_khb_srv.pk_n18 NOT NULL
+, parnts_code_pk sc_khb_srv.pk_n18
+, code sc_khb_srv.cd_v20 NOT NULL
+, code_nm sc_khb_srv.nm_nv500 NOT NULL
+, sort_ordr sc_khb_srv.ordr_n5
+, use_at sc_khb_srv.at_c1
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, rm_cn sc_khb_srv.cn_nv4000
+, parent_code sc_khb_srv.cd_v20
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
 );
 
@@ -667,28 +730,33 @@ BULK INSERT sc_khb_srv.tb_com_code
 );
 
 alter table sc_khb_srv.tb_com_code add constraint pk_tb_com_code primary key(code_pk);
+
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_crtfc_tmpr
 CREATE TABLE sc_khb_srv.tb_com_crtfc_tmpr (
-  crtfc_pk sc_khb_srv.decimal NOT NULL
-, crtfc_se_code sc_khb_srv.varchar
-, soc_lgn_ty_cd sc_khb_srv.varchar
-, moblphon_no sc_khb_srv.varchar
-, moblphon_crtfc_sn sc_khb_srv.varchar
-, moblphon_crtfc_at sc_khb_srv.char
-, email sc_khb_srv.varchar
-, email_crtfc_sn sc_khb_srv.varchar
-, email_crtfc_at sc_khb_srv.char
-, sns_crtfc_sn sc_khb_srv.varchar
-, sns_crtfc_at sc_khb_srv.char
-, regist_id sc_khb_srv.varchar
-, regist_dt sc_khb_srv.date default (getdate())
-, updt_id sc_khb_srv.varchar
-, updt_dt sc_khb_srv.date
+  crtfc_pk sc_khb_srv.pk_n18 NOT NULL
+, crtfc_se_code sc_khb_srv.cd_v20
+, soc_lgn_ty_cd sc_khb_srv.cd_v20
+, moblphon_no sc_khb_srv.no_v200
+, moblphon_crtfc_sn sc_khb_srv.sn_v200
+, moblphon_crtfc_at sc_khb_srv.at_c1
+, email sc_khb_srv.email_v320
+, email_crtfc_sn sc_khb_srv.sn_v200
+, email_crtfc_at sc_khb_srv.at_c1
+, sns_crtfc_sn sc_khb_srv.sn_v200
+, sns_crtfc_at sc_khb_srv.at_c1
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_crtfc_tmpr add constraint pk_tb_com_crtfc_tmpr primary key(crtfc_pk);
+
+SET STATISTICS io OFF;
 -----------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -733,6 +801,7 @@ CREATE TABLE sc_khb_srv.tb_com_device_info (
 
 alter table sc_khb_srv.tb_com_device_info add constraint pk_tb_com_device_info primary key(device_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -751,6 +820,7 @@ CREATE TABLE sc_khb_srv.tb_com_device_ntcn_mapng_info (
 
 alter table sc_khb_srv.tb_com_device_ntcn_mapng_info add constraint pk_tb_com_device_ntcn_mapng_info primary key(device_ntcn_mapng_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -770,6 +840,7 @@ CREATE TABLE sc_khb_srv.tb_com_device_stng_info (
 
 alter table sc_khb_srv.tb_com_device_stng_info add constraint pk_tb_com_device_stng_info primary key(device_stng_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -798,41 +869,49 @@ alter table sc_khb_srv.tb_com_emd_li_cd add constraint pk_tb_com_emd_li_cd prima
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_error_log
 CREATE TABLE sc_khb_srv.tb_com_error_log (
-  error_log_pk sc_khb_srv.decimal NOT NULL
-, user_id sc_khb_srv.nvarchar
-, url sc_khb_srv.varchar
-, mthd_nm sc_khb_srv.nvarchar
-, paramtr_cn sc_khb_srv.nvarchar
-, error_cn sc_khb_srv.nvarchar
-, requst_ip_adres sc_khb_srv.nvarchar
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  error_log_pk sc_khb_srv.pk_n18 NOT NULL
+, user_id sc_khb_srv.id_nv100
+, url sc_khb_srv.url_nv4000
+, mthd_nm sc_khb_srv.nm_nv500
+, paramtr_cn sc_khb_srv.cn_nv4000
+, error_cn sc_khb_srv.cn_nv4000
+, requst_ip_adres sc_khb_srv.addr_nv200
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_error_log add constraint pk_tb_com_error_log primary key(error_log_pk);
 
----------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------\
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_faq
 CREATE TABLE sc_khb_srv.tb_com_faq (
-  faq_no_pk sc_khb_srv.decimal NOT NULL
-, qestn_cn sc_khb_srv.nvarchar
-, answer_cn sc_khb_srv.nvarchar
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, ctgry_code sc_khb_srv.varchar
-, svc_se_code sc_khb_srv.varchar
+  faq_no_pk sc_khb_srv.pk_n18 NOT NULL
+, qestn_cn sc_khb_srv.cn_nv4000
+, answer_cn sc_khb_srv.cn_nv4000
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, ctgry_code sc_khb_srv.cd_v20
+, svc_se_code sc_khb_srv.cd_v20
 );
 
 alter table sc_khb_srv.tb_com_faq add constraint pk_tb_com_faq primary key(faq_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_file
 CREATE TABLE sc_khb_srv.tb_com_file (
   file_no_pk sc_khb_srv.pk_n18 NOT NULL
 , orignl_nm sc_khb_srv.nm_nv500
@@ -850,82 +929,98 @@ CREATE TABLE sc_khb_srv.tb_com_file (
 
 alter table sc_khb_srv.tb_com_file add constraint pk_tb_com_file primary key(file_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+-- tb_com_file_mapng
 CREATE TABLE sc_khb_srv.tb_com_file_mapng (
-  file_no_pk sc_khb_srv.decimal NOT NULL
-, recsroom_no_pk sc_khb_srv.decimal
-, user_no_pk sc_khb_srv.decimal
-, event_no_pk sc_khb_srv.decimal
-, othbc_dta_no_pk sc_khb_srv.decimal
+  file_no_pk sc_khb_srv.pk_n18 NOT NULL
+, recsroom_no_pk sc_khb_srv.pk_n18
+, user_no_pk sc_khb_srv.pk_n18
+, event_no_pk sc_khb_srv.pk_n18
+, othbc_dta_no_pk sc_khb_srv.pk_n18
 );
 
 alter table sc_khb_srv.tb_com_file_mapng add constraint pk_tb_com_file_mapng primary key(file_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_group
 CREATE TABLE sc_khb_srv.tb_com_group (
-  group_no_pk sc_khb_srv.decimal NOT NULL
-, parnts_group_no_pk sc_khb_srv.decimal
-, group_nm sc_khb_srv.nvarchar
-, use_at sc_khb_srv.char
-, rm_cn sc_khb_srv.nvarchar
-, valid_pd_begin_dt sc_khb_srv.datetime
-, valid_pd_end_dt sc_khb_srv.datetime
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  group_no_pk sc_khb_srv.pk_n18 NOT NULL
+, parnts_group_no_pk sc_khb_srv.pk_n18
+, group_nm sc_khb_srv.nm_nv500
+, use_at sc_khb_srv.at_c1
+, rm_cn sc_khb_srv.cn_nv4000
+, valid_pd_begin_dt sc_khb_srv.dt
+, valid_pd_end_dt sc_khb_srv.dt
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_group add constraint pk_tb_com_group primary key(group_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_group_author
 CREATE TABLE sc_khb_srv.tb_com_group_author (
-  com_group_author_pk sc_khb_srv.decimal NOT NULL
-, group_no_pk sc_khb_srv.decimal NOT NULL
-, author_no_pk sc_khb_srv.decimal NOT NULL
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  com_group_author_pk sc_khb_srv.pk_n18 NOT NULL
+, group_no_pk sc_khb_srv.pk_n18 NOT NULL
+, author_no_pk sc_khb_srv.pk_n18 NOT NULL
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_group_author add constraint pk_tb_com_group_author primary key(com_group_author_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_gtwy_svc
 CREATE TABLE sc_khb_srv.tb_com_gtwy_svc (
-  gtwy_svc_pk sc_khb_srv.decimal NOT NULL
-, gtwy_nm sc_khb_srv.nvarchar
-, gtwy_url sc_khb_srv.varchar
-, rm_cn sc_khb_srv.nvarchar
-, use_at sc_khb_srv.char
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, gtwy_method_nm sc_khb_srv.nvarchar
+  gtwy_svc_pk sc_khb_srv.pk_n18 NOT NULL
+, gtwy_nm sc_khb_srv.nm_nv500
+, gtwy_url sc_khb_srv.url_nv4000
+, rm_cn sc_khb_srv.cn_nv4000
+, use_at sc_khb_srv.at_c1
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, gtwy_method_nm sc_khb_srv.nm_nv500
 );
 
 alter table sc_khb_srv.tb_com_gtwy_svc add constraint pk_tb_com_gtwy_svc primary key(gtwy_svc_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_gtwy_svc_author
 CREATE TABLE sc_khb_srv.tb_com_gtwy_svc_author (
-  com_gtwy_svc_author_pk sc_khb_srv.decimal NOT NULL
-, author_no_pk sc_khb_srv.decimal NOT NULL
-, gtwy_svc_pk sc_khb_srv.decimal NOT NULL
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  com_gtwy_svc_author_pk sc_khb_srv.pk_n18 NOT NULL
+, author_no_pk sc_khb_srv.pk_n18 NOT NULL
+, gtwy_svc_pk sc_khb_srv.pk_n18 NOT NULL
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_gtwy_svc_author add constraint pk_tb_com_gtwy_svc_author primary key(com_gtwy_svc_author_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_com_job_schdl_hstry => ms
 CREATE TABLE sc_khb_srv.tb_com_job_schdl_hstry (
   job_schdl_hstry_pk sc_khb_srv.pk_n18 NOT NULL
@@ -938,6 +1033,7 @@ CREATE TABLE sc_khb_srv.tb_com_job_schdl_hstry (
 
 alter table sc_khb_srv.tb_com_job_schdl_hstry add constraint pk_tb_com_job_schdl_hstry primary key(job_schdl_hstry_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -962,75 +1058,89 @@ alter table sc_khb_srv.tb_com_job_schdl_info add constraint pk_tb_com_job_schdl_
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_login_hist
 CREATE TABLE sc_khb_srv.tb_com_login_hist (
-  login_hist_pk sc_khb_srv.decimal NOT NULL
-, user_id sc_khb_srv.nvarchar
-, login_ip_adres sc_khb_srv.nvarchar
-, error_at sc_khb_srv.char
-, error_code sc_khb_srv.varchar
-, error_cn sc_khb_srv.nvarchar
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  login_hist_pk sc_khb_srv.pk_n18 NOT NULL
+, user_id sc_khb_srv.id_nv100
+, login_ip_adres sc_khb_srv.addr_nv200
+, error_at sc_khb_srv.at_c1
+, error_code sc_khb_srv.cd_v20
+, error_cn sc_khb_srv.cn_nv4000
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_login_hist add constraint pk_tb_com_login_hist primary key(login_hist_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_menu
 CREATE TABLE sc_khb_srv.tb_com_menu (
-  menu_no_pk sc_khb_srv.decimal NOT NULL
-, parnts_menu_no_pk sc_khb_srv.decimal
-, menu_nm sc_khb_srv.nvarchar
-, sort_ordr sc_khb_srv.decimal
-, use_at sc_khb_srv.char
-, rm_cn sc_khb_srv.nvarchar
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, scrin_no_pk sc_khb_srv.decimal
-, orgnzt_manage_at sc_khb_srv.char
-, aplctn_code sc_khb_srv.varchar
+  menu_no_pk sc_khb_srv.pk_n18 NOT NULL
+, parnts_menu_no_pk sc_khb_srv.pk_n18
+, menu_nm sc_khb_srv.nm_nv500
+, sort_ordr sc_khb_srv.ordr_n5
+, use_at sc_khb_srv.at_c1
+, rm_cn sc_khb_srv.cn_nv4000
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, scrin_no_pk sc_khb_srv.pk_n18
+, orgnzt_manage_at sc_khb_srv.at_c1
+, aplctn_code sc_khb_srv.cd_v20
 );
 
 alter table sc_khb_srv.tb_com_menu add constraint pk_tb_com_menu primary key(menu_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_menu_author
 CREATE TABLE sc_khb_srv.tb_com_menu_author (
-  com_menu_author_pk sc_khb_srv.decimal NOT NULL
-, author_no_pk sc_khb_srv.decimal NOT NULL
-, menu_no_pk sc_khb_srv.decimal NOT NULL
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  com_menu_author_pk sc_khb_srv.pk_n18 NOT NULL
+, author_no_pk sc_khb_srv.pk_n18 NOT NULL
+, menu_no_pk sc_khb_srv.pk_n18 NOT NULL
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_menu_author add constraint pk_tb_com_menu_author primary key(com_menu_author_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_notice
 CREATE TABLE sc_khb_srv.tb_com_notice (
-  notice_no_pk sc_khb_srv.decimal NOT NULL
-, sj_nm sc_khb_srv.nvarchar
-, inqire_co sc_khb_srv.decimal
-, rm_cn sc_khb_srv.nvarchar
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, notice_at sc_khb_srv.char
-, notice_se_code sc_khb_srv.varchar
-, svc_se_code sc_khb_srv.varchar
+  notice_no_pk sc_khb_srv.pk_n18 NOT NULL
+, sj_nm sc_khb_srv.nm_nv500
+, inqire_co sc_khb_srv.co_n15
+, rm_cn sc_khb_srv.cn_nv4000
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, notice_at sc_khb_srv.at_c1
+, notice_se_code sc_khb_srv.cd_v20
+, svc_se_code sc_khb_srv.cd_v20
 );
 
 alter table sc_khb_srv.tb_com_notice add constraint pk_tb_com_notice primary key(notice_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_com_ntcn_info
 CREATE TABLE sc_khb_srv.tb_com_ntcn_info (
   ntcn_info_pk sc_khb_srv.pk_n18 NOT NULL
@@ -1046,7 +1156,10 @@ CREATE TABLE sc_khb_srv.tb_com_ntcn_info (
 
 alter table sc_khb_srv.tb_com_ntcn_info add constraint pk_tb_com_ntcn_info primary key(ntcn_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_com_push_meta_info
 CREATE TABLE sc_khb_srv.tb_com_push_meta_info (
   push_meta_info_pk sc_khb_srv.pk_n18 NOT NULL
@@ -1067,42 +1180,51 @@ CREATE TABLE sc_khb_srv.tb_com_push_meta_info (
 
 alter table sc_khb_srv.tb_com_push_meta_info add constraint pk_tb_com_push_meta_info primary key(push_meta_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_qna
 CREATE TABLE sc_khb_srv.tb_com_qna (
-  qna_no_pk sc_khb_srv.decimal NOT NULL
-, parnts_qna_no_pk sc_khb_srv.decimal
-, sj_nm sc_khb_srv.nvarchar
-, rm_cn sc_khb_srv.nvarchar
-, secret_no_at sc_khb_srv.char
-, secret_no sc_khb_srv.decimal
-, inqire_co sc_khb_srv.decimal
-, answer_dp_no sc_khb_srv.decimal
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  qna_no_pk sc_khb_srv.pk_n18 NOT NULL
+, parnts_qna_no_pk sc_khb_srv.pk_n18
+, sj_nm sc_khb_srv.nm_nv500
+, rm_cn sc_khb_srv.cn_nv4000
+, secret_no_at sc_khb_srv.at_c1
+, secret_no sc_khb_srv.no_n15
+, inqire_co sc_khb_srv.co_n15
+, answer_dp_no sc_khb_srv.no_n15
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_qna add constraint pk_tb_com_qna primary key(qna_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_recsroom
 CREATE TABLE sc_khb_srv.tb_com_recsroom (
-  recsroom_no_pk sc_khb_srv.decimal NOT NULL
-, sj_nm sc_khb_srv.nvarchar
-, rm_cn sc_khb_srv.nvarchar
-, inqire_co sc_khb_srv.decimal
-, file_use_at sc_khb_srv.char
-, regist_dt sc_khb_srv.datetime default (getdate())
-, regist_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, updt_id sc_khb_srv.nvarchar
+  recsroom_no_pk sc_khb_srv.pk_n18 NOT NULL
+, sj_nm sc_khb_srv.nm_nv500
+, rm_cn sc_khb_srv.cn_nv4000
+, inqire_co sc_khb_srv.co_n15
+, file_use_at sc_khb_srv.at_c1
+, regist_dt sc_khb_srv.dt default (getdate())
+, regist_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, updt_id sc_khb_srv.id_nv100
 );
 
 alter table sc_khb_srv.tb_com_recsroom add constraint pk_tb_com_recsroom primary key(recsroom_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_com_rss_info
 CREATE TABLE sc_khb_srv.tb_com_rss_info (
   rss_info_pk sc_khb_srv.pk_n18 NOT NULL
@@ -1123,37 +1245,43 @@ CREATE TABLE sc_khb_srv.tb_com_rss_info (
 
 alter table sc_khb_srv.tb_com_rss_info add constraint pk_tb_com_rss_info primary key(rss_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_scrin
 CREATE TABLE sc_khb_srv.tb_com_scrin (
-  scrin_no_pk sc_khb_srv.decimal NOT NULL
-, scrin_nm sc_khb_srv.nvarchar
-, scrin_url sc_khb_srv.varchar
-, rm_cn sc_khb_srv.nvarchar
-, use_at sc_khb_srv.char
-, creat_author_at sc_khb_srv.char
-, inqire_author_at sc_khb_srv.char
-, updt_author_at sc_khb_srv.char
-, delete_author_at sc_khb_srv.char
-, excel_author_at sc_khb_srv.char
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  scrin_no_pk sc_khb_srv.pk_n18 NOT NULL
+, scrin_nm sc_khb_srv.nm_nv500
+, scrin_url sc_khb_srv.url_nv4000
+, rm_cn sc_khb_srv.cn_nv4000
+, use_at sc_khb_srv.at_c1
+, creat_author_at sc_khb_srv.at_c1
+, inqire_author_at sc_khb_srv.at_c1
+, updt_author_at sc_khb_srv.at_c1
+, delete_author_at sc_khb_srv.at_c1
+, excel_author_at sc_khb_srv.at_c1
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_scrin add constraint pk_tb_com_scrin primary key(scrin_no_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_scrin_author
 CREATE TABLE sc_khb_srv.tb_com_scrin_author (
-  com_scrin_author_pk sc_khb_srv.decimal NOT NULL
-, author_no_pk sc_khb_srv.decimal NOT NULL
-, scrin_no_pk sc_khb_srv.decimal NOT NULL
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  com_scrin_author_pk sc_khb_srv.pk_n18 NOT NULL
+, author_no_pk sc_khb_srv.pk_n18 NOT NULL
+, scrin_no_pk sc_khb_srv.pk_n18 NOT NULL
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_scrin_author add constraint pk_tb_com_scrin_author primary key(com_scrin_author_pk);
@@ -1183,64 +1311,76 @@ alter table sc_khb_srv.tb_com_sgg_cd add constraint pk_tb_com_sgg_cd primary key
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_stplat_hist
 CREATE TABLE sc_khb_srv.tb_com_stplat_hist (
-  com_stplat_hist_pk sc_khb_srv.decimal NOT NULL
-, com_stplat_info_pk sc_khb_srv.decimal NOT NULL
-, stplat_se_code sc_khb_srv.varchar
-, essntl_at sc_khb_srv.char
-, file_cours_nm sc_khb_srv.nvarchar
-, stplat_begin_dt sc_khb_srv.datetime
-, stplat_end_dt sc_khb_srv.datetime
+  com_stplat_hist_pk sc_khb_srv.pk_n18 NOT NULL
+, com_stplat_info_pk sc_khb_srv.pk_n18 NOT NULL
+, stplat_se_code sc_khb_srv.cd_v20
+, essntl_at sc_khb_srv.at_c1
+, file_cours_nm sc_khb_srv.nm_nv500
+, stplat_begin_dt sc_khb_srv.dt
+, stplat_end_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_stplat_hist add constraint pk_tb_com_stplat_hist primary key(com_stplat_hist_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- 
 CREATE TABLE sc_khb_srv.tb_com_stplat_info (
-  com_stplat_info_pk sc_khb_srv.decimal NOT NULL
-, svc_pk sc_khb_srv.decimal NOT NULL
-, stplat_se_code sc_khb_srv.varchar
-, essntl_at sc_khb_srv.char
-, file_cours_nm sc_khb_srv.nvarchar
-, use_at sc_khb_srv.char
-, register_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updusr_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, chnnl_id sc_khb_srv.nvarchar
+  com_stplat_info_pk sc_khb_srv.pk_n18 NOT NULL
+, svc_pk sc_khb_srv.pk_n18 NOT NULL
+, stplat_se_code sc_khb_srv.cd_v20
+, essntl_at sc_khb_srv.at_c1
+, file_cours_nm sc_khb_srv.nm_nv500
+, use_at sc_khb_srv.at_c1
+, register_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updusr_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, chnnl_id sc_khb_srv.id_nv100
 );
 
 alter table sc_khb_srv.tb_com_stplat_info add constraint pk_tb_com_stplat_info primary key(com_stplat_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_stplat_mapng
 CREATE TABLE sc_khb_srv.tb_com_stplat_mapng (
-  com_stplat_mapng_pk sc_khb_srv.decimal NOT NULL
-, com_stplat_info_pk sc_khb_srv.decimal
-, user_no_pk sc_khb_srv.decimal
-, stplat_agre_dt sc_khb_srv.datetime
-, stplat_reject_dt sc_khb_srv.datetime
+  com_stplat_mapng_pk sc_khb_srv.pk_n18 NOT NULL
+, com_stplat_info_pk sc_khb_srv.pk_n18
+, user_no_pk sc_khb_srv.pk_n18
+, stplat_agre_dt sc_khb_srv.dt
+, stplat_reject_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_stplat_mapng add constraint pk_tb_com_stplat_mapng primary key(com_stplat_mapng_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_svc_ip_manage
 CREATE TABLE sc_khb_srv.tb_com_svc_ip_manage (
-  ip_manage_pk sc_khb_srv.decimal NOT NULL
-, author_no_pk sc_khb_srv.decimal
-, ip_adres sc_khb_srv.nvarchar
-, ip_use_instt_nm sc_khb_srv.nvarchar
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  ip_manage_pk sc_khb_srv.pk_n18 NOT NULL
+, author_no_pk sc_khb_srv.pk_n18
+, ip_adres sc_khb_srv.addr_nv200
+, ip_use_instt_nm sc_khb_srv.nm_nv500
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_svc_ip_manage add constraint pk_tb_com_svc_ip_manage primary key(ip_manage_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -1278,29 +1418,27 @@ SET STATISTICS io ON;
 -- tb_com_user => 1521 + 1160 ms
 CREATE TABLE sc_khb_srv.tb_com_user (
   user_no_pk sc_khb_srv.pk_n18 NOT NULL
-, parnts_user_no_pk sc_khb_srv.decimal
-, user_id sc_khb_srv.nvarchar
-, user_nm sc_khb_srv.nvarchar
-, password sc_khb_srv.varchar
-, moblphon_no sc_khb_srv.varchar
-, email sc_khb_srv.varchar
-, user_se_code sc_khb_srv.varchar
-, sbscrb_de sc_khb_srv.varchar
-, password_change_de sc_khb_srv.varchar
-, last_login_dt sc_khb_srv.datetime
-, last_login_ip sc_khb_srv.varchar
-, error_co sc_khb_srv.decimal
-, error_dt sc_khb_srv.datetime
-, use_at sc_khb_srv.char
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
-, login_at sc_khb_srv.char
-, refresh_tkn_cn sc_khb_srv.nvarchar
+, parnts_user_no_pk sc_khb_srv.pk_n18
+, user_id sc_khb_srv.id_nv100
+, user_nm sc_khb_srv.nm_nv500
+, password sc_khb_srv.password_v500
+, moblphon_no sc_khb_srv.no_v200
+, email sc_khb_srv.email_v320
+, user_se_code sc_khb_srv.cd_v20
+, sbscrb_de sc_khb_srv.de_v10
+, password_change_de sc_khb_srv.de_v10
+, last_login_dt sc_khb_srv.dt
+, last_login_ip sc_khb_srv.ip_v100
+, error_co sc_khb_srv.co_n15
+, error_dt sc_khb_srv.dt
+, use_at sc_khb_srv.at_c1
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
+, refresh_tkn_cn sc_khb_srv.cn_nv4000
 , soc_lgn_ty_cd sc_khb_srv.cd_v20
 , user_img_url sc_khb_srv.url_nv4000
-, pltfom_se_cd sc_khb_srv.cd_v20
 , lrea_office_nm sc_khb_srv.nm_nv500
 , lrea_office_info_pk sc_khb_srv.pk_n18
 );
@@ -1325,15 +1463,17 @@ alter table sc_khb_srv.tb_com_user add constraint pk_tb_com_user primary key(use
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_com_user_author
 CREATE TABLE sc_khb_srv.tb_com_user_author (
-  user_author_pk sc_khb_srv.decimal NOT NULL
-, user_no_pk sc_khb_srv.decimal
-, author_no_pk sc_khb_srv.decimal
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  user_author_pk sc_khb_srv.pk_n18 NOT NULL
+, user_no_pk sc_khb_srv.pk_n18
+, author_no_pk sc_khb_srv.pk_n18
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_com_user_author add constraint pk_tb_com_user_author primary key(user_author_pk);
@@ -1343,13 +1483,13 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_com_user_group =>  ms
 CREATE TABLE sc_khb_srv.tb_com_user_group (
-  com_user_group_pk sc_khb_srv.decimal NOT NULL
-, group_no_pk sc_khb_srv.decimal NOT NULL
-, user_no_pk sc_khb_srv.decimal NOT NULL
-, regist_id sc_khb_srv.nvarchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  com_user_group_pk sc_khb_srv.pk_n18 NOT NULL
+, group_no_pk sc_khb_srv.pk_n18 NOT NULL
+, user_no_pk sc_khb_srv.pk_n18 NOT NULL
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 BULK INSERT sc_khb_srv.tb_com_user_group
@@ -1371,6 +1511,8 @@ alter table sc_khb_srv.tb_com_user_group add constraint pk_tb_com_user_group pri
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_com_user_ntcn_mapng_info =>  ms
 CREATE TABLE sc_khb_srv.tb_com_user_ntcn_mapng_info (
   user_ntcn_mapng_info_pk sc_khb_srv.pk_n18 NOT NULL
@@ -1385,6 +1527,7 @@ CREATE TABLE sc_khb_srv.tb_com_user_ntcn_mapng_info (
 
 alter table sc_khb_srv.tb_com_user_ntcn_mapng_info add constraint pk_tb_com_user_ntcn_mapng_info primary key(user_ntcn_mapng_info_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -1596,28 +1739,29 @@ alter table sc_khb_srv.tb_lttot_info add constraint pk_tb_lttot_info primary key
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- 
+-- tb_svc_bass_info
 CREATE TABLE sc_khb_srv.tb_svc_bass_info (
-  svc_pk sc_khb_srv.decimal NOT NULL
-, api_no_pk sc_khb_srv.decimal
-, svc_nm sc_khb_srv.nvarchar
-, svc_cl_code sc_khb_srv.varchar
-, svc_ty_code sc_khb_srv.varchar
-, svc_url sc_khb_srv.varchar
-, svc_cn sc_khb_srv.nvarchar
-, file_data_at sc_khb_srv.char
-, othbc_at sc_khb_srv.char
-, delete_at sc_khb_srv.char
-, inqire_co sc_khb_srv.decimal
-, use_provd_co sc_khb_srv.decimal
-, regist_id sc_khb_srv.varchar
-, regist_dt sc_khb_srv.datetime default (getdate())
-, updt_id sc_khb_srv.nvarchar
-, updt_dt sc_khb_srv.datetime
+  svc_pk sc_khb_srv.pk_n18 NOT NULL
+, api_no_pk sc_khb_srv.pk_n18
+, svc_nm sc_khb_srv.nm_nv500
+, svc_cl_code sc_khb_srv.cd_v20
+, svc_ty_code sc_khb_srv.cd_v20
+, svc_url sc_khb_srv.url_nv4000
+, svc_cn sc_khb_srv.cn_nv4000
+, file_data_at sc_khb_srv.at_c1
+, othbc_at sc_khb_srv.at_c1
+, delete_at sc_khb_srv.at_c1
+, inqire_co sc_khb_srv.co_n15
+, use_provd_co sc_khb_srv.co_n15
+, regist_id sc_khb_srv.id_nv100
+, regist_dt sc_khb_srv.dt default (getdate())
+, updt_id sc_khb_srv.id_nv100
+, updt_dt sc_khb_srv.dt
 );
 
 alter table sc_khb_srv.tb_svc_bass_info add constraint pk_tb_svc_bass_info primary key(svc_pk);
 
+SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -1893,8 +2037,6 @@ grant SELECT on sc_khb_srv.tb_lttot_info to us_khb_mptl;
 grant DELETE, INSERT, SELECT, UPDATE on sc_khb_srv.tb_user_atlfsl_img_info to us_khb_mptl;
 grant DELETE, INSERT, SELECT, UPDATE on sc_khb_srv.tb_user_atlfsl_info to us_khb_mptl;
 grant DELETE, INSERT, SELECT, UPDATE on sc_khb_srv.tb_user_atlfsl_preocupy_info to us_khb_mptl;
-
-
 
 
 

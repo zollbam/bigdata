@@ -37,7 +37,7 @@ SELECT
  ORDER BY 4, 5;
 
 
--- 인덱스 쿼리 스크립트 만들기(161)
+-- 인덱스 쿼리 스크립트 만들기
 WITH index_info AS (
 SELECT 
   i.name "index_name"

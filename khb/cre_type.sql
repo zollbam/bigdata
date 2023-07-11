@@ -1,7 +1,7 @@
 /*
 사용자 타입을 생성하는 파일
 작성 일시: 23-06-25
-수정 일시: 23-07-03
+수정 일시: 23-07-10
 작 성 자 : 조건영
 
 참조 사이트
@@ -18,8 +18,25 @@ SELECT
 , CASE WHEN charindex('_', COLUMN_NAME) = 0 THEN COLUMN_NAME
        ELSE substring(RIGHT(COLUMN_NAME,5), charindex('_', RIGHT(COLUMN_NAME,5)) +1, len(RIGHT(COLUMN_NAME,5)))
   END "마지막 용어"
+, CASE WHEN charindex('_', COLUMN_NAME) = 0 THEN COLUMN_NAME
+       ELSE substring(RIGHT(COLUMN_NAME,5), charindex('_', RIGHT(COLUMN_NAME,5)) +1, len(RIGHT(COLUMN_NAME,5)))
+  END + 
+  CASE WHEN DATA_TYPE = 'decimal' THEN concat('_', 'd', NUMERIC_PRECISION, '_', NUMERIC_SCALE)
+       WHEN DATA_TYPE = 'numeric' THEN concat('_', 'n', NUMERIC_PRECISION)
+       WHEN DATA_TYPE = 'char' THEN concat('_', 'c', CHARACTER_MAXIMUM_LENGTH)
+       WHEN DATA_TYPE = 'nchar' THEN concat('_', 'nc', CHARACTER_MAXIMUM_LENGTH)
+       WHEN DATA_TYPE = 'varchar' THEN CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_vmax'
+                                            ELSE concat('_', 'v', CHARACTER_MAXIMUM_LENGTH)
+                                       END
+       WHEN DATA_TYPE = 'nvarchar' THEN CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_nvmax'
+                                            ELSE concat('_', 'nv', CHARACTER_MAXIMUM_LENGTH)
+                                        END
+       WHEN DATA_TYPE IN ('date', 'datetime') THEN ''
+   END "열이름으로 만든 사용자 타입"
 , DOMAIN_NAME "사용자 타입"
-, CASE WHEN DATA_TYPE IN ('decimal', 'numeric') 
+, CASE WHEN DATA_TYPE = 'numeric'
+           THEN DATA_TYPE + '(' + CAST(NUMERIC_PRECISION AS varchar) + ')'
+       WHEN DATA_TYPE = 'decimal'
            THEN DATA_TYPE + '(' + CAST(NUMERIC_PRECISION AS varchar) + ', ' + CAST(NUMERIC_SCALE AS varchar) + ')'
 	   WHEN DATA_TYPE IN ('char', 'varchar', 'nchar', 'nvarchar') 
 	       THEN DATA_TYPE + '(' + 
@@ -166,15 +183,15 @@ create type sc_khb_srv.ordr_n5 from numeric(5);
 create type sc_khb_srv.password_v500 from varchar(500);
 create type sc_khb_srv.pc_n10 from numeric(10);
 create type sc_khb_srv.pd_nv50 from nvarchar(50);
-create type sc_khb_srv.pk_n18 from numeric(18, 0);
+create type sc_khb_srv.pk_n18 from numeric(18);
 create type sc_khb_srv.premium_n18 from numeric(18);
 create type sc_khb_srv.pyeong_d19_9 from decimal(19, 9);
 create type sc_khb_srv.size_v20 from varchar(20);
-create type sc_khb_srv.sn_v20 from varchar(20);
+create type sc_khb_srv.sn_v200 from varchar(200);
 create type sc_khb_srv.sno_n4 from numeric(4);
 create type sc_khb_srv.telno_v30 from varchar(30);
 create type sc_khb_srv.url_nv4000 from nvarchar(4000);
-create type sc_khb_srv.vl_n25_15 from numeric(25, 15);
+create type sc_khb_srv.vl_n25_15 from numeric(25);
 create type sc_khb_srv.vl_v100 from varchar(100);
 create type sc_khb_srv.year_c4 from char(4);
 create type sc_khb_srv.yn_c1 from char(1);
@@ -274,7 +291,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_adm;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_adm;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_adm;
 grant references on type::sc_khb_srv.size_v20 to us_khb_adm;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_adm;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_adm;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_adm;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_adm;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_adm;
@@ -323,7 +340,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_com;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_com;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_com;
 grant references on type::sc_khb_srv.size_v20 to us_khb_com;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_com;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_com;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_com;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_com;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_com;
@@ -372,7 +389,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_dev;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_dev;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_dev;
 grant references on type::sc_khb_srv.size_v20 to us_khb_dev;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_dev;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_dev;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_dev;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_dev;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_dev;
@@ -421,7 +438,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_exif;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_exif;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_exif;
 grant references on type::sc_khb_srv.size_v20 to us_khb_exif;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_exif;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_exif;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_exif;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_exif;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_exif;
@@ -470,7 +487,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_magnt;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_magnt;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_magnt;
 grant references on type::sc_khb_srv.size_v20 to us_khb_magnt;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_magnt;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_magnt;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_magnt;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_magnt;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_magnt;
@@ -519,7 +536,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_mptl;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_mptl;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_mptl;
 grant references on type::sc_khb_srv.size_v20 to us_khb_mptl;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_mptl;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_mptl;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_mptl;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_mptl;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_mptl;
@@ -568,7 +585,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_report;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_report;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_report;
 grant references on type::sc_khb_srv.size_v20 to us_khb_report;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_report;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_report;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_report;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_report;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_report;
@@ -617,7 +634,7 @@ grant references on type::sc_khb_srv.pk_n18 to us_khb_agnt;
 grant references on type::sc_khb_srv.premium_n18 to us_khb_agnt;
 grant references on type::sc_khb_srv.pyeong_d19_9 to us_khb_agnt;
 grant references on type::sc_khb_srv.size_v20 to us_khb_agnt;
-grant references on type::sc_khb_srv.sn_v20 to us_khb_agnt;
+grant references on type::sc_khb_srv.sn_v200 to us_khb_agnt;
 grant references on type::sc_khb_srv.sno_n4 to us_khb_agnt;
 grant references on type::sc_khb_srv.telno_v30 to us_khb_agnt;
 grant references on type::sc_khb_srv.url_nv4000 to us_khb_agnt;

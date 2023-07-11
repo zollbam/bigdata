@@ -141,6 +141,94 @@ SELECT * FROM product_info;
 -- product_batch_history
 
 
+-- product_info + ariticle
+select 
+  IFNULL(REPLACE(pi2.PRODUCT_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(KAR_MM_NO, CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(KAR_CONTENT_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(REALTOR_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(SIDO_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(GUGUN_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(DONG_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(atai.APT_NO,CONCAT(CHAR(10)), ''), '') -- article_ab
+, IFNULL(REPLACE(DANJI_DETAIL_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(substring(ifnull(ifnull(ifnull(atai.ARTICLE_TYPE, atci.ARTICLE_TYPE), atdi.ARTICLE_TYPE), atei.ARTICLE_TYPE), 1, 1),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.ARTICLE_TYPE, atci.ARTICLE_TYPE), atdi.ARTICLE_TYPE), atei.ARTICLE_TYPE),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(PRODUCT_CATE_CD,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(ADDR_CODE,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.CORTAR_NO, atci.CORTAR_NO), atdi.CORTAR_NO), atei.CORTAR_NO),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(BDONG_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(HDONG_NO,CONCAT(CHAR(10)), ''), '') -- product
+, CASE WHEN LENGTH(BON_NO)<=4 THEN IFNULL(REPLACE(BON_NO,CONCAT(CHAR(10)), ''), '') ELSE '' END -- product
+, CASE WHEN LENGTH(BU_NO)<=4 THEN IFNULL(REPLACE(BU_NO,CONCAT(CHAR(10)), ''), '') ELSE '' END -- product
+, case when length(ifnull(atai.APT_DONG, '')) = 0 then IFNULL(REPLACE(pi2.MM_DONG_NM,CONCAT(CHAR(10)), ''), '') 
+       else IFNULL(REPLACE(atai.APT_DONG,CONCAT(CHAR(10)), ''), '') 
+  END -- article_ab
+, CASE WHEN length(ifnull(atai.HO, '')) = 0 THEN IFNULL(REPLACE(pi2.HO_NM, CONCAT(CHAR(10)), ''), '') 
+       ELSE IFNULL(REPLACE(atai.HO, CONCAT(CHAR(10)), ''), '')
+  END  -- article_ab
+, CASE WHEN PRODUCT_LNG < 100 THEN IFNULL(REPLACE(concat('{"lng":',json_extract(PRODUCT_GEOCODE,'$.lat'), ',"lat:":', json_extract(PRODUCT_GEOCODE,'$.lng'),'}'),CONCAT(CHAR(10)), ''), '')
+       ELSE IFNULL(REPLACE(PRODUCT_GEOCODE,CONCAT(CHAR(10)), ''), '') 
+  END -- product
+, CASE WHEN PRODUCT_LNG > 100 THEN IFNULL(REPLACE(PRODUCT_LNG,CONCAT(CHAR(10)), ''), '') 
+       ELSE IFNULL(REPLACE(PRODUCT_LAT,CONCAT(CHAR(10)), ''), '') 
+  END -- product
+, CASE WHEN PRODUCT_LAT < 100 THEN IFNULL(REPLACE(PRODUCT_LAT,CONCAT(CHAR(10)), ''), '') 
+       ELSE IFNULL(REPLACE(PRODUCT_LNG,CONCAT(CHAR(10)), ''), '') 
+  END -- product
+, IFNULL(REPLACE(MM_TRANS_DATE,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(pi2.OPEN_APT_DONG_YN,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(pi2.OPEN_APT_TYPE_YN,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(pi2.VR_YN,CONCAT(CHAR(10)), ''), '') -- product 
+, IFNULL(REPLACE(pi2.IMG_YN,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(THEME_CDS,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(USER_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(USER_NM,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(USER_TEL_NO,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(CLICK_CNT,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.EXCLS_SPC, atci.EXCLS_SPC), atdi.EXCLS_SPC), atei.EXCLS_SPC),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.SPLY_SPC, atdi.SPLY_SPC), atei.SPLY_SPC),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.GRND_SPC, atdi.GRND_SPC), atei.GRND_SPC),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.BUILD_SPC, atdi.BUILD_SPC), atei.BUILD_SPC),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.ROOM, atci.ROOM), atdi.ROOM), atei.ROOM),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atai.RESTROOM, atci.RESTROOM), atdi.RESTROOM),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(VIEW_CNT,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(ifnull(atai.FLR_EXPS_TYPE, atci.FLR_EXPS_TYPE),CONCAT(CHAR(10)), ''), '')  -- article
+, IFNULL(REPLACE(ifnull(atai.FCOR_FLR_EXPS_TYPE, atci.FCOR_FLR_EXPS_TYPE),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.FLOOR, atci.FLOOR), atdi.FLOOR), atei.FLOOR),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.TOTAL_FLOOR, atci.TOTAL_FLOOR), atdi.TOTAL_FLOOR), atei.TOTAL_FLOOR),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.UPFLR_CNT, atdi.UPFLR_CNT), atei.UPFLR_CNT),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.DNFLR_CNT, atdi.DNFLR_CNT), atei.DNFLR_CNT),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(atai.STAIR_CD, atci.STAIR_CD),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.DIRECTION, atci.DIRECTION), atdi.DIRECTION), atei.DIRECTION),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(atai.BALCONY_CD, atci.BALCONY_CD),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.PLACE, atdi.PLACE), atei.PLACE),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.PARKING_PSBL, atdi.PARKING_PSBL), atei.PARKING_PSBL),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(atci.PARKING, atdi.PARKING), atei.PARKING),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.C_DATE, atci.C_DATE), atdi.C_DATE), atei.C_DATE),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(atai.LOAN_PRICE,CONCAT(CHAR(10)), ''), '') -- article_ab
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(ifnull(pi2.STAT, atai.STAT), atci.STAT), atdi.STAT), atei.STAT),CONCAT(CHAR(10)), ''), '') -- product + article
+, IFNULL(REPLACE(CLUSTER_STATE,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(PUSH_STATE,CONCAT(CHAR(10)), ''), '') -- product
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.REG_DT, atci.REG_DT), atdi.REG_DT), atei.REG_DT),CONCAT(CHAR(10)), ''), '') -- article
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.UPDT_DT, atci.UPDT_DT), atdi.UPDT_DT), atei.UPDT_DT),CONCAT(CHAR(10)), ''), '') -- article
+into outfile '/var/lib/mysql/backup/product_info_new.txt'
+        CHARACTER SET utf8
+        FIELDS TERMINATED BY '||'
+        LINES TERMINATED BY '\n'
+  from hanbang.product_info pi2 
+       left join hanbang.article_type_ab_info atai
+                    on atai.PRODUCT_NO = pi2.PRODUCT_NO 
+       left join hanbang.article_type_c_info atci
+                    on atci.PRODUCT_NO = pi2.PRODUCT_NO 
+       left join hanbang.article_type_d_info atdi
+                    on atdi.PRODUCT_NO = pi2.PRODUCT_NO 
+                   and atdi.SPLY_SPC <> 333333333335
+       left join hanbang.article_type_ef_info atei
+                    on atei.PRODUCT_NO = pi2.PRODUCT_NO 
+ where pi2.PRODUCT_CATE_CD not in ('03', '04') -- 주상복합, 주상복합분양권 제외
+ LIMIT 10000000;
+
 -- product_info
 select 
   IFNULL(REPLACE(PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
@@ -183,12 +271,12 @@ select
 , IFNULL(REPLACE(VIEW_CNT,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(CLUSTER_STATE,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(PUSH_STATE,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/product_info_en.txt'
-        CHARACTER SET utf8
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
+-- into outfile '/var/lib/mysql/backup/product_info_en.txt'
+--         CHARACTER SET utf8
+--         FIELDS TERMINATED BY '||'
+--         LINES TERMINATED BY '\n'
   FROM hanbang.product_info
- WHERE REALTOR_NO != 0
+ WHERE REALTOR_NO != 0;
  LIMIT 10000000;
 
 SELECT count(*)
