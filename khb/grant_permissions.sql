@@ -1,7 +1,7 @@
 /*
 테이블, 시퀀스, 함수, 등 권한을 확인하는 작업
 작성 일시: 23-06-25
-수정 일시: 23-07-03
+수정 일시: 23-07-12
 작 성 자 : 조건영
 */
 
@@ -19,6 +19,39 @@ SELECT
   FROM sys.DATABASE_permissions dp
  WHERE class_desc != 'DATABASE' AND grantee_principal_id != 0
  GROUP BY class_desc, major_id, grantee_principal_id;
+
+-- 권한 부여 정보 확인(테이블) => long
+SELECT
+  class_desc "클래스 설명"
+, object_name(major_id) "객체명"
+, user_name(grantee_principal_id) "권한 받은 유저"
+, permission_name "권한명"
+  FROM sys.DATABASE_permissions
+ WHERE class_desc != 'DATABASE' 
+       AND 
+       grantee_principal_id != 0
+       AND 
+       object_name(major_id) = ANY(SELECT name FROM sys.tables WHERE schema_id = 5)
+ ORDER BY 2, 3;
+
+-- 권한 부여 정보 확인(테이블) => wide
+SELECT *
+  FROM (SELECT
+  class_desc "클래스 설명"
+, object_name(major_id) "객체명"
+, user_name(grantee_principal_id) "권한 받은 유저"
+, permission_name "권한명"
+, 'O' "res"
+  FROM sys.DATABASE_permissions 
+  WHERE class_desc != 'DATABASE' 
+       AND 
+       grantee_principal_id != 0
+       AND 
+       object_name(major_id) = ANY(SELECT name FROM sys.tables WHERE schema_id = 5)
+ ) AS a
+ PIVOT (
+        count(a.res) FOR "권한명" IN ([INSERT], [SELECT], [UPDATE], [DELETE])
+       ) AS pivot_res;
 
 -- 권한 부여 스크립트 작성 쿼리문(테이블)
 SELECT 
@@ -41,7 +74,7 @@ SELECT
        object_name(major_id) = ANY(SELECT name FROM sys.tables WHERE schema_id = 5)
  GROUP BY class_desc, major_id, grantee_principal_id
  ORDER BY 2,3;
-SELECT * FROM sys.tables;
+
 -- 권한 부여 스크립트 작성 쿼리문(사용자 타입)
 SELECT 
   class_desc
