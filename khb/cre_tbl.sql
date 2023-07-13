@@ -1,8 +1,9 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 23-07-10
+수정 일시: 23-07-13
 작 성 자 : 조건영
+
 */
 
 -- 테이블의 열 정보(열번호 맞게 => comment 전부 보여줌)
@@ -36,8 +37,10 @@ FROM sys.columns c
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 WHERE ccu.TABLE_SCHEMA = 'sc_khb_srv'
-      AND
-      object_name(c.object_id) = 'tb_atlfsl_bsc_info'
+--      AND
+--      object_name(c.object_id) = 'tb_atlfsl_bsc_info'
+--      AND 
+--      type_name(c.user_type_id) = 'co_n15'
 ORDER BY 1, c.column_id;
 
 -- 컬럼 이름에 맞는 사용자 타입 찾기
@@ -587,14 +590,14 @@ CREATE TABLE sc_khb_srv.tb_com_author (
 , parnts_author_no_pk sc_khb_srv.pk_n18
 , author_nm sc_khb_srv.nm_nv500
 , rm_cn sc_khb_srv.cn_nv4000
-, use_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
 , valid_pd_begin_dt sc_khb_srv.dt
 , valid_pd_end_dt sc_khb_srv.dt
 , regist_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
 , updt_dt sc_khb_srv.dt
-, orgnzt_manage_at sc_khb_srv.at_c1
+, orgnzt_manage_at sc_khb_srv.yn_c1
 );
 
 alter table sc_khb_srv.tb_com_author add constraint pk_tb_com_author primary key(author_no_pk);
@@ -695,7 +698,7 @@ CREATE TABLE sc_khb_srv.tb_com_code (
 , code sc_khb_srv.cd_v20 NOT NULL
 , code_nm sc_khb_srv.nm_nv500 NOT NULL
 , sort_ordr sc_khb_srv.ordr_n5
-, use_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
 , regist_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
@@ -742,12 +745,12 @@ CREATE TABLE sc_khb_srv.tb_com_crtfc_tmpr (
 , soc_lgn_ty_cd sc_khb_srv.cd_v20
 , moblphon_no sc_khb_srv.no_v200
 , moblphon_crtfc_sn sc_khb_srv.sn_v200
-, moblphon_crtfc_at sc_khb_srv.at_c1
+, moblphon_crtfc_at sc_khb_srv.yn_c1
 , email sc_khb_srv.email_v320
 , email_crtfc_sn sc_khb_srv.sn_v200
-, email_crtfc_at sc_khb_srv.at_c1
+, email_crtfc_at sc_khb_srv.yn_c1
 , sns_crtfc_sn sc_khb_srv.sn_v200
-, sns_crtfc_at sc_khb_srv.at_c1
+, sns_crtfc_at sc_khb_srv.yn_c1
 , regist_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
@@ -920,7 +923,7 @@ CREATE TABLE sc_khb_srv.tb_com_file (
 , file_size sc_khb_srv.size_v20
 , dwld_co sc_khb_srv.co_n15
 , extsn_nm sc_khb_srv.nm_nv500
-, delete_at sc_khb_srv.at_c1
+, delete_at sc_khb_srv.yn_c1
 , regist_dt sc_khb_srv.dt default (getdate())
 , regist_id sc_khb_srv.id_nv100
 , delete_dt sc_khb_srv.dt
@@ -951,7 +954,7 @@ CREATE TABLE sc_khb_srv.tb_com_group (
   group_no_pk sc_khb_srv.pk_n18 NOT NULL
 , parnts_group_no_pk sc_khb_srv.pk_n18
 , group_nm sc_khb_srv.nm_nv500
-, use_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
 , rm_cn sc_khb_srv.cn_nv4000
 , valid_pd_begin_dt sc_khb_srv.dt
 , valid_pd_end_dt sc_khb_srv.dt
@@ -990,7 +993,7 @@ CREATE TABLE sc_khb_srv.tb_com_gtwy_svc (
 , gtwy_nm sc_khb_srv.nm_nv500
 , gtwy_url sc_khb_srv.url_nv4000
 , rm_cn sc_khb_srv.cn_nv4000
-, use_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
 , regist_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
@@ -1065,7 +1068,7 @@ CREATE TABLE sc_khb_srv.tb_com_login_hist (
   login_hist_pk sc_khb_srv.pk_n18 NOT NULL
 , user_id sc_khb_srv.id_nv100
 , login_ip_adres sc_khb_srv.addr_nv200
-, error_at sc_khb_srv.at_c1
+, error_at sc_khb_srv.yn_c1
 , error_code sc_khb_srv.cd_v20
 , error_cn sc_khb_srv.cn_nv4000
 , regist_id sc_khb_srv.id_nv100
@@ -1086,14 +1089,14 @@ CREATE TABLE sc_khb_srv.tb_com_menu (
 , parnts_menu_no_pk sc_khb_srv.pk_n18
 , menu_nm sc_khb_srv.nm_nv500
 , sort_ordr sc_khb_srv.ordr_n5
-, use_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
 , rm_cn sc_khb_srv.cn_nv4000
 , regist_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
 , updt_dt sc_khb_srv.dt
 , scrin_no_pk sc_khb_srv.pk_n18
-, orgnzt_manage_at sc_khb_srv.at_c1
+, orgnzt_manage_at sc_khb_srv.yn_c1
 , aplctn_code sc_khb_srv.cd_v20
 );
 
@@ -1130,7 +1133,7 @@ CREATE TABLE sc_khb_srv.tb_com_notice (
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
 , updt_dt sc_khb_srv.dt
-, notice_at sc_khb_srv.at_c1
+, notice_at sc_khb_srv.yn_c1
 , notice_se_code sc_khb_srv.cd_v20
 , svc_se_code sc_khb_srv.cd_v20
 );
@@ -1190,7 +1193,7 @@ CREATE TABLE sc_khb_srv.tb_com_qna (
 , parnts_qna_no_pk sc_khb_srv.pk_n18
 , sj_nm sc_khb_srv.nm_nv500
 , rm_cn sc_khb_srv.cn_nv4000
-, secret_no_at sc_khb_srv.at_c1
+, secret_no_at sc_khb_srv.yn_c1
 , secret_no sc_khb_srv.no_n15
 , inqire_co sc_khb_srv.co_n15
 , answer_dp_no sc_khb_srv.no_n15
@@ -1212,7 +1215,7 @@ CREATE TABLE sc_khb_srv.tb_com_recsroom (
 , sj_nm sc_khb_srv.nm_nv500
 , rm_cn sc_khb_srv.cn_nv4000
 , inqire_co sc_khb_srv.co_n15
-, file_use_at sc_khb_srv.at_c1
+, file_use_at sc_khb_srv.yn_c1
 , regist_dt sc_khb_srv.dt default (getdate())
 , regist_id sc_khb_srv.id_nv100
 , updt_dt sc_khb_srv.dt
@@ -1255,12 +1258,12 @@ CREATE TABLE sc_khb_srv.tb_com_scrin (
 , scrin_nm sc_khb_srv.nm_nv500
 , scrin_url sc_khb_srv.url_nv4000
 , rm_cn sc_khb_srv.cn_nv4000
-, use_at sc_khb_srv.at_c1
-, creat_author_at sc_khb_srv.at_c1
-, inqire_author_at sc_khb_srv.at_c1
-, updt_author_at sc_khb_srv.at_c1
-, delete_author_at sc_khb_srv.at_c1
-, excel_author_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
+, creat_author_at sc_khb_srv.yn_c1
+, inqire_author_at sc_khb_srv.yn_c1
+, updt_author_at sc_khb_srv.yn_c1
+, delete_author_at sc_khb_srv.yn_c1
+, excel_author_at sc_khb_srv.yn_c1
 , regist_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
@@ -1318,7 +1321,7 @@ CREATE TABLE sc_khb_srv.tb_com_stplat_hist (
   com_stplat_hist_pk sc_khb_srv.pk_n18 NOT NULL
 , com_stplat_info_pk sc_khb_srv.pk_n18 NOT NULL
 , stplat_se_code sc_khb_srv.cd_v20
-, essntl_at sc_khb_srv.at_c1
+, essntl_at sc_khb_srv.yn_c1
 , file_cours_nm sc_khb_srv.nm_nv500
 , stplat_begin_dt sc_khb_srv.dt
 , stplat_end_dt sc_khb_srv.dt
@@ -1335,9 +1338,9 @@ CREATE TABLE sc_khb_srv.tb_com_stplat_info (
   com_stplat_info_pk sc_khb_srv.pk_n18 NOT NULL
 , svc_pk sc_khb_srv.pk_n18 NOT NULL
 , stplat_se_code sc_khb_srv.cd_v20
-, essntl_at sc_khb_srv.at_c1
+, essntl_at sc_khb_srv.yn_c1
 , file_cours_nm sc_khb_srv.nm_nv500
-, use_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
 , register_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updusr_id sc_khb_srv.id_nv100
@@ -1431,7 +1434,7 @@ CREATE TABLE sc_khb_srv.tb_com_user (
 , last_login_ip sc_khb_srv.ip_v100
 , error_co sc_khb_srv.co_n15
 , error_dt sc_khb_srv.dt
-, use_at sc_khb_srv.at_c1
+, use_at sc_khb_srv.yn_c1
 , regist_id sc_khb_srv.id_nv100
 , regist_dt sc_khb_srv.dt default (getdate())
 , updt_id sc_khb_srv.id_nv100
@@ -1748,9 +1751,9 @@ CREATE TABLE sc_khb_srv.tb_svc_bass_info (
 , svc_ty_code sc_khb_srv.cd_v20
 , svc_url sc_khb_srv.url_nv4000
 , svc_cn sc_khb_srv.cn_nv4000
-, file_data_at sc_khb_srv.at_c1
-, othbc_at sc_khb_srv.at_c1
-, delete_at sc_khb_srv.at_c1
+, file_data_at sc_khb_srv.yn_c1
+, othbc_at sc_khb_srv.yn_c1
+, delete_at sc_khb_srv.yn_c1
 , inqire_co sc_khb_srv.co_n15
 , use_provd_co sc_khb_srv.co_n15
 , regist_id sc_khb_srv.id_nv100
@@ -2047,8 +2050,46 @@ grant DELETE, INSERT, SELECT, UPDATE on sc_khb_srv.tb_user_atlfsl_preocupy_info 
 
 
 
+-- 해당 용어가 com인지 app인지 확인
+SELECT 
+  table_name
+, COLUMN_NAME 
+  FROM information_schema.columns
+ WHERE 
+--       (COLUMN_NAME LIKE 'at'
+--       OR
+       COLUMN_NAME LIKE '%:_at' ESCAPE ':'
+       OR
+--       COLUMN_NAME LIKE '%at:_%' ESCAPE ':')
+--       AND
+       TABLE_SCHEMA = 'sc_khb_srv'
+ ORDER BY 1;
 
-
+-- 해당 용어의 데이터의 중복값을 제거하고 데이터 확인
+SELECT 
+  'select distinct ' + char(10) + 
+  '  ''' + a.table_name + ''' "table_name"' + char(10) +
+  ', ''' + a.column_name + ''' "column_name"' + char(10) +
+  ', ' + 'cast(' + a.column_name + ' as varchar(50))' + ' "result"' + char(10) +
+  '  from sc_khb_srv.' + a.table_name + char(10) + 
+  'union'
+FROM(
+    SELECT 
+      table_name
+    , COLUMN_NAME 
+      FROM information_schema.columns
+     WHERE 
+--          (
+           COLUMN_NAME LIKE '%:_yn' ESCAPE ':'
+--           OR
+--           COLUMN_NAME LIKE '%at:_%' ESCAPE ':'
+--)
+           AND
+           COLUMN_NAME NOT LIKE '%:_pk' ESCAPE ':'
+           AND
+           COLUMN_NAME NOT LIKE '%:_dt' ESCAPE ':'
+           AND 
+           table_schema = 'sc_khb_srv') a;
 
 
 

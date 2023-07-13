@@ -1,7 +1,7 @@
 /*
 시퀀스를 생성 및 업데이트
 시작 일시: 23-06-28
-수정 일시: 23-07-11
+수정 일시: 23-07-13
 작 성 자: 조건영
 작성 목적 : 시퀀스의 생성 및 권한 부여
 사용 DB : mssql 2016
@@ -752,6 +752,56 @@ SELECT
 , current_value
   FROM sys.sequences
  ORDER BY 1;
+
+
+-- 시퀀스 생성 쿼리문 스크립트 작성(161)
+SELECT
+  replace(name, 'sq_', 'tb_') "테이블명"
+, name "시퀀스명"
+, 'drop sequence ' + schema_name(schema_id) + '.' + name + ';' "시퀀스 삭제 쿼리문"
+  FROM sys.sequences
+ WHERE schema_id = 5
+ ORDER BY 1;
+
+-- 테이블이 없는 시퀀스 삭제
+SELECT 
+  name "시퀀스명"
+, 'drop sequence ' + schema_name(schema_id) + '.' + name + ';' "시퀀스 삭제 쿼리문"
+  FROM sys.sequences s1
+ WHERE s1.name NOT IN (
+                       SELECT s.name "seq_nm"
+                         FROM information_schema.tables t
+                              INNER join
+                              sys.sequences s
+                                  ON t.TABLE_NAME = replace(s.name, 'sq_', 'tb_'))
+ ORDER BY 1;
+
+
+
+
+CREATE SEQUENCE sc_khb_srv.sq_atlfsl_batch_hstry
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    MAXVALUE 999999999999999999
+    CACHE;
+   
+   
+CREATE SEQUENCE sc_khb_srv.a
+	START WITH 1
+	INCREMENT BY 1
+	MINVALUE 1
+	MAXVALUE 444
+	cache;
+	
+	
+grant alter on sc_khb_srv.a to us_khb_exif;
+grant update on sc_khb_srv.a to us_khb_exif;
+grant control on sc_khb_srv.a to us_khb_exif;
+
+REVOKE UPDATE, ALTER,  control on sc_khb_srv.a from us_khb_exif;
+
+
 
 
 
