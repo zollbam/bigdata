@@ -1,7 +1,7 @@
 /*
 pk와 fk를 작성하는 쿼리문을 추출하는 파일
 작성 일시: 230623
-수정 일시: 230629
+수정 일시: 230714
 작 성 자 : 조건영
 */
 
@@ -70,18 +70,20 @@ SELECT *
 SELECT *
   FROM sys.foreign_key_columns;
 
-
 -- fk를 만들기 위한 정보(161)
 SELECT 
-  object_name(constraint_object_id) "fk_name"
-, object_name(parent_object_id) "table_name"
-, parent_object_id "table_id"
-, parent_column_id "column_id"
-, object_name(referenced_object_id) "refer_table_name"
-, referenced_object_id "refer_table_id"
-, referenced_column_id "refer_column_id"
+  object_name(constraint_object_id) "FK 제약조건명"
+, object_name(parent_object_id) "기준 테이블명"
+, c.COLUMN_NAME "기준 컬럼명"
+, object_name(referenced_object_id) "참조 테이블명"
+, c.COLUMN_NAME "참조 컬럼명"
   FROM sys.foreign_key_columns fkc
- ORDER BY 1;
+       INNER join
+       information_schema.columns c
+           ON object_name(fkc.parent_object_id) = c.TABLE_NAME
+              AND
+              fkc.referenced_column_id = c.ORDINAL_POSITION
+ ORDER BY 4, 2;
 
 SELECT 
   a.constraint_name
@@ -160,19 +162,20 @@ SELECT
  ORDER BY 1, 2;
 
 -- fk생성 및 생성 안되는 이유
+
 alter table sc_khb_srv.tb_atlfsl_batch_hstry 
 add constraint fk_tb_atlfsl_batch_hstry_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
 	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
-/*아직 sc_khb_srv.tb_atlfsl_batch_hstry라는 테이블 없음*/
+/*배치 이력에 매물 타입이 03과 04 인 매물 번호가 들어가 있어서 충돌 발생*/
 -----------------------------------------------------------------------------------------------------------------------------------
 alter table sc_khb_srv.tb_atlfsl_batch_hstry 
 add constraint fk_tb_atlfsl_batch_hstry_tb_atlfsl_info_app 
 foreign key (cntnts_no) 
 	references sc_khb_srv.tb_atlfsl_info_app(cntnts_no);
 
-/*아직 sc_khb_srv.tb_atlfsl_batch_hstry라는 테이블 없음*/
+/*아직 sc_khb_srv.tb_atlfsl_info_app 라는 테이블 없음*/
 -----------------------------------------------------------------------------------------------------------------------------------
 alter table sc_khb_srv.tb_atlfsl_bsc_info 
 add constraint fk_tb_atlfsl_bsc_info_tb_lrea_office_info 
@@ -356,6 +359,33 @@ foreign key (lrea_office_info_pk)
 
 /*tb_atlfsl_bsc_info에 중개사 번호가 0인 데이터 존재해서 실패!!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+alter table sc_khb_srv.tb_atlfsl_inqry_info add constraint fk_tb_atlfsl_inqry_info_tb_atlfsl_bsc_info foreign key (atlfsl_bsc_info_pk) references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+alter table sc_khb_srv.tb_com_group_author add constraint fk_tb_com_group_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
+alter table sc_khb_srv.tb_com_gtwy_svc_author add constraint fk_tb_com_gtwy_svc_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
+alter table sc_khb_srv.tb_com_menu_author add constraint fk_tb_com_menu_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
+alter table sc_khb_srv.tb_com_scrin_author add constraint fk_tb_com_scrin_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
+alter table sc_khb_srv.tb_com_svc_ip_manage add constraint fk_tb_com_svc_ip_manage_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
+alter table sc_khb_srv.tb_com_user_author add constraint fk_tb_com_user_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
+alter table sc_khb_srv.tb_com_emd_li_cd add constraint fk_tb_com_emd_li_cd_tb_com_ctpv_cd foreign key (ctpv_cd_pk) references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
+alter table sc_khb_srv.tb_com_file add constraint fk_tb_com_file_tb_com_file_mapng foreign key (file_no_pk) references sc_khb_srv.tb_com_file_mapng(file_no_pk);
+alter table sc_khb_srv.tb_com_group_author add constraint fk_tb_com_group_author_tb_com_group foreign key (group_no_pk) references sc_khb_srv.tb_com_group(group_no_pk);
+alter table sc_khb_srv.tb_com_user_group add constraint fk_tb_com_user_group_tb_com_group foreign key (group_no_pk) references sc_khb_srv.tb_com_group(group_no_pk);
+alter table sc_khb_srv.tb_com_gtwy_svc_author add constraint fk_tb_com_gtwy_svc_author_tb_com_gtwy_svc foreign key (gtwy_svc_pk) references sc_khb_srv.tb_com_gtwy_svc(gtwy_svc_pk);
+alter table sc_khb_srv.tb_com_menu_author add constraint fk_tb_com_menu_author_tb_com_menu foreign key (menu_no_pk) references sc_khb_srv.tb_com_menu(menu_no_pk);
+alter table sc_khb_srv.tb_com_file_mapng add constraint fk_tb_com_file_mapng_tb_com_recsroom foreign key (recsroom_no_pk) references sc_khb_srv.tb_com_recsroom(recsroom_no_pk);
+alter table sc_khb_srv.tb_com_menu add constraint fk_tb_com_menu_tb_com_scrin foreign key (scrin_no_pk) references sc_khb_srv.tb_com_scrin(scrin_no_pk);
+alter table sc_khb_srv.tb_com_scrin_author add constraint fk_tb_com_scrin_author_tb_com_scrin foreign key (scrin_no_pk) references sc_khb_srv.tb_com_scrin(scrin_no_pk);
+alter table sc_khb_srv.tb_com_stplat_hist add constraint fk_tb_com_stplat_hist_tb_com_stplat_info foreign key (com_stplat_info_pk) references sc_khb_srv.tb_com_stplat_info(com_stplat_info_pk);
+alter table sc_khb_srv.tb_com_stplat_mapng add constraint fk_tb_com_stplat_mapng_tb_com_stplat_info foreign key (com_stplat_info_pk) references sc_khb_srv.tb_com_stplat_info(com_stplat_info_pk);
+--alter table sc_khb_srv.tb_atlfsl_bsc_info add constraint fk_tb_atlfsl_bsc_info_tb_lrea_office_info foreign key (lrea_office_info_pk) references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
+alter table sc_khb_srv.tb_itrst_atlfsl_info add constraint fk_tb_itrst_atlfsl_info_tb_lrea_office_info foreign key (lrea_office_info_pk) references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
+alter table sc_khb_srv.tb_user_atlfsl_preocupy_info add constraint fk_tb_user_atlfsl_preocupy_info_tb_lrea_office_info foreign key (lrea_office_info_pk) references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
 
 
 

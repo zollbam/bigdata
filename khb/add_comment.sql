@@ -1,7 +1,7 @@
 /*
 확장속성(comment)을 추가하는 파일
 작성 일시: 230624
-수정 일시: 230711
+수정 일시: 230714
 작 성 자 : 조건영 
 작성 목적 : 테이블과 컬럼에 comment를 복사하여 쿼리문을 만들기 위해 만듬
 사용 DB : mssql 2016
@@ -48,7 +48,7 @@ SELECT DISTINCT
 SELECT DISTINCT t.name "테이블명",
 	   'EXEC SP_DROPEXTENDEDPROPERTY @name=N''MS_Description'', ' +
 	   ' @level0type=N''SCHEMA'', @level0name=N''' + ccu.TABLE_SCHEMA + 
-	   ''', @level1type=N''TABLE'', @level1name=N''' + t.name + ''';'
+	   ''', @level1type=N''TABLE'', @level1name=N''' + t.name + ''';' "확장속성 삭제 쿼리"
   FROM sys.tables t
        INNER JOIN
        information_schema.constraint_column_usage ccu
@@ -57,22 +57,6 @@ SELECT DISTINCT t.name "테이블명",
        sys.extended_properties ep
            ON t.name = object_name(ep.major_id)
 -- WHERE t.name = 'tb_com_banner_info' -- 컬럼명 조건
- ORDER BY 1;
-
--- 테이블 확장 속성 삭제 쿼리 작성
-SELECT DISTINCT
-  t.TABLE_NAME "테이블명"
-, 'EXEC SP_DROPEXTENDEDPROPERTY @name=N''MS_Description'', ' +
-  '@level0type=N''SCHEMA'', @level0name=N''' + t.TABLE_SCHEMA +
-  ''', @level1type=N''TABLE'', @level1name=N''' + t.table_name + ''';' "확장속성 삭제 쿼리"
-  FROM (SELECT TABLE_SCHEMA, TABLE_NAME 
-          FROM information_schema.tables) t
-               LEFT join
-       (SELECT object_name(major_id) "TABLE_NAME",  value
-          FROM sys.extended_properties
-         WHERE minor_id = 0) ep
-                   ON t.TABLE_NAME = ep."TABLE_NAME"
- WHERE t.TABLE_SCHEMA = 'sc_khb_srv'
  ORDER BY 1;
 
 -- 컬럼 확장 속성 삭제 쿼리 작성
@@ -231,6 +215,9 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'클러스터_정�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'PUSH_상태_코드', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_bsc_info', @level2type=N'COLUMN', @level2name=N'push_stts_cd';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_bsc_info', @level2type=N'COLUMN', @level2name=N'reg_dt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_bsc_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'추천_여부', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_bsc_info', @level2type=N'COLUMN', @level2name=N'rcmdtn_yn';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'경매_여부', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_bsc_info', @level2type=N'COLUMN', @level2name=N'auc_yn';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_상태_코드', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_bsc_info', @level2type=N'COLUMN', @level2name=N'atlfsl_stts_cd';
 -----------------------------------------------------------------------------------
 -- tb_atlfsl_cfr_fclt_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_주변_시설_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_cfr_fclt_info', @level2type=N'COLUMN', @level2name=N'atlfsl_cfr_fclt_info_pk';

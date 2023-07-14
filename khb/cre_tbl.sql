@@ -1,10 +1,26 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 23-07-13
+수정 일시: 23-07-14
 작 성 자 : 조건영
 
 */
+
+-- 테이블 정보
+SELECT 
+  object_name(ep.major_id) "테이블명"
+, ep.value "테이블명(한글)"
+  FROM sys.extended_properties ep
+       INNER JOIN
+       information_schema.tables t 
+           ON object_name(ep.major_id) = t.TABLE_NAME
+ WHERE ep.minor_id = 0
+       AND 
+       t.TABLE_SCHEMA = 'sc_khb_srv'
+       AND 
+       CAST(ep.value AS varchar) NOT LIKE '%공통%'
+--       CAST(ep.value AS varchar) LIKE '%공통%'
+ ORDER BY 1;
 
 -- 테이블의 열 정보(열번호 맞게 => comment 전부 보여줌)
 SELECT DISTINCT
@@ -37,8 +53,8 @@ FROM sys.columns c
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 WHERE ccu.TABLE_SCHEMA = 'sc_khb_srv'
---      AND
---      object_name(c.object_id) = 'tb_atlfsl_bsc_info'
+      AND
+      object_name(c.object_id) = 'tb_atlfsl_bsc_info'
 --      AND 
 --      type_name(c.user_type_id) = 'co_n15'
 ORDER BY 1, c.column_id;
