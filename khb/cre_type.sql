@@ -1,7 +1,7 @@
 /*
 사용자 타입을 생성하는 파일
 작성 일시: 23-06-25
-수정 일시: 23-07-10
+수정 일시: 23-07-11
 작 성 자 : 조건영
 
 참조 사이트
@@ -151,13 +151,11 @@ SELECT user_type_name,
 create type sc_khb_srv.addr_nv200 from nvarchar(200);
 create type sc_khb_srv.amt_n18 from numeric(18);
 create type sc_khb_srv.area_d19_9 from decimal(19, 9);
-create type sc_khb_srv.at_c1 from char(1);
 create type sc_khb_srv.cd_v20 from varchar(20);
 create type sc_khb_srv.cn_nv4000 from nvarchar(4000);
 create type sc_khb_srv.cn_nvmax from nvarchar(max);
 create type sc_khb_srv.cnt_n15 from numeric(15);
 create type sc_khb_srv.cntom_n15 from numeric(15);
-create type sc_khb_srv.co_n15 from numeric(15);
 create type sc_khb_srv.cours_v100 from varchar(100);
 create type sc_khb_srv.crdnt_v500 from varchar(500);
 create type sc_khb_srv.cycle_v20 from varchar(20);
@@ -191,7 +189,6 @@ create type sc_khb_srv.sn_v200 from varchar(200);
 create type sc_khb_srv.sno_n4 from numeric(4);
 create type sc_khb_srv.telno_v30 from varchar(30);
 create type sc_khb_srv.url_nv4000 from nvarchar(4000);
-create type sc_khb_srv.vl_n25_15 from numeric(25);
 create type sc_khb_srv.vl_v100 from varchar(100);
 create type sc_khb_srv.year_c4 from char(4);
 create type sc_khb_srv.yn_c1 from char(1);
@@ -642,6 +639,8 @@ grant references on type::sc_khb_srv.vl_n25_15 to us_khb_agnt;
 grant references on type::sc_khb_srv.vl_v100 to us_khb_agnt;
 grant references on type::sc_khb_srv.year_c4 to us_khb_agnt;
 grant references on type::sc_khb_srv.yn_c1 to us_khb_agnt;
+
+
 
 
 

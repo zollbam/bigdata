@@ -117,7 +117,6 @@ SELECT
            ON a.constraint_name = b.constraint_name
  ORDER BY 2, 4;
 
-
 -- fk 쿼리문 만들기(161)
 /*
 ALTER TABLE sc_khb_srv.tb_atlfsl_cfr_fclt_info
@@ -359,37 +358,6 @@ foreign key (lrea_office_info_pk)
 
 /*tb_atlfsl_bsc_info에 중개사 번호가 0인 데이터 존재해서 실패!!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-alter table sc_khb_srv.tb_atlfsl_inqry_info add constraint fk_tb_atlfsl_inqry_info_tb_atlfsl_bsc_info foreign key (atlfsl_bsc_info_pk) references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
-alter table sc_khb_srv.tb_com_group_author add constraint fk_tb_com_group_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
-alter table sc_khb_srv.tb_com_gtwy_svc_author add constraint fk_tb_com_gtwy_svc_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
-alter table sc_khb_srv.tb_com_menu_author add constraint fk_tb_com_menu_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
-alter table sc_khb_srv.tb_com_scrin_author add constraint fk_tb_com_scrin_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
-alter table sc_khb_srv.tb_com_svc_ip_manage add constraint fk_tb_com_svc_ip_manage_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
-alter table sc_khb_srv.tb_com_user_author add constraint fk_tb_com_user_author_tb_com_author foreign key (author_no_pk) references sc_khb_srv.tb_com_author(author_no_pk);
-alter table sc_khb_srv.tb_com_emd_li_cd add constraint fk_tb_com_emd_li_cd_tb_com_ctpv_cd foreign key (ctpv_cd_pk) references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
-alter table sc_khb_srv.tb_com_file add constraint fk_tb_com_file_tb_com_file_mapng foreign key (file_no_pk) references sc_khb_srv.tb_com_file_mapng(file_no_pk);
-alter table sc_khb_srv.tb_com_group_author add constraint fk_tb_com_group_author_tb_com_group foreign key (group_no_pk) references sc_khb_srv.tb_com_group(group_no_pk);
-alter table sc_khb_srv.tb_com_user_group add constraint fk_tb_com_user_group_tb_com_group foreign key (group_no_pk) references sc_khb_srv.tb_com_group(group_no_pk);
-alter table sc_khb_srv.tb_com_gtwy_svc_author add constraint fk_tb_com_gtwy_svc_author_tb_com_gtwy_svc foreign key (gtwy_svc_pk) references sc_khb_srv.tb_com_gtwy_svc(gtwy_svc_pk);
-alter table sc_khb_srv.tb_com_menu_author add constraint fk_tb_com_menu_author_tb_com_menu foreign key (menu_no_pk) references sc_khb_srv.tb_com_menu(menu_no_pk);
-alter table sc_khb_srv.tb_com_file_mapng add constraint fk_tb_com_file_mapng_tb_com_recsroom foreign key (recsroom_no_pk) references sc_khb_srv.tb_com_recsroom(recsroom_no_pk);
-alter table sc_khb_srv.tb_com_menu add constraint fk_tb_com_menu_tb_com_scrin foreign key (scrin_no_pk) references sc_khb_srv.tb_com_scrin(scrin_no_pk);
-alter table sc_khb_srv.tb_com_scrin_author add constraint fk_tb_com_scrin_author_tb_com_scrin foreign key (scrin_no_pk) references sc_khb_srv.tb_com_scrin(scrin_no_pk);
-alter table sc_khb_srv.tb_com_stplat_hist add constraint fk_tb_com_stplat_hist_tb_com_stplat_info foreign key (com_stplat_info_pk) references sc_khb_srv.tb_com_stplat_info(com_stplat_info_pk);
-alter table sc_khb_srv.tb_com_stplat_mapng add constraint fk_tb_com_stplat_mapng_tb_com_stplat_info foreign key (com_stplat_info_pk) references sc_khb_srv.tb_com_stplat_info(com_stplat_info_pk);
---alter table sc_khb_srv.tb_atlfsl_bsc_info add constraint fk_tb_atlfsl_bsc_info_tb_lrea_office_info foreign key (lrea_office_info_pk) references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
-alter table sc_khb_srv.tb_itrst_atlfsl_info add constraint fk_tb_itrst_atlfsl_info_tb_lrea_office_info foreign key (lrea_office_info_pk) references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
-alter table sc_khb_srv.tb_user_atlfsl_preocupy_info add constraint fk_tb_user_atlfsl_preocupy_info_tb_lrea_office_info foreign key (lrea_office_info_pk) references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
-
-
-
-
 
 
 

@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 23-07-14
+수정 일시: 23-07-19
 작 성 자 : 조건영
 
 */
@@ -54,9 +54,9 @@ FROM sys.columns c
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 WHERE ccu.TABLE_SCHEMA = 'sc_khb_srv'
       AND
-      object_name(c.object_id) = 'tb_atlfsl_bsc_info'
+      object_name(c.object_id) = 'tb_com_rss_info'
 --      AND 
---      type_name(c.user_type_id) = 'co_n15'
+--      CAST(ep.value AS varchar) LIKE '%%'
 ORDER BY 1, c.column_id;
 
 -- 컬럼 이름에 맞는 사용자 타입 찾기
@@ -83,12 +83,13 @@ SELECT
 	   ELSE ''
   END "make_user_type"
   FROM information_schema.columns
- WHERE TABLE_NAME = 'tb_svc_bass_info';
+ WHERE COLUMN_NAME LIKE '%_crdnt'
+-- WHERE TABLE_NAME = 'tb_svc_bass_info';
 /*
 시스템 타입을 사용자 타입으로 변경하기 위해 만든 쿼리
 */
 
--- 테이블 생성 쿼리(161 + 시스템 타입)
+-- 테이블 생성 쿼리(시스템 타입)
 SELECT DISTINCT c2.TABLE_NAME "테이블명",
        'CREATE TABLE ' + c2.TABLE_SCHEMA + '.' + c2.TABLE_NAME + ' (' + char(13) + '  ' +
        replace(
@@ -123,12 +124,49 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
  GROUP BY c2.TABLE_SCHEMA, c2.TABLE_NAME -- , ccu.TABLE_NAME, ccu.COLUMN_NAME
  ORDER BY 1;
 
--- 테이블 생성 쿼리(161 + 사용자 타입)
+-- 테이블 생성 쿼리(사용자 타입)
+--SELECT DISTINCT c2.TABLE_NAME "테이블명",
+--       'CREATE TABLE ' + c2.TABLE_SCHEMA + '.' + c2.TABLE_NAME + ' (' + char(13) + '  ' +
+--       replace(
+--	   stuff((SELECT ', ' + c1.COLUMN_NAME + ' ' + 
+--	                 'sc_khb_srv.' + type_name(sc.user_type_id) +
+--	              CASE WHEN c1.IS_NULLABLE = 'NO' THEN ' NOT NULL'
+--	                   ELSE ''
+--	              END +
+--                  CASE WHEN c1.COLUMN_DEFAULT IS NOT NULL THEN ' default ' + c1.COLUMN_DEFAULT
+--                       ELSE ''
+--                  END + char(13) + char(10)
+--              FROM information_schema.columns c1
+--                   INNER JOIN
+--                   sys.columns sc
+--                       ON object_name(sc.object_id) = c1.TABLE_NAME
+--                          AND 
+--                          sc.name = c1.COLUMN_NAME
+--              WHERE c1.TABLE_NAME = c2.TABLE_name
+--              ORDER BY ORDINAL_POSITION
+--              	FOR xml PATH('')), 1, 2, ''),
+--       '&#x0D;', '') + ');' "테이블별 작성 스크립트"
+----       CASE WHEN ccu.COLUMN_NAME != '' THEN ', primary key (' + stuff((SELECT ', ' + COLUMN_NAME
+----                                                                         FROM information_schema.constraint_column_usage ccu1
+----                                                                        WHERE CONSTRAINT_NAME LIKE 'PK_%' AND ccu.TABLE_NAME = ccu1.TABLE_NAME
+----                                                                          FOR xml PATH('')),1,2,'') + ')' + char(13) +');' END "테이블별 작성 스크립트"
+--  FROM information_schema.columns c2
+----       INNER JOIN
+----       information_schema.constraint_column_usage ccu
+----           ON c2.TABLE_NAME = ccu.TABLE_NAME AND c2.COLUMN_NAME = ccu.COLUMN_NAME
+---- WHERE ccu.CONSTRAINT_NAME LIKE 'pk%'
+-- WHERE c2.TABLE_SCHEMA = 'sc_khb_srv'
+-- GROUP BY c2.TABLE_SCHEMA, c2.TABLE_NAME -- , ccu.TABLE_NAME, ccu.COLUMN_NAME
+-- ORDER BY 1;
+
+-- 테이블 생성 쿼리(사용자 타입) => 좌표 이슈로 인한 수정본
 SELECT DISTINCT c2.TABLE_NAME "테이블명",
        'CREATE TABLE ' + c2.TABLE_SCHEMA + '.' + c2.TABLE_NAME + ' (' + char(13) + '  ' +
        replace(
 	   stuff((SELECT ', ' + c1.COLUMN_NAME + ' ' + 
-		             'sc_khb_srv.' + type_name(sc.user_type_id) + 
+	                 CASE WHEN c1.COLUMN_NAME LIKE '%crdnt%' THEN 'geometry'
+	                      ELSE 'sc_khb_srv.' + type_name(sc.user_type_id)
+	                 END +
 	              CASE WHEN c1.IS_NULLABLE = 'NO' THEN ' NOT NULL'
 	                   ELSE ''
 	              END +
@@ -143,7 +181,16 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
                           sc.name = c1.COLUMN_NAME
               WHERE c1.TABLE_NAME = c2.TABLE_name
               ORDER BY ORDINAL_POSITION
-              	FOR xml PATH('')), 1, 2, ''), 
+              	FOR xml PATH('')), 1, 2, '') +
+       CASE WHEN c2.TABLE_NAME = 'tb_lrea_office_info' THEN ', lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+            WHEN c2.TABLE_NAME = 'tb_link_subway_statn_info' THEN ', statn_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+            WHEN c2.TABLE_NAME = 'tb_atlfsl_bsc_info' THEN ', atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+--            WHEN c2.TABLE_NAME = 'tb_com_ctpv_cd' THEN ', ctpv_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+            WHEN c2.TABLE_NAME = 'tb_com_emd_li_cd' THEN ', emd_li_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+--            WHEN c2.TABLE_NAME = 'tb_com_sgg_cd' THEN ', sgg_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+            WHEN c2.TABLE_NAME = 'tb_hsmp_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+            ELSE ''
+       END,
        '&#x0D;', '') + ');' "테이블별 작성 스크립트"
 --       CASE WHEN ccu.COLUMN_NAME != '' THEN ', primary key (' + stuff((SELECT ', ' + COLUMN_NAME
 --                                                                         FROM information_schema.constraint_column_usage ccu1
@@ -159,17 +206,32 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
  ORDER BY 1;
 
 -- 테이블별 bulk insert 스크립트
-SELECT * FROM information_schema.columns;
-  table_name, 
-  'bulk insert ' + TABLE_SCHEMA + '.' + TABLE_NAME + char(10) + 
+SELECT 
+  table_name
+, 'bulk insert ' + TABLE_SCHEMA + '.' + TABLE_NAME + char(10) + 
   'from ''D:\migra_data\' + table_name + '.txt''' + char(10) +
   'with (' + char(10) +
   '    codepage = ''65001''' + char(10) +
   '  , fieldterminator = ''||''' + char(10) +
   '  , rowterminator = ''0x0a''' + char(10) +
   ');'
-  FROM information_schema.tables;
+  FROM information_schema.tables
+ ORDER BY 1;
 /*from절에 있는 table_name은 파일명으로 직접 입력 해주어야 함*/
+ 
+-- 문자형 타입 좌표 타입으로 변경 및 열 삭제
+SELECT
+  TABLE_NAME
+, 'update ' + TABLE_SCHEMA + '.'+ TABLE_NAME + ' set ' + COLUMN_NAME + ' = geometry::STPointFromText(' + COLUMN_NAME + '_tmp, 4326)' + 
+  ' WHERE ' + COLUMN_NAME + '_tmp NOT LIKE ''%null%'' AND ' + COLUMN_NAME + '_tmp NOT LIKE ''%0.0%'';' "좌표타입 데이터 입력쿼리"
+, 'alter table ' + table_schema + '.' + table_name + ' drop column ' + column_name + '_tmp;' "열 삭제 쿼리"
+  FROM information_schema.columns
+ WHERE COLUMN_NAME LIKE '%crdnt%'
+       AND
+       table_name NOT LIKE '%index%'
+       AND
+       TABLE_SCHEMA = 'sc_khb_srv'
+ ORDER BY 1;
 
 -- 테이블 생성
  ---------------------------------------------------------------------------------------------------
@@ -214,7 +276,7 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , sno sc_khb_srv.sno_n4
 , aptcmpl_nm sc_khb_srv.nm_nv500
 , ho_nm sc_khb_srv.nm_nv500
-, atlfsl_crdnt sc_khb_srv.crdnt_v500
+, atlfsl_crdnt geometry
 , atlfsl_lot sc_khb_srv.lot_d13_10
 , atlfsl_lat sc_khb_srv.lat_d12_10
 , atlfsl_trsm_dt sc_khb_srv.dt
@@ -253,6 +315,10 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , push_stts_cd sc_khb_srv.cd_v20
 , reg_dt sc_khb_srv.dt
 , mdfcn_dt sc_khb_srv.dt
+, rcmdtn_yn sc_khb_srv.yn_c1
+, auc_yn sc_khb_srv.yn_c1
+, atlfsl_stts_cd sc_khb_srv.cd_v20
+, atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
 --BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
@@ -263,17 +329,40 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 --             ROWTERMINATOR = '0x0a'
 --);
 
-BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
-       FROM 'D:\migra_data\product_info_new.txt'
+bulk insert sc_khb_srv.tb_atlfsl_bsc_info
+from 'D:\migra_data\product_info_new.txt'
+with (
+    codepage = '65001'
+  , fieldterminator = '||'
+  , rowterminator = '0x0a'
+);
+
+alter table sc_khb_srv.tb_atlfsl_bsc_info add constraint pk_tb_atlfsl_bsc_info primary key(atlfsl_bsc_info_pk);
+
+update sc_khb_srv.tb_atlfsl_bsc_info set atlfsl_crdnt = geometry::STPointFromText(atlfsl_crdnt_tmp, 4326) WHERE atlfsl_crdnt_tmp NOT LIKE '%null%' AND atlfsl_crdnt_tmp NOT LIKE '%0.0%';
+
+alter table sc_khb_srv.tb_atlfsl_bsc_info drop column atlfsl_crdnt_tmp;
+
+SET STATISTICS io OFF;
+
+
+
+
+---------------------------------------------------------------------------------------------------
+-- 좌표 데이터 삽입할 테이블
+CREATE TABLE sc_khb_srv.test(
+    code varchar(500)
+   ,crdnt varchar(500)
+);
+
+
+BULK INSERT sc_khb_srv.test
+       FROM 'D:\migra_data\crdnt.txt'
        WITH (
              CODEPAGE = '65001',
              FIELDTERMINATOR = '||',
              ROWTERMINATOR = '0x0a'
 );
-
-alter table sc_khb_srv.tb_atlfsl_bsc_info add constraint pk_tb_atlfsl_bsc_info primary key(atlfsl_bsc_info_pk);
-
-SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
@@ -779,24 +868,50 @@ SET STATISTICS io OFF;
 -----------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
--- tb_com_ctpv_cd => 33 ms
+-- tb_com_ctpv_cd =>  ms
 CREATE TABLE sc_khb_srv.tb_com_ctpv_cd (
   ctpv_cd_pk sc_khb_srv.pk_n18 NOT NULL
 , ctpv_nm sc_khb_srv.nm_nv500
 , ctpv_abbrev_nm sc_khb_srv.nm_nv500
-, ctpv_crdnt sc_khb_srv.crdnt_v500
+, ctpv_crdnt geometry
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
 );
 
-BULK INSERT sc_khb_srv.tb_com_ctpv_cd
-       FROM 'D:\migra_data\sido_code.txt'
-       WITH (
-             CODEPAGE = '65001',
-             FIELDTERMINATOR = '||',
-             ROWTERMINATOR = '0x0a'
+bulk insert sc_khb_srv.tb_com_ctpv_cd
+from 'D:\migra_data\sido_code.txt'
+with (
+    codepage = '65001'
+  , fieldterminator = '||'
+  , rowterminator = '0x0a'
 );
 
 alter table sc_khb_srv.tb_com_ctpv_cd add constraint pk_tb_com_ctpv_cd primary key(ctpv_cd_pk);
+
+-- 시군구 pk와 시군구 코드 매칭
+CREATE VIEW sc_khb_srv.tb_sggmat
+AS
+SELECT
+  sggmat.sgg_cd_pk
+, ssc.crdnt
+  FROM sc_khb_srv.sd_sgg_crdnt ssc
+       INNER JOIN 
+       (SELECT DISTINCT
+          sgg_cd_pk "sgg_cd_pk"
+        , substring(stdg_dong_cd, 1, 5) "sgg_cd"
+          FROM sc_khb_srv.tb_com_emd_li_cd
+         WHERE (sgg_cd_pk != 252 AND substring(stdg_dong_cd, 1, 5) != '43113' AND stdg_dong_se_cd != 'H') -- 43113, 250 인 데이터 뺵기
+                OR 
+               (sgg_cd_pk != 248 AND substring(stdg_dong_cd, 1, 5) != '43111' AND stdg_dong_se_cd != 'H') -- 43111, 248 인 데이터 빼기
+       ) sggmat
+           on ssc.code = sggmat.sgg_cd;
+
+
+-- 시군구 테이블에 좌표 데이터 삽입
+UPDATE sc_khb_srv.tb_com_sgg_cd SET sgg_crdnt = tb_sggmat.crdnt
+  FROM sc_khb_srv.tb_sggmat
+ WHERE tb_com_sgg_cd.sgg_cd_pk = tb_sggmat.sgg_cd_pk;
+
+DROP VIEW sc_khb_srv.tb_sggmat;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -870,21 +985,26 @@ CREATE TABLE sc_khb_srv.tb_com_emd_li_cd (
 , sgg_cd_pk sc_khb_srv.pk_n18 NOT NULL
 , emd_li_nm sc_khb_srv.nm_nv500
 , all_emd_li_nm sc_khb_srv.nm_nv500
-, emd_li_crdnt sc_khb_srv.crdnt_v500
+, emd_li_crdnt geometry
 , stdg_dong_se_cd sc_khb_srv.cd_v20
 , stdg_dong_cd sc_khb_srv.cd_v20
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
+, emd_li_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
-BULK INSERT sc_khb_srv.tb_com_emd_li_cd
-       FROM 'D:\migra_data\dong_code.txt'
-       WITH (
-             CODEPAGE = '65001',
-             FIELDTERMINATOR = '||',
-             ROWTERMINATOR = '0x0a'
+bulk insert sc_khb_srv.tb_com_emd_li_cd
+from 'D:\migra_data\dong_code.txt'
+with (
+    codepage = '65001'
+  , fieldterminator = '||'
+  , rowterminator = '0x0a'
 );
 
 alter table sc_khb_srv.tb_com_emd_li_cd add constraint pk_tb_com_emd_li_cd primary key(emd_li_cd_pk);
+
+update sc_khb_srv.tb_com_emd_li_cd set emd_li_crdnt = geometry::STPointFromText(emd_li_crdnt_tmp, 4326) WHERE emd_li_crdnt_tmp NOT LIKE '%null%' AND emd_li_crdnt_tmp NOT LIKE '%0.0%';
+
+alter table sc_khb_srv.tb_com_emd_li_cd drop column emd_li_crdnt_tmp;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1313,7 +1433,7 @@ CREATE TABLE sc_khb_srv.tb_com_sgg_cd (
   sgg_cd_pk sc_khb_srv.pk_n18 NOT NULL
 , ctpv_cd_pk sc_khb_srv.pk_n18 NOT NULL
 , sgg_nm sc_khb_srv.nm_nv500
-, sgg_crdnt sc_khb_srv.crdnt_v500
+, sgg_crdnt geometry
 , stdg_dong_se_cd sc_khb_srv.cd_v20
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
 );
@@ -1327,6 +1447,29 @@ BULK INSERT sc_khb_srv.tb_com_sgg_cd
 );
 
 alter table sc_khb_srv.tb_com_sgg_cd add constraint pk_tb_com_sgg_cd primary key(sgg_cd_pk);
+
+-- 시도pk 시도코드 매칭
+CREATE VIEW sc_khb_srv.tb_sdmat
+AS
+SELECT
+  cd.ctpv_cd_pk
+, ssc.crdnt
+  FROM (SELECT DISTINCT
+          ctpv_cd_pk 
+        , substring(stdg_dong_cd, 1, 2) "ctpv_cd"
+           FROM sc_khb_srv.tb_com_emd_li_cd
+       ) cd
+       INNER JOIN
+       sc_khb_srv.sd_sgg_crdnt ssc
+           ON cd.ctpv_cd = ssc.code;
+
+
+-- 시군구 테이블에 좌표 데이터 삽입
+UPDATE sc_khb_srv.tb_com_ctpv_cd SET ctpv_crdnt = tb_sdmat.crdnt
+  FROM sc_khb_srv.tb_sdmat
+ WHERE tb_com_ctpv_cd.ctpv_cd_pk = tb_sdmat.ctpv_cd_pk;
+
+DROP VIEW sc_khb_srv.tb_sdmat;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1617,13 +1760,14 @@ CREATE TABLE sc_khb_srv.tb_hsmp_info (
 , subway_rte_info sc_khb_srv.cn_nv4000
 , schl_info sc_khb_srv.cn_nv4000
 , cvntl_info sc_khb_srv.cn_nv4000
-, hsmp_crdnt sc_khb_srv.crdnt_v500
+, hsmp_crdnt geometry
 , hsmp_lot sc_khb_srv.lot_d13_10
 , hsmp_lat sc_khb_srv.lat_d12_10
 , use_yn sc_khb_srv.yn_c1
 , reg_dt sc_khb_srv.dt
 , mdfcn_dt sc_khb_srv.dt
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
+, hsmp_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
 BULK INSERT sc_khb_srv.tb_hsmp_info
@@ -1635,6 +1779,10 @@ BULK INSERT sc_khb_srv.tb_hsmp_info
 );
 
 alter table sc_khb_srv.tb_hsmp_info add constraint pk_tb_hsmp_info primary key(hsmp_info_pk);
+
+update sc_khb_srv.tb_hsmp_info set hsmp_crdnt = geometry::STPointFromText(hsmp_crdnt_tmp, 4326) WHERE hsmp_crdnt_tmp NOT LIKE '%null%' AND hsmp_crdnt_tmp NOT LIKE '%0.0%';
+
+alter table sc_khb_srv.tb_hsmp_info drop column hsmp_crdnt_tmp;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1695,9 +1843,10 @@ CREATE TABLE sc_khb_srv.tb_lrea_office_info (
 , reg_dt sc_khb_srv.dt
 , mdfcn_dt sc_khb_srv.dt
 , use_yn sc_khb_srv.yn_c1
-, lrea_office_crdnt sc_khb_srv.crdnt_v500
+, lrea_office_crdnt geometry
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
 , hmpg_url sc_khb_srv.url_nv4000
+, lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
 BULK INSERT sc_khb_srv.tb_lrea_office_info
@@ -1709,6 +1858,10 @@ BULK INSERT sc_khb_srv.tb_lrea_office_info
 );
 
 alter table sc_khb_srv.tb_lrea_office_info add constraint pk_tb_lrea_office_info primary key(lrea_office_info_pk);
+
+update sc_khb_srv.tb_lrea_office_info set lrea_office_crdnt = geometry::STPointFromText(lrea_office_crdnt_tmp, 4326) WHERE lrea_office_crdnt_tmp NOT LIKE '%null%' AND lrea_office_crdnt_tmp NOT LIKE '%0.0%';
+
+alter table sc_khb_srv.tb_lrea_office_info drop column lrea_office_crdnt_tmp;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1884,6 +2037,9 @@ BULK INSERT sc_khb_srv.tb_user_atlfsl_preocupy_info
 alter table sc_khb_srv.tb_user_atlfsl_preocupy_info add constraint pk_tb_user_atlfsl_preocupy_info primary key(user_mapng_info_pk);
 
 SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+
+
 
 -- com유저에게 테이블 권한 주기
 SELECT 

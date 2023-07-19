@@ -2,7 +2,7 @@
 마리아db에서 테이블을 txt파일로 만드는 작업파일
 204번
 작성 일시: 230601
-수정 일시: 230629
+수정 일시: 230718
 작 성 자 : 조건영
 */
 
@@ -50,22 +50,57 @@ SELECT imq.table_name, concat('select ', char(13), '  ',
  GROUP BY imq.table_name;
 
 -- SELECT ~ into outfile 문을 사용한 쿼리문(ifnull + replace)
+-- SET @db_name = 'hanbang';
+-- SELECT imq.table_name, concat('select ', char(13), '  ', 
+--                               group_concat(imq.re ORDER BY imq.ORDINAL_POSITION SEPARATOR ', '), 
+--                               'into outfile ''/var/lib/mysql/backup/', imq.table_name, '.txt''', char(13), 
+--                               '        FIELDS TERMINATED BY ''||''', char(13), 
+--                               '        LINES TERMINATED BY ''\\n''', char(13), 'FROM ', @db_name, '.',imq.table_name, ' LIMIT 10000000;') ex_query
+--   FROM (SELECT TABLE_NAME, COLUMN_NAME,
+--                concat('IFNULL(REPLACE(', COLUMN_NAME, ',CONCAT(CHAR(10)), ''''), '''')', char(13)) "re", ORDINAL_POSITION
+--           FROM information_schema.COLUMNS
+--          WHERE TABLE_SCHEMA=@db_name 
+-- --               AND table_name = @tbl_name
+-- --          ORDER BY ORDINAL_POSITION
+--          ) imq
+--  GROUP BY imq.table_name;
+
+-- 좌표 데이터는 새롭게 열을 추가 => 수정본
 SET @db_name = 'hanbang';
-SELECT imq.table_name, concat('select ', char(13), '  ', 
---                               group_concat(imq.re SEPARATOR ', '), 
-                              group_concat(imq.re ORDER BY imq.ORDINAL_POSITION SEPARATOR ', '), 
-                              'into outfile ''/var/lib/mysql/backup/', imq.table_name, '.txt''', char(13), 
-                              '        FIELDS TERMINATED BY ''||''', char(13), 
-                              '        LINES TERMINATED BY ''\\n''', char(13), 'FROM ', @db_name, '.',imq.table_name, ' LIMIT 10000000;') ex_query
-  FROM (SELECT TABLE_NAME, COLUMN_NAME,
-               concat('IFNULL(REPLACE(', COLUMN_NAME, ',CONCAT(CHAR(10)), ''''), '''')', char(13)) "re", ORDINAL_POSITION
+SELECT 
+  imq.table_name
+, concat('select ', 
+         char(13),
+         '  ', 
+         group_concat(imq.re ORDER BY imq.ORDINAL_POSITION SEPARATOR ', '),
+         CASE WHEN imq.table_name IN ('autocomp', 'danji_info', 'dong_code', 'product_info', 'realtor_info', 'subway_code')
+                      THEN concat(', IFNULL(REPLACE(concat(''point(', CASE WHEN imq.table_name = 'product_info' 
+                                                                     THEN ' json_extract(PRODUCT_GEOCODE, ''$.lng''), '' '', json_extract(PRODUCT_GEOCODE, ''$.lat''), '')'')'
+                                                            WHEN imq.table_name = 'realtor_info'
+                                                                     THEN 'json_extract(COMPANY_GEOCODE, ''$.lng''), '' '', json_extract(COMPANY_GEOCODE, ''$.lat''), '')'')'
+                                                            WHEN imq.table_name = 'subway_code' 
+                                                                     THEN 'json_extract(SUBWAY_GEOCODE, ''$.lng''), '' '', json_extract(SUBWAY_GEOCODE, ''$.lat''), '')'')'
+                                                            ELSE 'json_extract(GEOCODE, ''$.lng''), '' '', json_extract(GEOCODE, ''$.lat''), '')'')'
+                                                       END,
+                                  ',CONCAT(CHAR(10)), ''''), '''')', char(13)) 
+              ELSE ''
+         END,
+         'into outfile ''/var/lib/mysql/backup/', imq.table_name, '.txt''', char(13), 
+         '        FIELDS TERMINATED BY ''||''', char(13), 
+         '        LINES TERMINATED BY ''\\n''', char(13), 
+         'FROM ', @db_name, '.',imq.table_name, ' LIMIT 100000000;') ex_query
+  FROM (SELECT 
+          TABLE_NAME
+        , COLUMN_NAME
+        , CASE WHEN COLUMN_NAME LIKE '%geocode%' THEN concat('''''',  char(13))
+               ELSE concat('IFNULL(REPLACE(', COLUMN_NAME, ',CONCAT(CHAR(10)), ''''), '''')', char(13)) 
+          END "re"
+        , ORDINAL_POSITION
           FROM information_schema.COLUMNS
          WHERE TABLE_SCHEMA=@db_name 
---               AND table_name = @tbl_name
---          ORDER BY ORDINAL_POSITION
          ) imq
  GROUP BY imq.table_name;
-
+SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME LIKE '%geocode%';
 -- 원하는 테이블명(TABLE_NAME)에서 쿼리문(query) 복사 붙여넣기
 select 
   IFNULL(REPLACE(BANNER_NO,CONCAT(CHAR(10)), ''), '')
@@ -167,9 +202,7 @@ select
 , CASE WHEN length(ifnull(atai.HO, '')) = 0 THEN IFNULL(REPLACE(pi2.HO_NM, CONCAT(CHAR(10)), ''), '') 
        ELSE IFNULL(REPLACE(atai.HO, CONCAT(CHAR(10)), ''), '')
   END  -- article_ab
-, CASE WHEN PRODUCT_LNG < 100 THEN IFNULL(REPLACE(concat('{"lng":',json_extract(PRODUCT_GEOCODE,'$.lat'), ',"lat:":', json_extract(PRODUCT_GEOCODE,'$.lng'),'}'),CONCAT(CHAR(10)), ''), '')
-       ELSE IFNULL(REPLACE(PRODUCT_GEOCODE,CONCAT(CHAR(10)), ''), '') 
-  END -- product
+, ''
 , CASE WHEN PRODUCT_LNG > 100 THEN IFNULL(REPLACE(PRODUCT_LNG,CONCAT(CHAR(10)), ''), '') 
        ELSE IFNULL(REPLACE(PRODUCT_LAT,CONCAT(CHAR(10)), ''), '') 
   END -- product
@@ -212,6 +245,12 @@ select
 , IFNULL(REPLACE(PUSH_STATE,CONCAT(CHAR(10)), ''), '') -- product
 , IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.REG_DT, atci.REG_DT), atdi.REG_DT), atei.REG_DT),CONCAT(CHAR(10)), ''), '') -- article
 , IFNULL(REPLACE(ifnull(ifnull(ifnull(atai.UPDT_DT, atci.UPDT_DT), atdi.UPDT_DT), atei.UPDT_DT),CONCAT(CHAR(10)), ''), '') -- article
+, ''
+, ''
+, ''
+, CASE WHEN PRODUCT_LNG < 100 THEN IFNULL(REPLACE(concat('point(',json_extract(PRODUCT_GEOCODE,'$.lng'), ' ', json_extract(PRODUCT_GEOCODE,'$.lat'),')'),CONCAT(CHAR(10)), ''), '')
+       ELSE IFNULL(REPLACE(concat('point(',json_extract(PRODUCT_GEOCODE,'$.lng'), ' ', json_extract(PRODUCT_GEOCODE,'$.lat'),')'),CONCAT(CHAR(10)), ''), '') 
+  END -- product
 into outfile '/var/lib/mysql/backup/product_info_new.txt'
         CHARACTER SET utf8
         FIELDS TERMINATED BY '||'
@@ -227,57 +266,58 @@ into outfile '/var/lib/mysql/backup/product_info_new.txt'
        left join hanbang.article_type_ef_info atei
                     on atei.PRODUCT_NO = pi2.PRODUCT_NO 
  where pi2.PRODUCT_CATE_CD not in ('03', '04') -- 주상복합, 주상복합분양권 제외
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- product_info
-select 
-  IFNULL(REPLACE(PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(KAR_MM_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(KAR_CONTENT_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(REALTOR_NO,CONCAT(CHAR(10)), ''), '')
-, CASE WHEN PRODUCT_LNG < 100 THEN IFNULL(REPLACE(concat('{"lng":',json_extract(PRODUCT_GEOCODE,'$.lat'), ',"lat:":', json_extract(PRODUCT_GEOCODE,'$.lng'),'}'),CONCAT(CHAR(10)), ''), '')
-       ELSE IFNULL(REPLACE(PRODUCT_GEOCODE,CONCAT(CHAR(10)), ''), '') END
-, IFNULL(REPLACE(PRODUCT_CATE_CD,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ARTICLE_INFO_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ADDR_CODE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(SIDO_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(GUGUN_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(DONG_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(HDONG_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(BDONG_NO,CONCAT(CHAR(10)), ''), '')
-, CASE WHEN LENGTH(BON_NO)<=4 THEN IFNULL(REPLACE(BON_NO,CONCAT(CHAR(10)), ''), '') ELSE '' END
-, CASE WHEN LENGTH(BU_NO)<=4 THEN IFNULL(REPLACE(BU_NO,CONCAT(CHAR(10)), ''), '') ELSE '' END
-, IFNULL(REPLACE(STAT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(DANJI_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(DANJI_DETAIL_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(THEME_CDS,CONCAT(CHAR(10)), ''), '')
-, CASE WHEN PRODUCT_LNG > 100 THEN IFNULL(REPLACE(PRODUCT_LNG,CONCAT(CHAR(10)), ''), '') ELSE IFNULL(REPLACE(PRODUCT_LAT,CONCAT(CHAR(10)), ''), '') END
-, CASE WHEN PRODUCT_LAT < 100 THEN IFNULL(REPLACE(PRODUCT_LAT,CONCAT(CHAR(10)), ''), '') ELSE IFNULL(REPLACE(PRODUCT_LNG,CONCAT(CHAR(10)), ''), '') END
-, IFNULL(REPLACE(MM_DONG_NM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(HO_NM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(MM_TRANS_DATE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(CLICK_CNT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(USER_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(USER_NM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(USER_TEL_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(OPEN_APT_DONG_YN,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(OPEN_APT_TYPE_YN,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(VR_YN,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(IMG_YN,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(REG_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(UPDT_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(VIEW_CNT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(CLUSTER_STATE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(PUSH_STATE,CONCAT(CHAR(10)), ''), '')
--- into outfile '/var/lib/mysql/backup/product_info_en.txt'
---         CHARACTER SET utf8
+-- select 
+--   IFNULL(REPLACE(PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(KAR_MM_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(KAR_CONTENT_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(REALTOR_NO,CONCAT(CHAR(10)), ''), '')
+-- , ''
+-- , IFNULL(REPLACE(PRODUCT_CATE_CD,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ARTICLE_INFO_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ADDR_CODE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(SIDO_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(GUGUN_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(DONG_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(HDONG_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(BDONG_NO,CONCAT(CHAR(10)), ''), '')
+-- , CASE WHEN LENGTH(BON_NO)<=4 THEN IFNULL(REPLACE(BON_NO,CONCAT(CHAR(10)), ''), '') ELSE '' END
+-- , CASE WHEN LENGTH(BU_NO)<=4 THEN IFNULL(REPLACE(BU_NO,CONCAT(CHAR(10)), ''), '') ELSE '' END
+-- , IFNULL(REPLACE(STAT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(DANJI_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(DANJI_DETAIL_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(THEME_CDS,CONCAT(CHAR(10)), ''), '')
+-- , CASE WHEN PRODUCT_LNG > 100 THEN IFNULL(REPLACE(PRODUCT_LNG,CONCAT(CHAR(10)), ''), '') ELSE IFNULL(REPLACE(PRODUCT_LAT,CONCAT(CHAR(10)), ''), '') END
+-- , CASE WHEN PRODUCT_LAT < 100 THEN IFNULL(REPLACE(PRODUCT_LAT,CONCAT(CHAR(10)), ''), '') ELSE IFNULL(REPLACE(PRODUCT_LNG,CONCAT(CHAR(10)), ''), '') END
+-- , IFNULL(REPLACE(MM_DONG_NM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(HO_NM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(MM_TRANS_DATE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(CLICK_CNT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(USER_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(USER_NM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(USER_TEL_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(OPEN_APT_DONG_YN,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(OPEN_APT_TYPE_YN,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(VR_YN,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(IMG_YN,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(REG_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(UPDT_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(VIEW_CNT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(CLUSTER_STATE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(PUSH_STATE,CONCAT(CHAR(10)), ''), '')
+-- , CASE WHEN PRODUCT_LNG < 100 THEN IFNULL(REPLACE(concat('{"lng":',json_extract(PRODUCT_GEOCODE,'$.lng'), ',"lat:":', json_extract(PRODUCT_GEOCODE,'$.lat'),'}'),CONCAT(CHAR(10)), ''), '')
+--        ELSE IFNULL(REPLACE(PRODUCT_GEOCODE,CONCAT(CHAR(10)), ''), '') END
+-- into outfile '/var/lib/mysql/backup/product_info.txt'
+-- --         CHARACTER SET utf8
 --         FIELDS TERMINATED BY '||'
 --         LINES TERMINATED BY '\n'
-  FROM hanbang.product_info
- WHERE REALTOR_NO != 0;
- LIMIT 10000000;
+--   FROM hanbang.product_info
+--  WHERE REALTOR_NO != 0
+--  LIMIT 100000000;
 
 SELECT count(*)
   FROM product_info
@@ -320,7 +360,7 @@ SELECT
        hanbang.product_info pi2 
      	  ON pi2.PRODUCT_NO = fi.PRODUCT_NO
  WHERE fi.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM facilities_info
@@ -398,7 +438,7 @@ into outfile '/var/lib/mysql/backup/trade_info.txt'
        hanbang.product_info pi2 
            ON ti.PRODUCT_NO = pi2.PRODUCT_NO
  WHERE ti.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0);
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM trade_info
@@ -512,7 +552,7 @@ into outfile '/var/lib/mysql/backup/etc_info.txt'
        hanbang.product_info pi2 
            ON ei.PRODUCT_NO = pi2.PRODUCT_NO
  WHERE ei.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM etc_info
@@ -541,7 +581,7 @@ into outfile '/var/lib/mysql/backup/product_img_info.txt'
        INNER JOIN
        product_info pi2
            ON pii.PRODUCT_NO = pi2.PRODUCT_NO
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM product_img_info
@@ -573,7 +613,7 @@ into outfile '/var/lib/mysql/backup/grnd_info.txt'
        product_info pi2
            ON gi.PRODUCT_NO = pi2.PRODUCT_NO
  WHERE gi.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM grnd_info
@@ -732,7 +772,7 @@ into outfile '/var/lib/mysql/backup/banner_info.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
   FROM hanbang.banner_info 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- board_comment
 select 
@@ -748,7 +788,7 @@ into outfile '/var/lib/mysql/backup/board_comment.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
   FROM hanbang.board_comment 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- board_info
 select 
@@ -766,7 +806,7 @@ into outfile '/var/lib/mysql/backup/board_info.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
   FROM hanbang.board_info 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- com_code
 /*대분류*/
@@ -794,7 +834,7 @@ select
         SELECT 'H', '000', '820', '건축물_용도', null, null, 'Y', NULL) a
  WHERE grd_cd = '000'
  ORDER BY 1, 2
- LIMIT 10000000;
+ LIMIT 100000000;
 
 /*소분류*/
 select 
@@ -821,20 +861,19 @@ select
         SELECT 'H', '000', '820', '건축물_용도', null, null, 'Y', NULL) a
  WHERE grd_cd != '000'
  ORDER BY 1, 2
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- sido_code
 select 
   IFNULL(REPLACE(SIDO_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SIDO_NAME,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SIDO_NAME_ALIAS,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(GEOCODE,CONCAT(CHAR(10)), ''), '')
+, ''
 , IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '')
 into outfile '/var/lib/mysql/backup/sido_code.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
-  FROM hanbang.sido_code 
- LIMIT 10000000;
+FROM hanbang.sido_code LIMIT 100000000;
 
 -- dong_code
 select 
@@ -843,15 +882,19 @@ select
 , IFNULL(REPLACE(GUGUN_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(DONG_NAME,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(DONG_NAME_DISP,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(GEOCODE,CONCAT(CHAR(10)), ''), '')
+, ''
 , IFNULL(REPLACE(DONG_GBN,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(JUNGBU_CODE,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/dong_code.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
+, CASE WHEN json_extract(GEOCODE, '$.lng') = 'null' 
+            THEN ''
+       ELSE IFNULL(REPLACE(IFNULL(REPLACE(concat('point(', json_extract(GEOCODE, '$.lng'), ' ', json_extract(GEOCODE, '$.lat'), ')'),CONCAT(CHAR(10)), ''), ''),CONCAT(CHAR(10)), ''), '')
+  END
+  into outfile '/var/lib/mysql/backup/dong_code.txt'
+       FIELDS TERMINATED BY '||'
+       LINES TERMINATED BY '\n'
   FROM hanbang.dong_code 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- cron_info
 select 
@@ -865,21 +908,21 @@ into outfile '/var/lib/mysql/backup/cron_info.txt'
         LINES TERMINATED BY '\n'
   FROM hanbang.cron_info
  WHERE CRON_EC_TIME IS NOT NULL 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- gugun_code
 select 
   IFNULL(REPLACE(GUGUN_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SIDO_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(GUGUN_NAME,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(GEOCODE,CONCAT(CHAR(10)), ''), '')
+, ''
 , IFNULL(REPLACE(DISP_GBN,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/gugun_code.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
+  into outfile '/var/lib/mysql/backup/gugun_code.txt'
+       FIELDS TERMINATED BY '||'
+       LINES TERMINATED BY '\n'
   FROM hanbang.gugun_code 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- thema_info
 select 
@@ -900,7 +943,7 @@ select
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
   FROM hanbang.theme_info 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- user_info
 /*tb_com_user*/
@@ -942,7 +985,7 @@ select
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
   FROM hanbang.user_info 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 /*tb_com_user_group*/
 SELECT
@@ -1003,7 +1046,7 @@ into outfile '/var/lib/mysql/backup/danji_detail_info.txt'
        INNER JOIN
        hanbang.danji_info di
            ON ddi.DANJI_NO = di.DANJI_NO
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM danji_detail_info
@@ -1040,18 +1083,18 @@ select
 , IFNULL(REPLACE(SUBWAY,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SCHOOL,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SISUL,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(GEOCODE,CONCAT(CHAR(10)), ''), '')
+, ''
 , IFNULL(REPLACE(DANJI_LNG,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(DANJI_LAT,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(STAT,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(REG_DT,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(UPT_DT,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/danji_info.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
-  FROM hanbang.danji_info 
- LIMIT 10000000;
+, IFNULL(REPLACE(IFNULL(REPLACE(concat('point(', json_extract(GEOCODE, '$.lng'), ' ', json_extract(GEOCODE, '$.lat'), ')'),CONCAT(CHAR(10)), ''), ''),CONCAT(CHAR(10)), ''), '')
+  into outfile '/var/lib/mysql/backup/danji_info.txt'
+       FIELDS TERMINATED BY '||'
+       LINES TERMINATED BY '\n'
+  FROM hanbang.danji_info LIMIT 100000000;
 
 -- fav_info
 select 
@@ -1089,7 +1132,7 @@ select
        (FAV_CATE_CD = 'R' AND FAV_SEQ_NO IN (SELECT dong_no FROM dong_code dc))
        OR 
        (FAV_CATE_CD = 'P' AND FAV_SEQ_NO IN (SELECT product_no FROM product_info pi2 )))
-LIMIT 10000000;
+LIMIT 100000000;
 
 SELECT count(*)
   FROM fav_info
@@ -1110,6 +1153,7 @@ SELECT count(*)
 SELECT count(*)
   FROM fav_info
  WHERE FAV_CATE_CD = 'P' AND FAV_SEQ_NO NOT IN (SELECT product_no FROM product_info); -- 129831
+SELECT * FROM hanbang.realtor_info WHERE COMPANY_GEOCODE LIKE '%null%';
 
 -- realtor_info
  /*tb_lrea_office_info*/
@@ -1138,14 +1182,17 @@ select
 , IFNULL(REPLACE(REG_DT,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(UPT_DT,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(STAT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(COMPANY_GEOCODE,CONCAT(CHAR(10)), ''), '')
+, ''
 , IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(HOMEPAGE,CONCAT(CHAR(10)), ''), '')
+, CASE WHEN COMPANY_GEOCODE NOT LIKE '%null%' THEN IFNULL(REPLACE(concat('point(', json_extract(COMPANY_GEOCODE, '$.lng'), ' ', json_extract(COMPANY_GEOCODE, '$.lat'), ')'), CONCAT(CHAR(10)), ''), '')
+       ELSE ''
+  END 
 into outfile '/var/lib/mysql/backup/realtor_info.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
   FROM hanbang.realtor_info 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 /*tb_com_user*/
 SELECT
@@ -1191,7 +1238,7 @@ SELECT
 -- , IFNULL(REPLACE(REALTOR_LNG,CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(MEM_TYPE_CD,CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(STATUS_CODE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(COMPANY_GEOCODE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(concat('point(', json_extract(COMPANY_GEOCODE, '$.lng'), ' ', json_extract(COMPANY_GEOCODE, '$.lat'), ')'),CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(HOMEPAGE,CONCAT(CHAR(10)), ''), '')
 into outfile '/var/lib/mysql/backup/realtor_info_user.txt'
@@ -1207,7 +1254,7 @@ into outfile '/var/lib/mysql/backup/realtor_info_user.txt'
           FROM hanbang.user_mamul_agent) a
            ON ri.REALTOR_NO = a.mem_no
  ORDER BY 1
- LIMIT 10000000;
+ LIMIT 100000000;
 
 /*tb_com_user_group*/
 select 
@@ -1256,7 +1303,7 @@ select
           FROM hanbang.user_mamul_agent) a
            ON ri.REALTOR_NO = a.mem_no
  ORDER BY 1
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- bunyang_info
 select 
@@ -1292,7 +1339,7 @@ into outfile '/var/lib/mysql/backup/bunyang_info.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
   FROM hanbang.bunyang_info 
- LIMIT 10000000;
+ LIMIT 100000000;
 
 -- user_mamul_photo
 select 
@@ -1319,7 +1366,7 @@ select
                         INNER JOIN 
                         user_info ui
                            ON um.user_no=ui.mem_no)
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM user_mamul_photo ump
@@ -1395,7 +1442,7 @@ select
        user_info ui 
           ON um.user_no = ui.mem_no
  WHERE um.reg_date < '2023-05-01'
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM user_mamul
@@ -1446,7 +1493,7 @@ select
                   WHERE um.reg_date < '2023-05-01')
        AND 
        mem_no IN (SELECT realtor_no FROM realtor_info)
- LIMIT 10000000;
+ LIMIT 100000000;
 
 SELECT count(*)
   FROM user_mamul_agent

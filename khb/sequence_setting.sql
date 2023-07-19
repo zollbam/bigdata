@@ -443,14 +443,8 @@ select 'tb_atlfsl_bsc_info' "table_name", max(atlfsl_bsc_info_pk) "max_value"
 select 'tb_atlfsl_cfr_fclt_info' "table_name", max(atlfsl_cfr_fclt_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_cfr_fclt_info
  union 
-select 'tb_atlfsl_cmrc_dtl_info' "table_name", max(atlfsl_cmrc_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_cmrc_dtl_info
- union 
 select 'tb_atlfsl_dlng_info' "table_name", max(atlfsl_dlng_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_dlng_info
- union 
-select 'tb_atlfsl_etc_dtl_info' "table_name", max(atlfsl_etc_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_etc_dtl_info
  union 
 select 'tb_atlfsl_etc_info' "table_name", max(atlfsl_etc_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_etc_info
@@ -464,20 +458,11 @@ select 'tb_atlfsl_inqry_info' "table_name", max(atlfsl_inqry_info_pk) "max_value
 select 'tb_atlfsl_land_usg_info' "table_name", max(atlfsl_land_usg_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_land_usg_info
  union 
-select 'tb_atlfsl_reside_gnrl_dtl_info' "table_name", max(atlfsl_reside_gnrl_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_reside_gnrl_dtl_info
- union 
-select 'tb_atlfsl_reside_set_dtl_info' "table_name", max(atlfsl_reside_set_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_reside_set_dtl_info
- union 
 select 'tb_com_author' "table_name", max(author_no_pk) "max_value"
   from sc_khb_srv.tb_com_author
  union 
 select 'tb_com_banner_info' "table_name", max(banner_info_pk) "max_value"
   from sc_khb_srv.tb_com_banner_info
- union 
-select 'tb_com_banner_info_tmp' "table_name", max(banner_info_pk) "max_value"
-  from sc_khb_srv.tb_com_banner_info_tmp
  union 
 select 'tb_com_bbs' "table_name", max(bbs_pk) "max_value"
   from sc_khb_srv.tb_com_bbs
@@ -607,6 +592,9 @@ select 'tb_hsmp_info' "table_name", max(hsmp_info_pk) "max_value"
  union 
 select 'tb_itrst_atlfsl_info' "table_name", max(itrst_atlfsl_info_pk) "max_value"
   from sc_khb_srv.tb_itrst_atlfsl_info
+ union 
+select 'tb_jado_index' "table_name", max(id) "max_value"
+  from sc_khb_srv.tb_jado_index
  union 
 select 'tb_lrea_office_info' "table_name", max(lrea_office_info_pk) "max_value"
   from sc_khb_srv.tb_lrea_office_info
@@ -773,33 +761,15 @@ SELECT
                          FROM information_schema.tables t
                               INNER join
                               sys.sequences s
-                                  ON t.TABLE_NAME = replace(s.name, 'sq_', 'tb_'))
+                                  ON t.TABLE_NAME = replace(s.name, 'sq_', 'tb_')
+                                     OR
+                                     replace(t.TABLE_NAME, 'tb_', 'sq_') = s.name)
  ORDER BY 1;
 
 
 
 
-CREATE SEQUENCE sc_khb_srv.sq_atlfsl_batch_hstry
-    START WITH 1
-    INCREMENT BY 1
-    MINVALUE 1
-    MAXVALUE 999999999999999999
-    CACHE;
-   
-   
-CREATE SEQUENCE sc_khb_srv.a
-	START WITH 1
-	INCREMENT BY 1
-	MINVALUE 1
-	MAXVALUE 444
-	cache;
-	
-	
-grant alter on sc_khb_srv.a to us_khb_exif;
-grant update on sc_khb_srv.a to us_khb_exif;
-grant control on sc_khb_srv.a to us_khb_exif;
 
-REVOKE UPDATE, ALTER,  control on sc_khb_srv.a from us_khb_exif;
 
 
 
