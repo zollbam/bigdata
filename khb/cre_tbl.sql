@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 23-07-19
+수정 일시: 23-07-21
 작 성 자 : 조건영
 
 */
@@ -24,27 +24,28 @@ SELECT
 
 -- 테이블의 열 정보(열번호 맞게 => comment 전부 보여줌)
 SELECT DISTINCT
-       object_name(c.object_id) "테이블명" , c.NAME "컬럼명",
-       CASE WHEN type_name(c.system_type_id) = 'numeric'
-                THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ')'
-            WHEN type_name(c.system_type_id) = 'decimal'
-                THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ', ' + CAST(c.SCALE AS varchar) + ')'
-            WHEN type_name(c.system_type_id) IN ('char', 'varchar') 
-                THEN type_name(c.system_type_id) + '(' + CAST(c.MAX_LENGTH AS varchar) + ')'
-            WHEN type_name(c.system_type_id) IN ('nchar', 'nvarchar') 
-                THEN type_name(c.system_type_id) + '(' + 
-                									     CASE WHEN c.MAX_LENGTH = -1 THEN 'max' 
-                                                              ELSE CAST(c.MAX_LENGTH/2 AS varchar)
-                                                         END + 
-                                                   ')'
-            ELSE type_name(c.system_type_id)
-       END "시스템 타입",
-       type_name(c.user_type_id) "사용자 타입",
-       CASE WHEN c.IS_NULLABLE = 0 THEN ' NOT NULL'
-            ELSE ''
-       END "NULL여부",
-       ep.value "컬럼명(한글)",
-       c.column_id
+  object_name(c.object_id) "테이블명"
+, c.NAME "컬럼명"
+, CASE WHEN type_name(c.system_type_id) = 'numeric'
+            THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ')'
+       WHEN type_name(c.system_type_id) = 'decimal'
+            THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ', ' + CAST(c.SCALE AS varchar) + ')'
+       WHEN type_name(c.system_type_id) IN ('char', 'varchar') 
+            THEN type_name(c.system_type_id) + '(' + CAST(c.MAX_LENGTH AS varchar) + ')'
+       WHEN type_name(c.system_type_id) IN ('nchar', 'nvarchar') 
+            THEN type_name(c.system_type_id) + '(' + 
+                									 CASE WHEN c.MAX_LENGTH = -1 THEN 'max' 
+                                                          ELSE CAST(c.MAX_LENGTH/2 AS varchar)
+                                                     END + 
+                                               ')'
+       ELSE type_name(c.system_type_id)
+  END "시스템 타입"
+, type_name(c.user_type_id) "사용자 타입"
+, CASE WHEN c.IS_NULLABLE = 0 THEN ' NOT NULL'
+       ELSE ''
+  END "NULL여부"
+, ep.value "컬럼명(한글)"
+, c.column_id
 FROM sys.columns c
      INNER JOIN
      information_schema.constraint_column_usage ccu
@@ -54,7 +55,7 @@ FROM sys.columns c
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 WHERE ccu.TABLE_SCHEMA = 'sc_khb_srv'
       AND
-      object_name(c.object_id) = 'tb_com_rss_info'
+      object_name(c.object_id) = 'tb_link_apt_lttot_info'
 --      AND 
 --      CAST(ep.value AS varchar) LIKE '%%'
 ORDER BY 1, c.column_id;
@@ -83,11 +84,47 @@ SELECT
 	   ELSE ''
   END "make_user_type"
   FROM information_schema.columns
- WHERE COLUMN_NAME LIKE '%_crdnt'
+ WHERE table_NAME = 'tb_link_subway_statn_info'
 -- WHERE TABLE_NAME = 'tb_svc_bass_info';
 /*
 시스템 타입을 사용자 타입으로 변경하기 위해 만든 쿼리
 */
+
+-- 타입 변경 업데이트 쿼리 작성
+SELECT 
+  'alter table ' + 
+  tr.schema_name + '.' +
+  tr.table_name + ' ' +
+  'alter column ' +
+  tr.column_name + ' ' +
+  'sc_khb_srv.' + tr.make_user_type
+  FROM (
+        SELECT 
+          TABLE_SCHEMA "schema_name" 
+        , TABLE_NAME "table_name"
+        , COLUMN_NAME "column_name"
+        , CASE WHEN charindex('_', COLUMN_NAME) = 0 THEN COLUMN_NAME
+               ELSE substring(RIGHT(COLUMN_NAME,5), charindex('_', RIGHT(COLUMN_NAME,5)) +1, len(RIGHT(COLUMN_NAME,5)))
+          END + 
+          CASE WHEN DATA_TYPE = 'decimal' THEN concat('_', 'd', NUMERIC_PRECISION, '_', NUMERIC_SCALE)
+               WHEN DATA_TYPE = 'numeric' THEN concat('_', 'n', NUMERIC_PRECISION)
+               WHEN DATA_TYPE = 'char' THEN concat('_', 'c', CHARACTER_MAXIMUM_LENGTH)
+               WHEN DATA_TYPE = 'nchar' THEN concat('_', 'nc', CHARACTER_MAXIMUM_LENGTH)
+               WHEN DATA_TYPE = 'varchar' THEN CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_vmax'
+                                                    ELSE concat('_', 'v', CHARACTER_MAXIMUM_LENGTH)
+                                               END
+               WHEN DATA_TYPE = 'nvarchar' THEN CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_nvmax'
+                                                     ELSE concat('_', 'nv', CHARACTER_MAXIMUM_LENGTH)
+                                        END
+               WHEN DATA_TYPE IN ('date', 'datetime') THEN ''
+          END  + 
+          CASE WHEN IS_NULLABLE = 'NO' THEN ' NOT NULL'
+	           ELSE ''
+          END "make_user_type"
+         FROM information_schema.columns
+        WHERE table_NAME = 'tb_com_sgg_cd'
+       ) tr;
+
 
 -- 테이블 생성 쿼리(시스템 타입)
 SELECT DISTINCT c2.TABLE_NAME "테이블명",
@@ -1817,36 +1854,594 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
--- tb_lrea_office_info => 8777 ms
-CREATE TABLE sc_khb_srv.tb_lrea_office_info (
-  lrea_office_info_pk sc_khb_srv.pk_n18 NOT NULL
-, bzmn_no sc_khb_srv.no_v200
-, lrea_office_nm sc_khb_srv.nm_nv500
-, lrea_office_rprsv_nm sc_khb_srv.nm_nv500
-, tlphon_type_cd sc_khb_srv.cd_v20
-, safety_no sc_khb_srv.no_v200
-, lrea_office_rprs_telno sc_khb_srv.telno_v30
-, lrea_telno sc_khb_srv.telno_v30
-, lrea_office_addr sc_khb_srv.addr_nv200
-, ctpv_cd_pk sc_khb_srv.pk_n18
-, sgg_cd_pk sc_khb_srv.pk_n18
-, stdg_innb sc_khb_srv.innb_v20
-, dong_innb sc_khb_srv.innb_v20
-, user_level_no sc_khb_srv.no_v200
-, rprs_img_1_url sc_khb_srv.url_nv4000
-, rprs_img_2_url sc_khb_srv.url_nv4000
-, rprs_img_3_url sc_khb_srv.url_nv4000
-, lat sc_khb_srv.lat_d12_10
-, lot sc_khb_srv.lot_d13_10
-, user_ty_cd sc_khb_srv.cd_v20
-, stts_cd sc_khb_srv.cd_v20
-, reg_dt sc_khb_srv.dt
-, mdfcn_dt sc_khb_srv.dt
-, use_yn sc_khb_srv.yn_c1
-, lrea_office_crdnt geometry
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
+-- tb_link_apt_lttot_cmpet_rt_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_apt_lttot_cmpet_rt_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, house_ty_nm sc_khb_srv.nm_nv500
+, sply_hh_cnt sc_khb_srv.cnt_n15
+, rank sc_khb_srv.rank_n5
+, reside_cd sc_khb_srv.cd_v20
+, reside_cd_nm sc_khb_srv.nm_nv500
+, rcpt_cnt sc_khb_srv.cnt_n15
+, cmpet_rt_cn sc_khb_srv.cn_nvmax
+, lwet_przwin_scr_cn sc_khb_srv.cn_nvmax
+, top_przwin_scr_cn sc_khb_srv.cn_nvmax
+, avrg_przwin_scr_cn sc_khb_srv.cn_nvmax
+);
+
+BULK INSERT sc_khb_srv.tb_link_apt_lttot_cmpet_rt_info
+       FROM 'D:\migra_data\tb_apply_apt_lttot_info_cmpetrt.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_apt_lttot_house_ty_dtl_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_apt_lttot_house_ty_dtl_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, house_ty_nm sc_khb_srv.nm_nv500
+, sply_area sc_khb_srv.area_d19_9
+, gnrl_sply_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_mnych_hshld_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_mrg_mrd_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_lfe_frst_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_odsn_parnts_suport_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_inst_rcmdtn_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_etc_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_bfr_inst_hh_cnt sc_khb_srv.cnt_n15
+, sply_lttot_top_amt sc_khb_srv.amt_n18
+);
+
+BULK INSERT sc_khb_srv.tb_link_apt_lttot_house_ty_dtl_info
+       FROM 'D:\migra_data\tb_apply_apt_lttot_info_house_ty_detail.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_apt_lttot_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_apt_lttot_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, house_nm sc_khb_srv.nm_nv500
+, house_se_cd sc_khb_srv.cd_v20
+, house_se_cd_nm sc_khb_srv.nm_nv500
+, house_dtl_se_cd sc_khb_srv.cd_v20
+, house_dtl_se_cd_nm sc_khb_srv.nm_nv500
+, lttot_se_cd sc_khb_srv.cd_v20
+, lttot_se_cd_nm sc_khb_srv.nm_nv500
+, sply_rgn_cd sc_khb_srv.cd_v20
+, sply_rgn_nm sc_khb_srv.nm_nv500
+, sply_pstn_zip sc_khb_srv.zip_c5
+, sply_pstn_nm sc_khb_srv.nm_nv500
+, sply_scale_cnt sc_khb_srv.cnt_n15
+, rcrit_pbanc_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_bgng_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_end_day sc_khb_srv.day_nv100
+, specl_sply_rcpt_bgng_day sc_khb_srv.day_nv100
+, specl_sply_rcpt_end_day sc_khb_srv.day_nv100
+, one_rank_rlvt_rgn_rcpt_day sc_khb_srv.day_nv100
+, one_rank_gg_rgn_rcpt_day sc_khb_srv.day_nv100
+, one_rank_etc_rcpt_day sc_khb_srv.day_nv100
+, two_rank_rlvt_rgn_rcpt_day sc_khb_srv.day_nv100
+, two_rank_gg_rgn_rcpt_day sc_khb_srv.day_nv100
+, two_rank_etc_rcpt_day sc_khb_srv.day_nv100
+, przwner_prsntn_day sc_khb_srv.day_nv100
+, ctrt_bgng_day sc_khb_srv.day_nv100
+, ctrt_end_day sc_khb_srv.day_nv100
 , hmpg_url sc_khb_srv.url_nv4000
-, lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500
+, cnstrc_bzenty_bldr_nm sc_khb_srv.nm_nv500
+, refrnc_telno sc_khb_srv.telno_v30
+, biz_mby_dvlr_nm sc_khb_srv.nm_nv500
+, mvn_prnmnt_ym sc_khb_srv.ym_c6
+, speclt_ovrhtng_spcfc_yn sc_khb_srv.yn_c1
+, ajmt_trgt_rgn_yn sc_khb_srv.yn_c1
+, lttot_pc_uplmt_yn sc_khb_srv.yn_c1
+, imprmn_biz_yn sc_khb_srv.yn_c1
+, public_house_spcfc_yn sc_khb_srv.yn_c1
+, lrscl_bldlnd_devlop_spcfc_yn sc_khb_srv.yn_c1
+, npln_prvopr_public_house_spcfc_yn sc_khb_srv.yn_c1
+, lttot_info_url sc_khb_srv.url_nv4000
+);
+
+BULK INSERT sc_khb_srv.tb_link_apt_lttot_info
+       FROM 'D:\migra_data\tb_apply_apt_lttot_info_detail.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_apt_nthg_rank_remndr_hh_lttot_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, house_nm sc_khb_srv.nm_nv500
+, house_se_cd sc_khb_srv.cd_v20
+, house_se_cd_nm sc_khb_srv.nm_nv500
+, sply_pstn_zip sc_khb_srv.zip_c5
+, sply_pstn_nm sc_khb_srv.nm_nv500
+, sply_scale_cnt sc_khb_srv.cnt_n15
+, rcrit_pbanc_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_bgng_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_end_day sc_khb_srv.day_nv100
+, specl_sply_rcpt_bgng_day sc_khb_srv.day_nv100
+, specl_sply_rcpt_end_day sc_khb_srv.day_nv100
+, gnrl_sply_rcpt_bgng_day sc_khb_srv.day_nv100
+, gnrl_sply_rcpt_end_day sc_khb_srv.day_nv100
+, przwner_prsntn_day sc_khb_srv.day_nv100
+, ctrt_bgng_day sc_khb_srv.day_nv100
+, ctrt_end_day sc_khb_srv.day_nv100
+, hmpg_url sc_khb_srv.url_nv4000
+, biz_mby_dvlr_nm sc_khb_srv.nm_nv500
+, refrnc_telno sc_khb_srv.telno_v30
+, mvn_prnmnt_ym sc_khb_srv.ym_c6
+, lttot_info_url sc_khb_srv.url_nv4000
+);
+
+BULK INSERT sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info
+       FROM 'D:\migra_data\tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_detail.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, mdl_ty_nm sc_khb_srv.nm_nv500
+, sply_area sc_khb_srv.area_d19_9
+, gnrl_sply_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_hh_cnt sc_khb_srv.cnt_n15
+, sply_lttot_top_amt sc_khb_srv.amt_n18
+);
+
+BULK INSERT sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info
+       FROM 'D:\migra_data\tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_house_ty_det.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_hsmp_area_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_hsmp_area_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, mdl_ty_nm sc_khb_srv.nm_nv500
+, sply_area sc_khb_srv.area_d19_9
+, gnrl_sply_hh_cnt sc_khb_srv.cnt_n15
+, specl_sply_hh_cnt sc_khb_srv.cnt_n15
+, sply_lttot_top_amt sc_khb_srv.amt_n18
+);
+
+BULK INSERT sc_khb_srv.tb_link_hsmp_area_info
+       FROM 'D:\migra_data\tb_k_apt_hsmp_ar_info.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_hsmp_bsc_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
+  hsmp_cd sc_khb_srv.cd_v20
+, hsmp_nm sc_khb_srv.nm_nv500
+, ctpv_nm sc_khb_srv.nm_nv500
+, sgg_nm sc_khb_srv.nm_nv500
+, eupmyeon_nm sc_khb_srv.nm_nv500
+, dongli_nm sc_khb_srv.nm_nv500
+, hsmp_clsf_nm sc_khb_srv.nm_nv500
+, stdg_addr sc_khb_srv.addr_nv1000
+, rn_addr sc_khb_srv.addr_nv200
+, lttot_stle_nm sc_khb_srv.nm_nv500
+, use_aprv_day sc_khb_srv.day_nv100
+, aptcmpl_cnt sc_khb_srv.cnt_n15
+, hh_cnt sc_khb_srv.cnt_n15
+, mng_mthd_nm sc_khb_srv.nm_nv500
+, heat_mthd_nm sc_khb_srv.nm_nv500
+, crrdpr_type_nm sc_khb_srv.nm_nv500
+, bldr_nm sc_khb_srv.nm_nv500
+, dvlr_nm sc_khb_srv.nm_nv500
+, house_mng_bsmn_nm sc_khb_srv.nm_nv500
+, gnrl_mng_mthd_nm sc_khb_srv.nm_nv500
+, gnrl_mng_nmpr_cnt sc_khb_srv.cnt_n15
+, expens_mng_mthd_nm sc_khb_srv.nm_nv500
+, expens_mng_nmpr_cnt sc_khb_srv.cnt_n15
+, expens_mng_ctrt_bzenty_nm sc_khb_srv.nm_nv500
+, cln_mng_mthd_nm sc_khb_srv.nm_nv500
+, cln_mng_nmpr_cnt sc_khb_srv.cnt_n15
+, fdndrk_prcs_mthd_nm sc_khb_srv.nm_nv500
+, dsnf_mng_mthd_nm sc_khb_srv.nm_nv500
+, fyer_dsnf_cnt sc_khb_srv.cnt_n15
+, dsnf_mthd_nm sc_khb_srv.nm_nv500
+, bldg_strct_nm sc_khb_srv.nm_nv500
+, elcty_pwrsuply_cpcty sc_khb_srv.cpcty_d25_15
+, hh_elcty_ctrt_mthd_nm sc_khb_srv.nm_nv500
+, elcty_safe_mngr_apnt_mthd_nm sc_khb_srv.nm_nv500
+, fire_rcivr_mthd_nm sc_khb_srv.nm_nv500
+, wsp_mthd_nm sc_khb_srv.nm_nv500
+, elvtr_mng_stle_nm sc_khb_srv.nm_nv500
+, psnger_elvtr_cnt sc_khb_srv.cnt_n15
+, frght_elvtr_cnt sc_khb_srv.cnt_n15
+, psnger_frght_elvtr_cnt sc_khb_srv.cnt_n15
+, pwdbs_elvtr_cnt sc_khb_srv.cnt_n15
+, emgnc_elvtr_cnt sc_khb_srv.cnt_n15
+, etc_elvtr_cnt sc_khb_srv.cnt_n15
+, tot_parkng_cntom sc_khb_srv.cntom_n15
+, grnd_parkng_cnt sc_khb_srv.cnt_n15
+, udgd_parkng_cnt sc_khb_srv.cnt_n15
+, cctv_cnt sc_khb_srv.cnt_n15
+, parkng_cntrl_hrk_yn_nm sc_khb_srv.nm_nv500
+, mngoffice_addr sc_khb_srv.addr_nv200
+, mngoffice_telno sc_khb_srv.telno_v30
+, mngoffice_fxno sc_khb_srv.fxno_v30
+, anclr_wlfare_fclt_nm sc_khb_srv.nm_nv500
+, join_day sc_khb_srv.day_nv100
+, lttot_hh_cnt sc_khb_srv.cnt_n15
+, rent_hh_cnt sc_khb_srv.cnt_n15
+, top_flr_cnt sc_khb_srv.cnt_n15
+, bdrg_top_flr_cnt sc_khb_srv.cnt_n15
+, udgd_flr_cnt sc_khb_srv.cnt_n15
+);
+
+BULK INSERT sc_khb_srv.tb_link_hsmp_bsc_info
+       FROM 'D:\migra_data\tb_k_apt_hsmp_bass_info.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_hsmp_managect_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_hsmp_managect_info (
+  hsmp_cd sc_khb_srv.cd_v20
+, hsmp_nm sc_khb_srv.nm_nv500
+, ctpv_nm sc_khb_srv.nm_nv500
+, sgg_nm sc_khb_srv.nm_nv500
+, eupmyeon_nm sc_khb_srv.nm_nv500
+, dongli_nm sc_khb_srv.nm_nv500
+, ocrn_ym sc_khb_srv.ym_c6
+, cmnuse_mng_ct sc_khb_srv.ct_n18
+, labor_ct sc_khb_srv.ct_n18
+, ofcrk_ct sc_khb_srv.ct_n18
+, txs_pbldus_amt sc_khb_srv.amt_n18
+, clth_ct sc_khb_srv.ct_n18
+, edu_traing_ct sc_khb_srv.ct_n18
+, vhcl_mntnc_ct sc_khb_srv.ct_n18
+, anclr_ct sc_khb_srv.ct_n18
+, cln_ct sc_khb_srv.ct_n18
+, expens_ct sc_khb_srv.ct_n18
+, dsnf_ct sc_khb_srv.ct_n18
+, elvtr_mntnc_ct sc_khb_srv.ct_n18
+, intlgnt_ntwrk_mntnc_ct sc_khb_srv.ct_n18
+, rpairs_ct sc_khb_srv.ct_n18
+, fclt_mntnc_ct sc_khb_srv.ct_n18
+, safe_chck_ct sc_khb_srv.ct_n18
+, dsstr_prevnt_ct sc_khb_srv.ct_n18
+, cnsgn_mng_fee sc_khb_srv.fee_n18
+, indiv_ct sc_khb_srv.ct_n18
+, cmnuse_heat_ct sc_khb_srv.ct_n18
+, prvuse_heat_ct sc_khb_srv.ct_n18
+, cmnuse_hwtr_ct sc_khb_srv.ct_n18
+, prvuse_hwtr_ct sc_khb_srv.ct_n18
+, cmnuse_gas_ct sc_khb_srv.ct_n18
+, prvuse_gas_ct sc_khb_srv.ct_n18
+, cmnuse_elcty_ct sc_khb_srv.ct_n18
+, prvuse_elcty_ct sc_khb_srv.ct_n18
+, cmnuse_wtway_ct sc_khb_srv.ct_n18
+, prvuse_wtway_ct sc_khb_srv.ct_n18
+, wrrtn_dirt_fee sc_khb_srv.fee_n18
+, lvlh_wste_fee sc_khb_srv.fee_n18
+, residnt_rprs_mtg_oper_ct sc_khb_srv.ct_n18
+, bldg_insrnc_amt sc_khb_srv.amt_n18
+, elec_mng_cmit_oper_ct sc_khb_srv.ct_n18
+, fdrm_rpairs_rsvmney_mt_levy_amt sc_khb_srv.amt_n18
+, lngtr_rpairs_rsvmney_mt_use_amt sc_khb_srv.amt_n18
+, lngtr_rpairs_rsvmney_tot_amt sc_khb_srv.amt_n18
+, lngtr_rpairs_rsvmney_accml_rt sc_khb_srv.rt_d19_9
+, etc_ern_mt_incm_amt sc_khb_srv.amt_n18
+);
+
+BULK INSERT sc_khb_srv.tb_link_hsmp_managect_info
+       FROM 'D:\migra_data\tb_k_apt_managect_info.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_ofctl_cty_prvate_rent_lttot_cmpet_rt_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_cmpet_rt_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, house_ty_nm sc_khb_srv.nm_nv500
+, sply_hh_cnt sc_khb_srv.cnt_n15
+, residnt_prior_yn sc_khb_srv.yn_c1
+, sply_se_nm sc_khb_srv.nm_nv500
+, rcpt_cnt sc_khb_srv.cnt_n15
+, cmpet_rt_cn sc_khb_srv.cn_nvmax
+);
+
+BULK INSERT sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_cmpet_rt_info
+       FROM 'D:\migra_data\tb_apply_ofctl_cty_prvate_rent_lttot_info_cmpetrt.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_ofctl_cty_prvate_rent_lttot_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, house_nm sc_khb_srv.nm_nv500
+, house_se_cd sc_khb_srv.cd_v20
+, house_se_cd_nm sc_khb_srv.nm_nv500
+, house_dtl_se_cd sc_khb_srv.cd_v20
+, house_dtl_se_cd_nm sc_khb_srv.nm_nv500
+, house_se_nm sc_khb_srv.nm_nv500
+, sply_pstn_zip sc_khb_srv.zip_c5
+, sply_pstn_nm sc_khb_srv.nm_nv500
+, sply_scale_cnt sc_khb_srv.cnt_n15
+, rcrit_pbanc_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_bgng_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_end_day sc_khb_srv.day_nv100
+, przwner_prsntn_day sc_khb_srv.day_nv100
+, ctrt_bgng_day sc_khb_srv.day_nv100
+, ctrt_end_day sc_khb_srv.day_nv100
+, hmpg_url sc_khb_srv.url_nv4000
+, biz_mby_dvlr_nm sc_khb_srv.nm_nv500
+, refrnc_telno sc_khb_srv.telno_v30
+, mvn_prnmnt_ym sc_khb_srv.ym_c6
+, lttot_info_url sc_khb_srv.url_nv4000
+);
+
+BULK INSERT sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info
+       FROM 'D:\migra_data\tb_apply_ofctl_cty_prvate_rent_lttot_info_detail.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, group_nm sc_khb_srv.nm_nv500
+, ty_nm sc_khb_srv.nm_nv500
+, prvuse_area sc_khb_srv.area_d19_9
+, sply_hh_cnt sc_khb_srv.cnt_n15
+, sply_lttot_top_amt sc_khb_srv.amt_n18
+, subscrpt_aply_amt sc_khb_srv.amt_n18
+);
+
+BULK INSERT sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info
+       FROM 'D:\migra_data\tb_apply_ofctl_cty_prvate_rent_lttot_house_ty_info_detail.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_public_sprt_prvate_rent_lttot_cmpet_rt_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_public_sprt_prvate_rent_lttot_cmpet_rt_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, house_ty_nm sc_khb_srv.nm_nv500
+, sply_hh_cnt sc_khb_srv.cnt_n15
+, sply_type_cd sc_khb_srv.cd_v20
+, sply_type_cd_nm sc_khb_srv.nm_nv500
+, altmnt_hh_cnt sc_khb_srv.cnt_n15
+, rcpt_cnt sc_khb_srv.cnt_n15
+, cmpet_rt_cn sc_khb_srv.cn_nvmax
+);
+
+BULK INSERT sc_khb_srv.tb_link_public_sprt_prvate_rent_lttot_cmpet_rt_info
+       FROM 'D:\migra_data\tb_apply_public_sport_prvate_rent_lttot_info_cmpetrt.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_remndr_hh_lttot_cmpet_rt_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_remndr_hh_lttot_cmpet_rt_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, beffat_aftfat_se_cd sc_khb_srv.cd_v20
+, house_ty_nm sc_khb_srv.nm_nv500
+, sply_hh_cnt sc_khb_srv.cnt_n15
+, rcpt_cnt sc_khb_srv.cnt_n15
+, cmpet_rt_cn sc_khb_srv.cn_nvmax
+);
+
+BULK INSERT sc_khb_srv.tb_link_remndr_hh_lttot_cmpet_rt_info
+       FROM 'D:\migra_data\tb_apply_remndr_hshld_lttot_info_cmpetrt.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_rtrcn_re_sply_lttot_cmpet_rt_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_rtrcn_re_sply_lttot_cmpet_rt_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, mdl_no sc_khb_srv.no_n15
+, house_ty_nm sc_khb_srv.nm_nv500
+, gnrl_sply_altmnt_hh_cnt sc_khb_srv.cnt_n15
+, mnych_hshld_altmnt_hh_cnt sc_khb_srv.cnt_n15
+, mrg_mrd_altmnt_hh_cnt sc_khb_srv.cnt_n15
+, lfe_frst_altmnt_hh_cnt sc_khb_srv.cnt_n15
+, odsn_parnts_suport_altmnt_hh_cnt sc_khb_srv.cnt_n15
+, inst_rcmdtn_altmnt_hh_cnt sc_khb_srv.cnt_n15
+, gnrl_sply_rcpt_cnt sc_khb_srv.cnt_n15
+, mnych_hshld_rcpt_cnt sc_khb_srv.cnt_n15
+, mrg_mrd_rcpt_cnt sc_khb_srv.cnt_n15
+, lfe_frst_rcpt_cnt sc_khb_srv.cnt_n15
+, odsn_parnts_suport_rcpt_cnt sc_khb_srv.cnt_n15
+, inst_rcmdtn_rcpt_cnt sc_khb_srv.cnt_n15
+, gnrl_sply_cmpet_rt_cn sc_khb_srv.cn_nvmax
+, mnych_hshld_cmpet_rt_cn sc_khb_srv.cn_nvmax
+, mrg_mrd_cmpet_rt_cn sc_khb_srv.cn_nvmax
+, lfe_frst_cmpet_rt_cn sc_khb_srv.cn_nvmax
+, odsn_parnts_suport_cmpet_rt_cn sc_khb_srv.cn_nvmax
+, inst_rcmdtn_cmpet_rt_cn sc_khb_srv.cn_nvmax
+);
+
+BULK INSERT sc_khb_srv.tb_link_rtrcn_re_sply_lttot_cmpet_rt_info
+       FROM 'D:\migra_data\tb_apply_cancl_re_suply_lttot_info_cmpetrt.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '\n'
+            );
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_link_subway_statn_info =>  ms
+CREATE TABLE sc_khb_srv.tb_link_subway_statn_info (
+  statn_no sc_khb_srv.no_v200
+, statn_nm sc_khb_srv.nm_nv500
+, rte_no sc_khb_srv.no_v200
+, rte_nm sc_khb_srv.nm_nv500
+, eng_statn_nm sc_khb_srv.nm_nv500
+, chcrt_statn_nm sc_khb_srv.nm_nv500
+, trnsit_statn_se_nm sc_khb_srv.nm_nv500
+, trnsit_rte_no sc_khb_srv.no_v200
+, trnsit_rte_nm sc_khb_srv.nm_nv500
+, statn_lat sc_khb_srv.lat_d12_10
+, statn_lot sc_khb_srv.lot_d13_10
+, oper_inst_nm sc_khb_srv.nm_nv500
+, statn_rn_addr sc_khb_srv.addr_nv200
+, statn_telno sc_khb_srv.telno_v30
+, data_crtr_day sc_khb_srv.day_nv100
+, statn_crdnt geometry
+, stdg_cd sc_khb_srv.cd_v20
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+, statn_crdnt_tmp sc_khb_srv.crdnt_v500
+);
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_lrea_office_info => 8777 ms
+CREATE TABLE sc_khb_srv.tb_link_apt_lttot_info (
+  house_mng_no sc_khb_srv.no_n15
+, pbanc_no sc_khb_srv.no_n15
+, house_nm sc_khb_srv.nm_nv500
+, house_se_cd sc_khb_srv.cd_v20
+, house_se_cd_nm sc_khb_srv.nm_nv500
+, house_dtl_se_cd sc_khb_srv.cd_v20
+, house_dtl_se_cd_nm sc_khb_srv.nm_nv500
+, lttot_se_cd sc_khb_srv.cd_v20
+, lttot_se_cd_nm sc_khb_srv.nm_nv500
+, sply_rgn_cd sc_khb_srv.cd_v20
+, sply_rgn_nm sc_khb_srv.nm_nv500
+, sply_pstn_zip sc_khb_srv.zip_c5
+, sply_pstn_nm sc_khb_srv.nm_nv500
+, sply_scale_cnt sc_khb_srv.cnt_n15
+, rcrit_pbanc_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_bgng_day sc_khb_srv.day_nv100
+, subscrpt_rcpt_end_day sc_khb_srv.day_nv100
+, specl_sply_rcpt_bgng_day sc_khb_srv.day_nv100
+, specl_sply_rcpt_end_day sc_khb_srv.day_nv100
+, one_rank_rlvt_rgn_rcpt_day sc_khb_srv.day_nv100
+, one_rank_gg_rgn_rcpt_day sc_khb_srv.day_nv100
+, one_rank_etc_rcpt_day sc_khb_srv.day_nv100
+, two_rank_rlvt_rgn_rcpt_day sc_khb_srv.day_nv100
+, two_rank_gg_rgn_rcpt_day sc_khb_srv.day_nv100
+, two_rank_etc_rcpt_day sc_khb_srv.day_nv100
+, przwner_prsntn_day sc_khb_srv.day_nv100
+, ctrt_bgng_day sc_khb_srv.day_nv100
+, ctrt_end_day sc_khb_srv.day_nv100
+, hmpg_url sc_khb_srv.url_nv4000
+, cnstrc_bzenty_bldr_nm sc_khb_srv.nm_nv500
+, refrnc_telno sc_khb_srv.telno_v30
+, biz_mby_dvlr_nm sc_khb_srv.nm_nv500
+, mvn_prnmnt_ym sc_khb_srv.ym_c6
+, speclt_ovrhtng_spcfc_yn sc_khb_srv.yn_c1
+, ajmt_trgt_rgn_yn sc_khb_srv.yn_c1
+, lttot_pc_uplmt_yn sc_khb_srv.yn_c1
+, imprmn_biz_yn sc_khb_srv.yn_c1
+, public_house_spcfc_yn sc_khb_srv.yn_c1
+, lrscl_bldlnd_devlop_spcfc_yn sc_khb_srv.yn_c1
+, npln_prvopr_public_house_spcfc_yn sc_khb_srv.yn_c1
+, lttot_info_url sc_khb_srv.url_nv4000
 );
 
 BULK INSERT sc_khb_srv.tb_lrea_office_info
