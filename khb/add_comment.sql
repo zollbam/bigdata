@@ -7,6 +7,20 @@
 사용 DB : mssql 2016
 */
 
+-- 테이블 확장 속성 확인
+SELECT 
+  t.TABLE_NAME "테이블명"
+, CAST(ep.value AS varchar(500)) "comment"
+  FROM (SELECT TABLE_SCHEMA, TABLE_NAME 
+          FROM information_schema.tables) t
+       LEFT JOIN -- tb_jado_index 떄문에 
+       (SELECT object_name(major_id) "TABLE_NAME",  value
+          FROM sys.extended_properties
+         WHERE minor_id = 0) ep
+                   ON t.TABLE_NAME = ep."TABLE_NAME"
+ WHERE t.TABLE_SCHEMA = 'sc_khb_srv'
+ ORDER BY 1;
+
 -- 테이블 확장 속성 쿼리 작성
 SELECT 
   t.TABLE_NAME "테이블명"
@@ -22,6 +36,25 @@ SELECT
                    ON t.TABLE_NAME = ep."TABLE_NAME"
  WHERE t.TABLE_SCHEMA = 'sc_khb_srv'
  ORDER BY 1;
+
+
+-- 컬럼 확장 속성 확인
+SELECT DISTINCT 
+  object_name(c.object_id) "테이블명"
+, c.NAME "컬럼명"
+, CAST(ep.value AS varchar(500)) "comment"
+, c.column_id
+  FROM sys.columns c
+       INNER JOIN
+       information_schema.constraint_column_usage ccu
+           ON object_name(c.object_id) = ccu.TABLE_NAME
+       LEFT JOIN
+       sys.extended_properties ep
+     	   ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
+ WHERE TABLE_SCHEMA = 'sc_khb_srv'
+--       AND 
+--       object_name(c.object_id) = 'tb_atlfsl_dlng_info'
+ ORDER BY 1, 4;
 
 -- 컬럼 확장 속성 쿼리 작성 => pk 존재 테이블만 가능
 SELECT DISTINCT 

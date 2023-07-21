@@ -136,7 +136,6 @@ SELECT
  ORDER BY 2,3;
 
 
-grant INSERT, UPDATE on sc_khb_srv.tb_com_rss_info to us_khb_exif;
 
 
 
