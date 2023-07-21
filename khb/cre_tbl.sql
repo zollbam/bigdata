@@ -55,7 +55,7 @@ FROM sys.columns c
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 WHERE ccu.TABLE_SCHEMA = 'sc_khb_srv'
       AND
-      object_name(c.object_id) = 'tb_link_apt_lttot_info'
+      object_name(c.object_id) = 'tb_com_user'
 --      AND 
 --      CAST(ep.value AS varchar) LIKE '%%'
 ORDER BY 1, c.column_id;
@@ -226,6 +226,7 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
             WHEN c2.TABLE_NAME = 'tb_com_emd_li_cd' THEN ', emd_li_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
 --            WHEN c2.TABLE_NAME = 'tb_com_sgg_cd' THEN ', sgg_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
             WHEN c2.TABLE_NAME = 'tb_hsmp_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+--            WHEN c2.TABLE_NAME = 'tb_link_hsmp_bsc_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
             ELSE ''
        END,
        '&#x0D;', '') + ');' "테이블별 작성 스크립트"
@@ -2068,7 +2069,7 @@ CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
 , dongli_nm sc_khb_srv.nm_nv500
 , hsmp_clsf_nm sc_khb_srv.nm_nv500
 , stdg_addr sc_khb_srv.addr_nv1000
-, rn_addr sc_khb_srv.addr_nv200
+, rn_addr sc_khb_srv.addr_nv1000
 , lttot_stle_nm sc_khb_srv.nm_nv500
 , use_aprv_day sc_khb_srv.day_nv100
 , aptcmpl_cnt sc_khb_srv.cnt_n15
@@ -2108,7 +2109,7 @@ CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
 , udgd_parkng_cnt sc_khb_srv.cnt_n15
 , cctv_cnt sc_khb_srv.cnt_n15
 , parkng_cntrl_hrk_yn_nm sc_khb_srv.nm_nv500
-, mngoffice_addr sc_khb_srv.addr_nv200
+, mngoffice_addr sc_khb_srv.addr_nv1000
 , mngoffice_telno sc_khb_srv.telno_v30
 , mngoffice_fxno sc_khb_srv.fxno_v30
 , anclr_wlfare_fclt_nm sc_khb_srv.nm_nv500
@@ -2118,6 +2119,9 @@ CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
 , top_flr_cnt sc_khb_srv.cnt_n15
 , bdrg_top_flr_cnt sc_khb_srv.cnt_n15
 , udgd_flr_cnt sc_khb_srv.cnt_n15
+, hsmp_lat sc_khb_srv.lat_d12_10
+, hsmp_lot sc_khb_srv.lot_d13_10
+, hsmp_crdnt geometry
 );
 
 BULK INSERT sc_khb_srv.tb_link_hsmp_bsc_info
@@ -2127,6 +2131,8 @@ BULK INSERT sc_khb_srv.tb_link_hsmp_bsc_info
              fieldterminator = '||',
              rowterminator = '\n'
             );
+
+UPDATE sc_khb_srv.tb_link_hsmp_bsc_info SET hsmp_crdnt = geometry::STPointFromText(concat('point(', hsmp_lot, ' ', hsmp_lat, ')'), 4326) WHERE hsmp_lat IS NOT NULL;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------

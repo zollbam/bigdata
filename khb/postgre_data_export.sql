@@ -324,68 +324,154 @@ case when bildregstr_totar is null then '' else bildregstr_totar::varchar(4000) 
 
 
 -- postgre => tb_k_apt_hsmp_bass_info
+--          , join tb_rn_adres_buld
+--          , join tb_rn_spce_buld 
 -- mssql => tb_link_hsmp_bsc_info
 select 
 concat_ws('||',
-case when hsmp_code is null then '' else hsmp_code::varchar(4000) end,
-case when hsmp_nm is null then '' else hsmp_nm::varchar(4000) end,
-case when atpt_nm is null then '' else atpt_nm::varchar(4000) end,
-case when signgu_nm is null then '' else signgu_nm::varchar(4000) end,
-case when eupmyeon_nm is null then '' else eupmyeon_nm::varchar(4000) end,
-case when dongli_nm is null then '' else dongli_nm::varchar(4000) end,
-case when hsmp_cl_nm is null then '' else hsmp_cl_nm::varchar(4000) end,
-case when legaldong_adres is null then '' else legaldong_adres::varchar(4000) end,
-case when rn_adres is null then '' else rn_adres::varchar(4000) end,
-case when lttot_stle_nm is null then '' else lttot_stle_nm::varchar(4000) end,
-case when use_confm_de is null then '' else use_confm_de::varchar(4000) end,
-case when dong_co is null then '' else dong_co::varchar(4000) end,
-case when hshld_co is null then '' else hshld_co::varchar(4000) end,
-case when manage_mthd_nm is null then '' else manage_mthd_nm::varchar(4000) end,
-case when heat_mthd_nm is null then '' else heat_mthd_nm::varchar(4000) end,
-case when crrdpr_ty_nm is null then '' else crrdpr_ty_nm::varchar(4000) end,
-case when cnstrctprofs_nm is null then '' else cnstrctprofs_nm::varchar(4000) end,
-case when opertnprofs_nm is null then '' else opertnprofs_nm::varchar(4000) end,
-case when housemgbsman_nm is null then '' else housemgbsman_nm::varchar(4000) end,
-case when gnrl_manage_mthd_nm is null then '' else gnrl_manage_mthd_nm::varchar(4000) end,
-case when gnrl_manage_nmpr_co is null then '' else gnrl_manage_nmpr_co::varchar(4000) end,
-case when expens_manage_mthd_nm is null then '' else expens_manage_mthd_nm::varchar(4000) end,
-case when expens_manage_nmpr_co is null then '' else expens_manage_nmpr_co::varchar(4000) end,
-case when expens_manage_cntrct_entrps_nm is null then '' else expens_manage_cntrct_entrps_nm::varchar(4000) end,
-case when cln_manage_mthd_nm is null then '' else cln_manage_mthd_nm::varchar(4000) end,
-case when cln_manage_nmpr_co is null then '' else cln_manage_nmpr_co::varchar(4000) end,
-case when fdwater_process_mth_nm is null then '' else fdwater_process_mth_nm::varchar(4000) end,
-case when dsnf_manage_mthd_nm is null then '' else dsnf_manage_mthd_nm::varchar(4000) end,
-case when fyer_dsnf_co is null then '' else fyer_dsnf_co::varchar(4000) end,
-case when dsnf_mth_nm is null then '' else dsnf_mth_nm::varchar(4000) end,
-case when buld_strct_nm is null then '' else buld_strct_nm::varchar(4000) end,
-case when elcty_cobfe_cpcty is null then '' else elcty_cobfe_cpcty::varchar(4000) end,
-case when hshld_elcty_cntrct_mthd_nm is null then '' else hshld_elcty_cntrct_mthd_nm::varchar(4000) end,
-case when elcty_safe_mngr_apnt_mthd_nm is null then '' else elcty_safe_mngr_apnt_mthd_nm::varchar(4000) end,
-case when fire_recptnban_mthd_nm is null then '' else fire_recptnban_mthd_nm::varchar(4000) end,
-case when wsp_mthd_nm is null then '' else wsp_mthd_nm::varchar(4000) end,
-case when elvtr_manage_stle_nm is null then '' else elvtr_manage_stle_nm::varchar(4000) end,
-case when psnger_elvtr_co is null then '' else psnger_elvtr_co::varchar(4000) end,
-case when frght_elvtr_co is null then '' else frght_elvtr_co::varchar(4000) end,
-case when psnger_frght_elvtr_co is null then '' else psnger_frght_elvtr_co::varchar(4000) end,
-case when troblrit_elvtr_co is null then '' else troblrit_elvtr_co::varchar(4000) end,
-case when emgnc_elvtr_co is null then '' else emgnc_elvtr_co::varchar(4000) end,
-case when etc_elvtr_co is null then '' else etc_elvtr_co::varchar(4000) end,
-case when tot_parkng_alge is null then '' else tot_parkng_alge::varchar(4000) end,
-case when ground_parkng_alge is null then '' else ground_parkng_alge::varchar(4000) end,
-case when undgrnd_parkng_alge is null then '' else undgrnd_parkng_alge::varchar(4000) end,
-case when cctv_alge is null then '' else cctv_alge::varchar(4000) end,
-case when parkngcntrl_hrk_at_nm is null then '' else parkngcntrl_hrk_at_nm::varchar(4000) end,
-case when manageoffice_adres is null then '' else manageoffice_adres::varchar(4000) end,
-case when manageoffice_cttpc is null then '' else manageoffice_cttpc::varchar(4000) end,
-case when manageoffice_fax is null then '' else manageoffice_fax::varchar(4000) end,
-case when mrn_cmpnint_fclty_nm is null then '' else mrn_cmpnint_fclty_nm::varchar(4000) end,
-case when sbscrb_de is null then '' else sbscrb_de::varchar(4000) end,
-case when lttot_hshld_co is null then '' else lttot_hshld_co::varchar(4000) end,
-case when rent_hshld_co is null then '' else rent_hshld_co::varchar(4000) end,
-case when top_floor_co is null then '' else top_floor_co::varchar(4000) end,
-case when bildregstr_top_floor_co is null then '' else bildregstr_top_floor_co::varchar(4000) end,
-case when undgrnd_floor_co is null then '' else undgrnd_floor_co::varchar(4000) end)
-  from tb_k_apt_hsmp_bass_info; -- 18318 행
+case when tkahbi.hsmp_code is null then '' else tkahbi.hsmp_code::varchar(4000) end,
+case when tkahbi.hsmp_nm is null then '' else tkahbi.hsmp_nm::varchar(4000) end,
+case when tkahbi.atpt_nm is null then '' else tkahbi.atpt_nm::varchar(4000) end,
+case when tkahbi.signgu_nm is null then '' else tkahbi.signgu_nm::varchar(4000) end,
+case when tkahbi.eupmyeon_nm is null then '' else tkahbi.eupmyeon_nm::varchar(4000) end,
+case when tkahbi.dongli_nm is null then '' else tkahbi.dongli_nm::varchar(4000) end,
+case when tkahbi.hsmp_cl_nm is null then '' else tkahbi.hsmp_cl_nm::varchar(4000) end,
+case when tkahbi.legaldong_adres is null then '' else tkahbi.legaldong_adres::varchar(4000) end,
+case when tkahbi.rn_adres is null then '' else tkahbi.rn_adres::varchar(4000) end,
+case when tkahbi.lttot_stle_nm is null then '' else tkahbi.lttot_stle_nm::varchar(4000) end,
+case when tkahbi.use_confm_de is null then '' else tkahbi.use_confm_de::varchar(4000) end,
+case when tkahbi.dong_co is null then '' else tkahbi.dong_co::varchar(4000) end,
+case when tkahbi.hshld_co is null then '' else tkahbi.hshld_co::varchar(4000) end,
+case when tkahbi.manage_mthd_nm is null then '' else tkahbi.manage_mthd_nm::varchar(4000) end,
+case when tkahbi.heat_mthd_nm is null then '' else tkahbi.heat_mthd_nm::varchar(4000) end,
+case when tkahbi.crrdpr_ty_nm is null then '' else tkahbi.crrdpr_ty_nm::varchar(4000) end,
+case when tkahbi.cnstrctprofs_nm is null then '' else tkahbi.cnstrctprofs_nm::varchar(4000) end,
+case when tkahbi.opertnprofs_nm is null then '' else tkahbi.opertnprofs_nm::varchar(4000) end,
+case when tkahbi.housemgbsman_nm is null then '' else tkahbi.housemgbsman_nm::varchar(4000) end,
+case when tkahbi.gnrl_manage_mthd_nm is null then '' else tkahbi.gnrl_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.gnrl_manage_nmpr_co is null then '' else tkahbi.gnrl_manage_nmpr_co::varchar(4000) end,
+case when tkahbi.expens_manage_mthd_nm is null then '' else tkahbi.expens_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.expens_manage_nmpr_co is null then '' else tkahbi.expens_manage_nmpr_co::varchar(4000) end,
+case when tkahbi.expens_manage_cntrct_entrps_nm is null then '' else tkahbi.expens_manage_cntrct_entrps_nm::varchar(4000) end,
+case when tkahbi.cln_manage_mthd_nm is null then '' else tkahbi.cln_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.cln_manage_nmpr_co is null then '' else tkahbi.cln_manage_nmpr_co::varchar(4000) end,
+case when tkahbi.fdwater_process_mth_nm is null then '' else tkahbi.fdwater_process_mth_nm::varchar(4000) end,
+case when tkahbi.dsnf_manage_mthd_nm is null then '' else tkahbi.dsnf_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.fyer_dsnf_co is null then '' else tkahbi.fyer_dsnf_co::varchar(4000) end,
+case when tkahbi.dsnf_mth_nm is null then '' else tkahbi.dsnf_mth_nm::varchar(4000) end,
+case when tkahbi.buld_strct_nm is null then '' else tkahbi.buld_strct_nm::varchar(4000) end,
+case when tkahbi.elcty_cobfe_cpcty is null then '' else tkahbi.elcty_cobfe_cpcty::varchar(4000) end,
+case when tkahbi.hshld_elcty_cntrct_mthd_nm is null then '' else tkahbi.hshld_elcty_cntrct_mthd_nm::varchar(4000) end,
+case when tkahbi.elcty_safe_mngr_apnt_mthd_nm is null then '' else tkahbi.elcty_safe_mngr_apnt_mthd_nm::varchar(4000) end,
+case when tkahbi.fire_recptnban_mthd_nm is null then '' else tkahbi.fire_recptnban_mthd_nm::varchar(4000) end,
+case when tkahbi.wsp_mthd_nm is null then '' else tkahbi.wsp_mthd_nm::varchar(4000) end,
+case when tkahbi.elvtr_manage_stle_nm is null then '' else tkahbi.elvtr_manage_stle_nm::varchar(4000) end,
+case when tkahbi.psnger_elvtr_co is null then '' else tkahbi.psnger_elvtr_co::varchar(4000) end,
+case when tkahbi.frght_elvtr_co is null then '' else tkahbi.frght_elvtr_co::varchar(4000) end,
+case when tkahbi.psnger_frght_elvtr_co is null then '' else tkahbi.psnger_frght_elvtr_co::varchar(4000) end,
+case when tkahbi.troblrit_elvtr_co is null then '' else tkahbi.troblrit_elvtr_co::varchar(4000) end,
+case when tkahbi.emgnc_elvtr_co is null then '' else tkahbi.emgnc_elvtr_co::varchar(4000) end,
+case when tkahbi.etc_elvtr_co is null then '' else tkahbi.etc_elvtr_co::varchar(4000) end,
+case when tkahbi.tot_parkng_alge is null then '' else tkahbi.tot_parkng_alge::varchar(4000) end,
+case when tkahbi.ground_parkng_alge is null then '' else tkahbi.ground_parkng_alge::varchar(4000) end,
+case when tkahbi.undgrnd_parkng_alge is null then '' else tkahbi.undgrnd_parkng_alge::varchar(4000) end,
+case when tkahbi.cctv_alge is null then '' else tkahbi.cctv_alge::varchar(4000) end,
+case when tkahbi.parkngcntrl_hrk_at_nm is null then '' else tkahbi.parkngcntrl_hrk_at_nm::varchar(4000) end,
+case when tkahbi.manageoffice_adres is null then '' else tkahbi.manageoffice_adres::varchar(4000) end,
+case when tkahbi.manageoffice_cttpc is null then '' else tkahbi.manageoffice_cttpc::varchar(4000) end,
+case when tkahbi.manageoffice_fax is null then '' else tkahbi.manageoffice_fax::varchar(4000) end,
+case when tkahbi.mrn_cmpnint_fclty_nm is null then '' else tkahbi.mrn_cmpnint_fclty_nm::varchar(4000) end,
+case when tkahbi.sbscrb_de is null then '' else tkahbi.sbscrb_de::varchar(4000) end,
+case when tkahbi.lttot_hshld_co is null then '' else tkahbi.lttot_hshld_co::varchar(4000) end,
+case when tkahbi.rent_hshld_co is null then '' else tkahbi.rent_hshld_co::varchar(4000) end,
+case when tkahbi.top_floor_co is null then '' else tkahbi.top_floor_co::varchar(4000) end,
+case when tkahbi.bildregstr_top_floor_co is null then '' else tkahbi.bildregstr_top_floor_co::varchar(4000) end,
+case when tkahbi.undgrnd_floor_co is null then '' else tkahbi.undgrnd_floor_co::varchar(4000) END,
+case WHEN trunc(st_y(st_centroid(st_collect(trsb.lc_info)))::numeric, 10) IS NULL THEN '' ELSE trunc(st_y(st_centroid(st_collect(trsb.lc_info)))::numeric, 10)::varchar(4000) end,
+case WHEN trunc(st_x(st_centroid(st_collect(trsb.lc_info)))::numeric, 10) IS NULL THEN '' ELSE trunc(st_x(st_centroid(st_collect(trsb.lc_info)))::numeric, 10)::varchar(4000) end,
+'')
+  from tb_k_apt_hsmp_bass_info tkahbi
+       left outer join 
+       tb_rn_adres_buld trab
+           on trab.atpt_nm = tkahbi.atpt_nm
+              and 
+              trab.signgu_nm = tkahbi.signgu_nm
+              and 
+              trab.road_nm = trim(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 1))
+              and 
+              trab.buld_mnnm_no = case when length(regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 1), '[^0-9]', '', 'g')) = 0 then null
+                                       else regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 1), '[^0-9]', '', 'g')::numeric
+                                  end
+              and trab.buld_slno_no = case when length(regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 2), '[^0-9]', '', 'g')) = 0 then 0
+                                           else regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 2), '[^0-9]', '', 'g')::numeric
+                                      end
+       left outer join 
+       tb_rn_spce_buld trsb
+           on trsb.signgu_code = substring(trab.legaldong_code, 1, 5)
+              and 
+              trsb.rn_code = substring(trab.rn_code, 6, 7)
+              and 
+              trsb.buld_mnnm_no = trab.buld_mnnm_no
+              and 
+              trsb.buld_slno_no = trab.buld_slno_no
+ group by tkahbi.hsmp_code
+        , tkahbi.hsmp_nm
+        , tkahbi.atpt_nm
+        , tkahbi.signgu_nm
+        , tkahbi.eupmyeon_nm
+        , tkahbi.dongli_nm
+        , tkahbi.hsmp_cl_nm
+        , tkahbi.legaldong_adres
+        , tkahbi.rn_adres
+        , tkahbi.lttot_stle_nm
+        , tkahbi.use_confm_de
+        , tkahbi.dong_co
+        , tkahbi.hshld_co
+        , tkahbi.manage_mthd_nm
+        , tkahbi.heat_mthd_nm
+        , tkahbi.crrdpr_ty_nm
+        , tkahbi.cnstrctprofs_nm
+        , tkahbi.opertnprofs_nm
+        , tkahbi.housemgbsman_nm
+        , tkahbi.gnrl_manage_mthd_nm
+        , tkahbi.gnrl_manage_nmpr_co
+        , tkahbi.expens_manage_mthd_nm
+        , tkahbi.expens_manage_nmpr_co
+        , tkahbi.expens_manage_cntrct_entrps_nm
+        , tkahbi.cln_manage_mthd_nm
+        , tkahbi.cln_manage_nmpr_co
+        , tkahbi.fdwater_process_mth_nm
+        , tkahbi.dsnf_manage_mthd_nm
+        , tkahbi.fyer_dsnf_co
+        , tkahbi.dsnf_mth_nm
+        , tkahbi.buld_strct_nm
+        , tkahbi.elcty_cobfe_cpcty
+        , tkahbi.hshld_elcty_cntrct_mthd_nm
+        , tkahbi.elcty_safe_mngr_apnt_mthd_nm
+        , tkahbi.fire_recptnban_mthd_nm
+        , tkahbi.wsp_mthd_nm
+        , tkahbi.elvtr_manage_stle_nm
+        , tkahbi.psnger_elvtr_co
+        , tkahbi.frght_elvtr_co
+        , tkahbi.psnger_frght_elvtr_co
+        , tkahbi.troblrit_elvtr_co
+        , tkahbi.emgnc_elvtr_co
+        , tkahbi.etc_elvtr_co
+        , tkahbi.tot_parkng_alge
+        , tkahbi.ground_parkng_alge
+        , tkahbi.undgrnd_parkng_alge
+        , tkahbi.cctv_alge
+        , tkahbi.parkngcntrl_hrk_at_nm
+        , tkahbi.manageoffice_adres
+        , tkahbi.manageoffice_cttpc
+        , tkahbi.manageoffice_fax
+        , tkahbi.mrn_cmpnint_fclty_nm
+        , tkahbi.sbscrb_de
+        , tkahbi.lttot_hshld_co
+        , tkahbi.rent_hshld_co
+        , tkahbi.top_floor_co
+        , tkahbi.bildregstr_top_floor_co
+        , tkahbi.undgrnd_floor_co; -- 18318 행
 
 
 -- postgre => tb_k_apt_managect_info
@@ -493,10 +579,32 @@ case when etc_ern_mt_incme_amount is null then '' else etc_ern_mt_incme_amount::
 OFFSET 200000; -- 95882 행
 -- 전체 295882 행
 
-
-
-
-
+-- postgre => tb_kric_statn_info
+--          , tb_legal_zone_info_emg
+--          , tb_legal_zone_info_lio
+-- mssql => tb_link_hsmp_managect_info
+select tksi.statn_no
+     , tksi.statn_nm
+     , tksi.route_no as rte_no
+     , tksi.route_nm as rte_nm
+     , tksi.eng_statn_nm
+     , tksi.chcrt_statn_nm
+     , tksi.trnsit_statn_se_nm
+     , tksi.trnsit_route_no as trnsit_rte_no
+     , tksi.trnsit_route_nm as trnsit_rte_nm
+     , trunc(st_y(tksi.lc_info)::numeric, 10) as statn_lat
+     , trunc(st_x(tksi.lc_info)::numeric, 10) as statn_lot
+     , tksi.oper_instt_nm as oper_inst_nm
+     , tksi.statn_rn_adres as statn_rn_addr
+     , tksi.statn_telno
+     , tksi.data_stdr_de as data_crtr_day
+     , coalesce (tlzil.li_code, tlzie.emd_code||'00') as stdg_cd
+--     , trim(coalesce (tlzie.emd_nm, '') || ' ' || coalesce (tlzil.li_nm, '')) as emd_li_nm
+  from tb_kric_statn_info tksi
+       left outer join tb_legal_zone_info_emg tlzie
+               on st_contains(tlzie.lc_info, tksi.lc_info)
+       left outer join tb_legal_zone_info_lio tlzil
+               on st_contains(tlzil.lc_info, tksi.lc_info);
 
 
 
