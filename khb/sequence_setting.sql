@@ -17,6 +17,10 @@ SELECT TABLE_NAME,
   '    CACHE;' + char(13) "시퀀스 생성"
   FROM information_schema.tables
  WHERE TABLE_SCHEMA = 'sc_khb_srv'
+       AND 
+       TABLE_NAME NOT LIKE '%link%'
+       AND 
+       TABLE_NAME NOT LIKE 'vw:_%' ESCAPE ':'
  ORDER BY 1;
 
 -- 시퀀스 최대값 수정 쿼리문 스크립트 작성(161)
@@ -24,6 +28,10 @@ SELECT TABLE_NAME,
   'alter SEQUENCE ' + TABLE_SCHEMA + '.' + replace(table_name, 'tb_', 'sq_') + ' MAXVALUE 999999999999999999;' "시퀀스 최대값 수정"
   FROM information_schema.tables
  WHERE TABLE_SCHEMA = 'sc_khb_srv'
+       AND 
+       TABLE_NAME NOT LIKE '%link%'
+       AND 
+       TABLE_NAME NOT LIKE 'vw:_%' ESCAPE ':'
  ORDER BY 1;
 
 -- 시퀀스 생성 쿼리문
@@ -115,70 +123,92 @@ SELECT object_name(object_id),
        column_id = 1
  ORDER BY 1;
 
-select max(atlfsl_batch_hstry_pk) from sc_khb_srv.tb_atlfsl_batch_hstry; -- 48788648
-select max(atlfsl_bsc_info_pk) from sc_khb_srv.tb_atlfsl_bsc_info; --
-select max(atlfsl_cfr_fclt_info_pk) from sc_khb_srv.tb_atlfsl_cfr_fclt_info; --
-select max(atlfsl_cmrc_dtl_info_pk) from sc_khb_srv.tb_atlfsl_cmrc_dtl_info; --
-select max(atlfsl_dlng_info_pk) from sc_khb_srv.tb_atlfsl_dlng_info; --
-select max(atlfsl_etc_dtl_info_pk) from sc_khb_srv.tb_atlfsl_etc_dtl_info; --
-select max(atlfsl_etc_info_pk) from sc_khb_srv.tb_atlfsl_etc_info; --
-select max(atlfsl_img_info_pk) from sc_khb_srv.tb_atlfsl_img_info; --
-select max(atlfsl_inqry_info_pk) from sc_khb_srv.tb_atlfsl_inqry_info; --
-select max(atlfsl_land_usg_info_pk) from sc_khb_srv.tb_atlfsl_land_usg_info; --
-select max(atlfsl_reside_gnrl_dtl_info_pk) from sc_khb_srv.tb_atlfsl_reside_gnrl_dtl_info; --
-select max(atlfsl_reside_set_dtl_info_pk) from sc_khb_srv.tb_atlfsl_reside_set_dtl_info; --
-select max(author_no_pk) from sc_khb_srv.tb_com_author; --
-select max(banner_info_pk) from sc_khb_srv.tb_com_banner_info; -- 22
-select max(banner_info_pk) from sc_khb_srv.tb_com_banner_info_tmp; -- 19
-select max(bbs_pk) from sc_khb_srv.tb_com_bbs; --
-select max(bbs_cmnt_pk) from sc_khb_srv.tb_com_bbs_cmnt; --
-select max(code_pk) from sc_khb_srv.tb_com_code; --
-select max(crtfc_pk) from sc_khb_srv.tb_com_crtfc_tmpr; --
-select max(ctpv_cd_pk) from sc_khb_srv.tb_com_ctpv_cd; --
-select max(device_info_pk) from sc_khb_srv.tb_com_device_info; --
-select max(device_ntcn_mapng_info_pk) from sc_khb_srv.tb_com_device_ntcn_mapng_info; --
-select max(device_stng_info_pk) from sc_khb_srv.tb_com_device_stng_info; --
-select max(emd_li_cd_pk) from sc_khb_srv.tb_com_emd_li_cd; --
-select max(error_log_pk) from sc_khb_srv.tb_com_error_log; --
-select max(faq_no_pk) from sc_khb_srv.tb_com_faq; --
-select max(file_no_pk) from sc_khb_srv.tb_com_file; --
-select max(file_no_pk) from sc_khb_srv.tb_com_file_mapng; --
-select max(group_no_pk) from sc_khb_srv.tb_com_group; --
-select max(com_group_author_pk) from sc_khb_srv.tb_com_group_author; --
-select max(gtwy_svc_pk) from sc_khb_srv.tb_com_gtwy_svc; --
-select max(com_gtwy_svc_author_pk) from sc_khb_srv.tb_com_gtwy_svc_author; --
-select max(job_schdl_hstry_pk) from sc_khb_srv.tb_com_job_schdl_hstry; --
-select max(job_schdl_info_pk) from sc_khb_srv.tb_com_job_schdl_info; --
-select max(login_hist_pk) from sc_khb_srv.tb_com_login_hist; --
-select max(menu_no_pk) from sc_khb_srv.tb_com_menu; --
-select max(com_menu_author_pk) from sc_khb_srv.tb_com_menu_author; --
-select max(notice_no_pk) from sc_khb_srv.tb_com_notice; --
-select max(ntcn_info_pk) from sc_khb_srv.tb_com_ntcn_info; --
-select max(push_meta_info_pk) from sc_khb_srv.tb_com_push_meta_info; --
-select max(qna_no_pk) from sc_khb_srv.tb_com_qna; --
-select max(recsroom_no_pk) from sc_khb_srv.tb_com_recsroom; --
-select max(rss_info_pk) from sc_khb_srv.tb_com_rss_info; --
-select max(scrin_no_pk) from sc_khb_srv.tb_com_scrin; --
-select max(com_scrin_author_pk) from sc_khb_srv.tb_com_scrin_author; --
-select max(sgg_cd_pk) from sc_khb_srv.tb_com_sgg_cd; --
-select max(com_stplat_hist_pk) from sc_khb_srv.tb_com_stplat_hist; --
-select max(com_stplat_info_pk) from sc_khb_srv.tb_com_stplat_info; --
-select max(com_stplat_mapng_pk) from sc_khb_srv.tb_com_stplat_mapng; --
-select max(ip_manage_pk) from sc_khb_srv.tb_com_svc_ip_manage; --
-select max(thema_info_pk) from sc_khb_srv.tb_com_thema_info; --
-select max(user_no_pk) from sc_khb_srv.tb_com_user; --
-select max(user_author_pk) from sc_khb_srv.tb_com_user_author; --
-select max(com_user_group_pk) from sc_khb_srv.tb_com_user_group; --
-select max(user_ntcn_mapng_info_pk) from sc_khb_srv.tb_com_user_ntcn_mapng_info; --
-select max(hsmp_dtl_info_pk) from sc_khb_srv.tb_hsmp_dtl_info; --
-select max(hsmp_info_pk) from sc_khb_srv.tb_hsmp_info; --
-select max(itrst_atlfsl_info_pk) from sc_khb_srv.tb_itrst_atlfsl_info; --
-select max(lrea_office_info_pk) from sc_khb_srv.tb_lrea_office_info; --
-select max(lttot_info_pk) from sc_khb_srv.tb_lttot_info; --
-select max(svc_pk) from sc_khb_srv.tb_svc_bass_info; --
-select max(user_atlfsl_img_info_pk) from sc_khb_srv.tb_user_atlfsl_img_info; --
-select max(user_atlfsl_info_pk) from sc_khb_srv.tb_user_atlfsl_info; --
-select max(user_mapng_info_pk) from sc_khb_srv.tb_user_atlfsl_preocupy_info; --
+select max(atlfsl_batch_hstry_pk) from sc_khb_srv.tb_atlfsl_batch_hstry;
+select max(atlfsl_bsc_info_pk) from sc_khb_srv.tb_atlfsl_bsc_info;
+select max(atlfsl_cfr_fclt_info_pk) from sc_khb_srv.tb_atlfsl_cfr_fclt_info;
+select max(atlfsl_dlng_info_pk) from sc_khb_srv.tb_atlfsl_dlng_info;
+select max(atlfsl_etc_info_pk) from sc_khb_srv.tb_atlfsl_etc_info;
+select max(atlfsl_img_info_pk) from sc_khb_srv.tb_atlfsl_img_info;
+select max(atlfsl_inqry_info_pk) from sc_khb_srv.tb_atlfsl_inqry_info;
+select max(atlfsl_land_usg_info_pk) from sc_khb_srv.tb_atlfsl_land_usg_info;
+select max(author_no_pk) from sc_khb_srv.tb_com_author;
+select max(banner_info_pk) from sc_khb_srv.tb_com_banner_info;
+select max(bbs_pk) from sc_khb_srv.tb_com_bbs;
+select max(bbs_cmnt_pk) from sc_khb_srv.tb_com_bbs_cmnt;
+select max(code_pk) from sc_khb_srv.tb_com_code;
+select max(crtfc_pk) from sc_khb_srv.tb_com_crtfc_tmpr;
+select max(ctpv_cd_pk) from sc_khb_srv.tb_com_ctpv_cd;
+select max(device_info_pk) from sc_khb_srv.tb_com_device_info;
+select max(device_ntcn_mapng_info_pk) from sc_khb_srv.tb_com_device_ntcn_mapng_info;
+select max(device_stng_info_pk) from sc_khb_srv.tb_com_device_stng_info;
+select max(emd_li_cd_pk) from sc_khb_srv.tb_com_emd_li_cd;
+select max(error_log_pk) from sc_khb_srv.tb_com_error_log;
+select max(faq_no_pk) from sc_khb_srv.tb_com_faq;
+select max(file_no_pk) from sc_khb_srv.tb_com_file;
+select max(file_no_pk) from sc_khb_srv.tb_com_file_mapng;
+select max(group_no_pk) from sc_khb_srv.tb_com_group;
+select max(com_group_author_pk) from sc_khb_srv.tb_com_group_author;
+select max(gtwy_svc_pk) from sc_khb_srv.tb_com_gtwy_svc;
+select max(com_gtwy_svc_author_pk) from sc_khb_srv.tb_com_gtwy_svc_author;
+select max(job_schdl_hstry_pk) from sc_khb_srv.tb_com_job_schdl_hstry;
+select max(job_schdl_info_pk) from sc_khb_srv.tb_com_job_schdl_info;
+select max(login_hist_pk) from sc_khb_srv.tb_com_login_hist;
+select max(menu_no_pk) from sc_khb_srv.tb_com_menu;
+select max(com_menu_author_pk) from sc_khb_srv.tb_com_menu_author;
+select max(notice_no_pk) from sc_khb_srv.tb_com_notice;
+select max(ntcn_info_pk) from sc_khb_srv.tb_com_ntcn_info;
+select max(push_meta_info_pk) from sc_khb_srv.tb_com_push_meta_info;
+select max(qna_no_pk) from sc_khb_srv.tb_com_qna;
+select max(recsroom_no_pk) from sc_khb_srv.tb_com_recsroom;
+select max(rss_info_pk) from sc_khb_srv.tb_com_rss_info;
+select max(scrin_no_pk) from sc_khb_srv.tb_com_scrin;
+select max(com_scrin_author_pk) from sc_khb_srv.tb_com_scrin_author;
+select max(sgg_cd_pk) from sc_khb_srv.tb_com_sgg_cd;
+select max(com_stplat_hist_pk) from sc_khb_srv.tb_com_stplat_hist;
+select max(com_stplat_info_pk) from sc_khb_srv.tb_com_stplat_info;
+select max(com_stplat_mapng_pk) from sc_khb_srv.tb_com_stplat_mapng;
+select max(ip_manage_pk) from sc_khb_srv.tb_com_svc_ip_manage;
+select max(thema_info_pk) from sc_khb_srv.tb_com_thema_info;
+select max(user_no_pk) from sc_khb_srv.tb_com_user;
+select max(user_author_pk) from sc_khb_srv.tb_com_user_author;
+select max(com_user_group_pk) from sc_khb_srv.tb_com_user_group;
+select max(user_ntcn_mapng_info_pk) from sc_khb_srv.tb_com_user_ntcn_mapng_info;
+select max(hsmp_dtl_info_pk) from sc_khb_srv.tb_hsmp_dtl_info;
+select max(hsmp_info_pk) from sc_khb_srv.tb_hsmp_info;
+select max(itrst_atlfsl_info_pk) from sc_khb_srv.tb_itrst_atlfsl_info;
+select max(id) from sc_khb_srv.tb_jado_index;
+select max(house_mng_no) from sc_khb_srv.tb_link_apt_lttot_cmpet_rt_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_apt_lttot_house_ty_dtl_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_apt_lttot_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info;
+select max(hsmp_cd) from sc_khb_srv.tb_link_hsmp_area_info;
+select max(hsmp_cd) from sc_khb_srv.tb_link_hsmp_bsc_info;
+select max(hsmp_cd) from sc_khb_srv.tb_link_hsmp_managect_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_cmpet_rt_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_public_sprt_prvate_rent_lttot_cmpet_rt_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_remndr_hh_lttot_cmpet_rt_info;
+select max(house_mng_no) from sc_khb_srv.tb_link_rtrcn_re_sply_lttot_cmpet_rt_info;
+select max(statn_no) from sc_khb_srv.tb_link_subway_statn_info;
+select max(lrea_office_info_pk) from sc_khb_srv.tb_lrea_office_info;
+select max(lttot_info_pk) from sc_khb_srv.tb_lttot_info;
+select max(svc_pk) from sc_khb_srv.tb_svc_bass_info;
+select max(user_atlfsl_img_info_pk) from sc_khb_srv.tb_user_atlfsl_img_info;
+select max(user_atlfsl_info_pk) from sc_khb_srv.tb_user_atlfsl_info;
+select max(user_mapng_info_pk) from sc_khb_srv.tb_user_atlfsl_preocupy_info;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_atlfsl;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_ctpv;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_emd_li;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_hsmp;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_lrea_office;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_lttot;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_rss;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_sgg;
+select max(grp_gb_nm) from sc_khb_srv.vw_app_unity_srch_subway_statn;
+select max(grp_gb_nm) from sc_khb_srv.vw_unity_srch_std;
+
 
 -- 시퀀스 업데이트(162)
 /*
@@ -201,6 +231,10 @@ SELECT
 		 WHERE ORDINAL_POSITION=1
 		       AND
 		       TABLE_SCHEMA = 'sc_khb_srv'
+		       AND 
+               TABLE_NAME NOT LIKE '%link%'
+               AND 
+               TABLE_NAME NOT LIKE 'vw:_%' ESCAPE ':'
 		 ORDER BY TABLE_NAME
 		 FOR xml PATH('')), 1, 1, '') + char(10) +
   ')' + char(10) +
@@ -217,14 +251,8 @@ select 'tb_atlfsl_bsc_info' "table_name", max(atlfsl_bsc_info_pk) "max_value"
 select 'tb_atlfsl_cfr_fclt_info' "table_name", max(atlfsl_cfr_fclt_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_cfr_fclt_info
  union 
-select 'tb_atlfsl_cmrc_dtl_info' "table_name", max(atlfsl_cmrc_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_cmrc_dtl_info
- union 
 select 'tb_atlfsl_dlng_info' "table_name", max(atlfsl_dlng_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_dlng_info
- union 
-select 'tb_atlfsl_etc_dtl_info' "table_name", max(atlfsl_etc_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_etc_dtl_info
  union 
 select 'tb_atlfsl_etc_info' "table_name", max(atlfsl_etc_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_etc_info
@@ -238,20 +266,11 @@ select 'tb_atlfsl_inqry_info' "table_name", max(atlfsl_inqry_info_pk) "max_value
 select 'tb_atlfsl_land_usg_info' "table_name", max(atlfsl_land_usg_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_land_usg_info
  union 
-select 'tb_atlfsl_reside_gnrl_dtl_info' "table_name", max(atlfsl_reside_gnrl_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_reside_gnrl_dtl_info
- union 
-select 'tb_atlfsl_reside_set_dtl_info' "table_name", max(atlfsl_reside_set_dtl_info_pk) "max_value"
-  from sc_khb_srv.tb_atlfsl_reside_set_dtl_info
- union 
 select 'tb_com_author' "table_name", max(author_no_pk) "max_value"
   from sc_khb_srv.tb_com_author
  union 
 select 'tb_com_banner_info' "table_name", max(banner_info_pk) "max_value"
   from sc_khb_srv.tb_com_banner_info
- union 
-select 'tb_com_banner_info_tmp' "table_name", max(banner_info_pk) "max_value"
-  from sc_khb_srv.tb_com_banner_info_tmp
  union 
 select 'tb_com_bbs' "table_name", max(bbs_pk) "max_value"
   from sc_khb_srv.tb_com_bbs
@@ -382,6 +401,9 @@ select 'tb_hsmp_info' "table_name", max(hsmp_info_pk) "max_value"
 select 'tb_itrst_atlfsl_info' "table_name", max(itrst_atlfsl_info_pk) "max_value"
   from sc_khb_srv.tb_itrst_atlfsl_info
  union 
+select 'tb_jado_index' "table_name", max(id) "max_value"
+  from sc_khb_srv.tb_jado_index
+ union 
 select 'tb_lrea_office_info' "table_name", max(lrea_office_info_pk) "max_value"
   from sc_khb_srv.tb_lrea_office_info
  union 
@@ -401,6 +423,7 @@ select 'tb_user_atlfsl_preocupy_info' "table_name", max(user_mapng_info_pk) "max
   from sc_khb_srv.tb_user_atlfsl_preocupy_info
 )
 SELECT * from max_value;
+
 
 -- 현재 시퀀스값에 맞게 업데이트
 SELECT 
