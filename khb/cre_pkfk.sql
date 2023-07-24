@@ -160,15 +160,33 @@ SELECT
            ON a.constraint_name = b.constraint_name
  ORDER BY 1, 2;
 
--- fk생성 및 생성 안되는 이유
 
+
+
+
+-- fk생성 및 생성 안되는 이유
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_batch_hstry_tb_atlfsl_bsc_info
 alter table sc_khb_srv.tb_atlfsl_batch_hstry 
 add constraint fk_tb_atlfsl_batch_hstry_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
 	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
-/*배치 이력에 매물 타입이 03과 04 인 매물 번호가 들어가 있어서 충돌 발생*/
+SELECT 
+  PRODUCT_NO
+, PRODUCT_CATE_CD
+  FROM hanbang.hanbang.product_info pi2
+ WHERE PRODUCT_NO = ANY(SELECT atlfsl_bsc_info_pk
+                          FROM sc_khb_srv.tb_atlfsl_batch_hstry
+                        EXCEPT
+                        SELECT atlfsl_bsc_info_pk
+                          from sc_khb_srv.tb_atlfsl_bsc_info
+                         WHERE atlfsl_knd_cd NOT in ('03', '04'));
+/*
+배치 이력에 매물 타입이 03과 04 인 매물 번호가 들어가 있어서 충돌 발생
+*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_batch_hstry_tb_atlfsl_info_app
 alter table sc_khb_srv.tb_atlfsl_batch_hstry 
 add constraint fk_tb_atlfsl_batch_hstry_tb_atlfsl_info_app 
 foreign key (cntnts_no) 
@@ -176,6 +194,7 @@ foreign key (cntnts_no)
 
 /*아직 sc_khb_srv.tb_atlfsl_info_app 라는 테이블 없음*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_bsc_info_tb_lrea_office_info
 alter table sc_khb_srv.tb_atlfsl_bsc_info 
 add constraint fk_tb_atlfsl_bsc_info_tb_lrea_office_info 
 foreign key (lrea_office_info_pk) 
@@ -191,6 +210,7 @@ SELECT lrea_office_info_pk
 0인 데이터를 삭제 시켜야 fk가 생성
 */
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_cfr_fclt_info_tb_atlfsl_bsc_info
 alter table sc_khb_srv.tb_atlfsl_cfr_fclt_info 
 add constraint fk_tb_atlfsl_cfr_fclt_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
@@ -198,27 +218,31 @@ foreign key (atlfsl_bsc_info_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
-alter table sc_khb_srv.tb_atlfsl_cmrc_dtl_info 
-add constraint fk_tb_atlfsl_cmrc_dtl_info_tb_atlfsl_bsc_info 
-foreign key (atlfsl_bsc_info_pk) 
-references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+-- fk_tb_atlfsl_cmrc_dtl_info_tb_atlfsl_bsc_info => tb_atlfsl_cmrc_dtl_info 테이블 삭제
+--alter table sc_khb_srv.tb_atlfsl_cmrc_dtl_info 
+--add constraint fk_tb_atlfsl_cmrc_dtl_info_tb_atlfsl_bsc_info 
+--foreign key (atlfsl_bsc_info_pk) 
+--references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_dlng_info_tb_atlfsl_bsc_info
 alter table sc_khb_srv.tb_atlfsl_dlng_info 
 add constraint fk_tb_atlfsl_dlng_info_tb_atlfsl_bsc_info 
-foreign key (atlfsl_bsc_info_pk) 
+foreign key (atlfsl_bsc_info_pk)
 	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
-alter table sc_khb_srv.tb_atlfsl_etc_dtl_info 
-add constraint fk_tb_atlfsl_etc_dtl_info_tb_atlfsl_bsc_info 
-foreign key (atlfsl_bsc_info_pk) 
-	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+-- fk_tb_atlfsl_etc_dtl_info_tb_atlfsl_bsc_info => tb_atlfsl_etc_dtl_info 테이블 삭제
+--alter table sc_khb_srv.tb_atlfsl_etc_dtl_info 
+--add constraint fk_tb_atlfsl_etc_dtl_info_tb_atlfsl_bsc_info 
+--foreign key (atlfsl_bsc_info_pk) 
+--	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_etc_info_tb_atlfsl_bsc_info
 alter table sc_khb_srv.tb_atlfsl_etc_info 
 add constraint fk_tb_atlfsl_etc_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
@@ -226,6 +250,7 @@ foreign key (atlfsl_bsc_info_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_img_info_tb_atlfsl_bsc_info
 alter table sc_khb_srv.tb_atlfsl_img_info 
 add constraint fk_tb_atlfsl_img_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
@@ -233,6 +258,24 @@ foreign key (atlfsl_bsc_info_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_inqry_info_tb_atlfsl_bsc_info
+alter table sc_khb_srv.tb_atlfsl_inqry_info 
+add constraint fk_tb_atlfsl_inqry_info_tb_atlfsl_bsc_info 
+foreign key (atlfsl_bsc_info_pk) 
+references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_inqry_info_tb_com_user
+alter table sc_khb_srv.tb_atlfsl_inqry_info 
+add constraint fk_tb_atlfsl_inqry_info_tb_com_user 
+foreign key (user_no_pk) 
+references sc_khb_srv.tb_com_user(user_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_land_usg_info_tb_atlfsl_bsc_info
 alter table sc_khb_srv.tb_atlfsl_land_usg_info 
 add constraint fk_tb_atlfsl_land_usg_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
@@ -240,20 +283,23 @@ foreign key (atlfsl_bsc_info_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
-alter table sc_khb_srv.tb_atlfsl_reside_gnrl_dtl_info 
-add constraint fk_tb_atlfsl_reside_gnrl_dtl_info_tb_atlfsl_bsc_info 
-foreign key (atlfsl_bsc_info_pk) 
-	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+-- fk_tb_atlfsl_reside_gnrl_dtl_info_tb_atlfsl_bsc_info => tb_atlfsl_reside_gnrl_dtl_info 테이블 삭제
+--alter table sc_khb_srv.tb_atlfsl_reside_gnrl_dtl_info 
+--add constraint fk_tb_atlfsl_reside_gnrl_dtl_info_tb_atlfsl_bsc_info 
+--foreign key (atlfsl_bsc_info_pk) 
+--	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
-alter table sc_khb_srv.tb_atlfsl_reside_set_dtl_info 
-add constraint fk_tb_atlfsl_reside_set_dtl_info_tb_atlfsl_bsc_info 
-foreign key (atlfsl_bsc_info_pk) 
-	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+-- fk_tb_atlfsl_reside_set_dtl_info_tb_atlfsl_bsc_info => tb_atlfsl_reside_set_dtl_info 테이블 삭제
+--alter table sc_khb_srv.tb_atlfsl_reside_set_dtl_info 
+--add constraint fk_tb_atlfsl_reside_set_dtl_info_tb_atlfsl_bsc_info 
+--foreign key (atlfsl_bsc_info_pk) 
+--	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_bbs_cmnt_tb_com_bbs
 alter table sc_khb_srv.tb_com_bbs_cmnt 
 add constraint fk_tb_com_bbs_cmnt_tb_com_bbs 
 foreign key (bbs_pk) 
@@ -261,15 +307,47 @@ foreign key (bbs_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
--- 일단 보류
---alter table sc_khb_srv.tb_com_emd_li_cd 
---add constraint fk_tb_com_emd_li_cd_tb_com_ctpv_cd 
---foreign key (ctpv_cd_pk) 
---	references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
---
---ALTER TABLE sc_khb_srv.tb_com_emd_li_cd  DROP CONSTRAINT fk_tb_com_emd_li_cd_tb_com_ctpv_cd;
+-- fk_tb_com_device_info_tb_com_user
+alter table sc_khb_srv.tb_com_device_info 
+add constraint fk_tb_com_device_info_tb_com_user 
+foreign key (user_no_pk) 
+references sc_khb_srv.tb_com_user(user_no_pk);
+
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_device_ntcn_mapng_info_tb_com_device_info
+alter table sc_khb_srv.tb_com_device_ntcn_mapng_info 
+add constraint fk_tb_com_device_ntcn_mapng_info_tb_com_device_info 
+foreign key (device_info_pk) 
+references sc_khb_srv.tb_com_device_info(device_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_device_ntcn_mapng_info_tb_com_ntcn_info
+alter table sc_khb_srv.tb_com_device_ntcn_mapng_info 
+add constraint fk_tb_com_device_ntcn_mapng_info_tb_com_ntcn_info 
+foreign key (ntcn_info_pk) 
+references sc_khb_srv.tb_com_ntcn_info(ntcn_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_device_stng_info_tb_com_device_info
+alter table sc_khb_srv.tb_com_device_stng_info 
+add constraint fk_tb_com_device_stng_info_tb_com_device_info 
+foreign key (device_info_pk) 
+references sc_khb_srv.tb_com_device_info(device_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_emd_li_cd_tb_com_ctpv_cd
+alter table sc_khb_srv.tb_com_emd_li_cd 
+add constraint fk_tb_com_emd_li_cd_tb_com_ctpv_cd 
+foreign key (ctpv_cd_pk) 
+	references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_emd_li_cd_tb_com_sgg_cd
 alter table sc_khb_srv.tb_com_emd_li_cd 
 add constraint fk_tb_com_emd_li_cd_tb_com_sgg_cd
 foreign key (sgg_cd_pk) 
@@ -277,27 +355,228 @@ foreign key (sgg_cd_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_file_tb_com_file_mapng
+alter table sc_khb_srv.tb_com_file 
+add constraint fk_tb_com_file_tb_com_file_mapng 
+foreign key (file_no_pk) 
+references sc_khb_srv.tb_com_file_mapng(file_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_file_mapng_tb_com_recsroom
+alter table sc_khb_srv.tb_com_file_mapng 
+add constraint fk_tb_com_file_mapng_tb_com_recsroom 
+foreign key (recsroom_no_pk) 
+references sc_khb_srv.tb_com_recsroom(recsroom_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_file_mapng_tb_com_user
+alter table sc_khb_srv.tb_com_file_mapng 
+add constraint fk_tb_com_file_mapng_tb_com_user 
+foreign key (user_no_pk) 
+references sc_khb_srv.tb_com_user(user_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_group_author_tb_com_author
+alter table sc_khb_srv.tb_com_group_author 
+add constraint fk_tb_com_group_author_tb_com_author 
+foreign key (author_no_pk) 
+references sc_khb_srv.tb_com_author(author_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_group_author_tb_com_group
+alter table sc_khb_srv.tb_com_group_author 
+add constraint fk_tb_com_group_author_tb_com_group 
+foreign key (group_no_pk) 
+references sc_khb_srv.tb_com_group(group_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_gtwy_svc_author_tb_com_author
+alter table sc_khb_srv.tb_com_gtwy_svc_author 
+add constraint fk_tb_com_gtwy_svc_author_tb_com_author 
+foreign key (author_no_pk) 
+references sc_khb_srv.tb_com_author(author_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_gtwy_svc_author_tb_com_gtwy_svc
+alter table sc_khb_srv.tb_com_gtwy_svc_author 
+add constraint fk_tb_com_gtwy_svc_author_tb_com_gtwy_svc 
+foreign key (gtwy_svc_pk) 
+references sc_khb_srv.tb_com_gtwy_svc(gtwy_svc_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_job_schdl_hstry_tb_com_job_schdl_info
+alter table sc_khb_srv.tb_com_job_schdl_hstry 
+add constraint fk_tb_com_job_schdl_hstry_tb_com_job_schdl_info 
+foreign key (job_schdl_info_pk) 
+references sc_khb_srv.tb_com_job_schdl_info(job_schdl_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_menu_tb_com_scrin
+alter table sc_khb_srv.tb_com_menu 
+add constraint fk_tb_com_menu_tb_com_scrin 
+foreign key (scrin_no_pk) 
+references sc_khb_srv.tb_com_scrin(scrin_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_menu_author_tb_com_author
+alter table sc_khb_srv.tb_com_menu_author 
+add constraint fk_tb_com_menu_author_tb_com_author 
+foreign key (author_no_pk) 
+references sc_khb_srv.tb_com_author(author_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_menu_author_tb_com_menu
+alter table sc_khb_srv.tb_com_menu_author 
+add constraint fk_tb_com_menu_author_tb_com_menu 
+foreign key (menu_no_pk) 
+references sc_khb_srv.tb_com_menu(menu_no_pk);
+
+SELECT *
+  FROM sc_khb_srv.tb_com_menu_author;
+
+SELECT *
+  FROM sc_khb_srv.tb_com_menu;
+/*com_menu에 없던 18번을 삭제하고 관계선을 맺음!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_scrin_author_tb_com_author
+alter table sc_khb_srv.tb_com_scrin_author 
+add constraint fk_tb_com_scrin_author_tb_com_author 
+foreign key (author_no_pk) 
+references sc_khb_srv.tb_com_author(author_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_scrin_author_tb_com_scrin
+alter table sc_khb_srv.tb_com_scrin_author 
+add constraint fk_tb_com_scrin_author_tb_com_scrin 
+foreign key (scrin_no_pk) 
+references sc_khb_srv.tb_com_scrin(scrin_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_sgg_cd_tb_com_ctpv_cd
 alter table sc_khb_srv.tb_com_sgg_cd 
 add constraint fk_tb_com_sgg_cd_tb_com_ctpv_cd 
 foreign key (ctpv_cd_pk) 
-	references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
+references sc_khb_srv.tb_com_ctpv_cd(ctpv_cd_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_stplat_hist_tb_com_stplat_info
+alter table sc_khb_srv.tb_com_stplat_hist 
+add constraint fk_tb_com_stplat_hist_tb_com_stplat_info 
+foreign key (com_stplat_info_pk) 
+references sc_khb_srv.tb_com_stplat_info(com_stplat_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_stplat_mapng_tb_com_stplat_info
+alter table sc_khb_srv.tb_com_stplat_mapng 
+add constraint fk_tb_com_stplat_mapng_tb_com_stplat_info 
+foreign key (com_stplat_info_pk) 
+references sc_khb_srv.tb_com_stplat_info(com_stplat_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_stplat_mapng_tb_com_user
+alter table sc_khb_srv.tb_com_stplat_mapng 
+add constraint fk_tb_com_stplat_mapng_tb_com_user 
+foreign key (user_no_pk)
+references sc_khb_srv.tb_com_user(user_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_svc_ip_manage_tb_com_author
+alter table sc_khb_srv.tb_com_svc_ip_manage 
+add constraint fk_tb_com_svc_ip_manage_tb_com_author 
+foreign key (author_no_pk) 
+references sc_khb_srv.tb_com_author(author_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_svc_ip_manage_tb_com_author
+alter table sc_khb_srv.tb_com_svc_ip_manage 
+add constraint fk_tb_com_svc_ip_manage_tb_com_author 
+foreign key (author_no_pk) 
+references sc_khb_srv.tb_com_author(author_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_user_author_tb_com_author
+alter table sc_khb_srv.tb_com_user_author 
+add constraint fk_tb_com_user_author_tb_com_author 
+foreign key (author_no_pk) 
+references sc_khb_srv.tb_com_author(author_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_user_author_tb_com_user
+alter table sc_khb_srv.tb_com_user_author 
+add constraint fk_tb_com_user_author_tb_com_user 
+foreign key (user_no_pk) 
+references sc_khb_srv.tb_com_user(user_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_user_group_tb_com_group
+alter table sc_khb_srv.tb_com_user_group 
+add constraint fk_tb_com_user_group_tb_com_group 
+foreign key (group_no_pk) 
+references sc_khb_srv.tb_com_group(group_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_user_group_tb_com_user
+alter table sc_khb_srv.tb_com_user_group 
+add constraint fk_tb_com_user_group_tb_com_user
+foreign key (user_no_pk)
+references sc_khb_srv.tb_com_user(user_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_user_ntcn_mapng_info_tb_com_ntcn_info
+alter table sc_khb_srv.tb_com_user_ntcn_mapng_info 
+add constraint fk_tb_com_user_ntcn_mapng_info_tb_com_ntcn_info 
+foreign key (ntcn_info_pk) 
+references sc_khb_srv.tb_com_ntcn_info(ntcn_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_com_user_ntcn_mapng_info_tb_com_user
+alter table sc_khb_srv.tb_com_user_ntcn_mapng_info 
+add constraint fk_tb_com_user_ntcn_mapng_info_tb_com_user 
+foreign key (user_no_pk)
+references sc_khb_srv.tb_com_user(user_no_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_hsmp_dtl_info_tb_hsmp_info
 alter table sc_khb_srv.tb_hsmp_dtl_info 
 add constraint fk_tb_hsmp_dtl_info_tb_hsmp_info 
 foreign key (hsmp_info_pk) 
-	references sc_khb_srv.tb_hsmp_info(hsmp_info_pk);
+references sc_khb_srv.tb_hsmp_info(hsmp_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_itrst_atlfsl_info_tb_atlfsl_bsc_info
 alter table sc_khb_srv.tb_itrst_atlfsl_info 
-add constraint fk_tb_itrst_atlfsl_info_tb_hsmp_info 
-foreign key (hsmp_info_pk) 
-	references sc_khb_srv.tb_hsmp_info(hsmp_info_pk);
+add constraint fk_tb_itrst_atlfsl_info_tb_atlfsl_bsc_info 
+foreign key (atlfsl_bsc_info_pk) 
+references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_itrst_atlfsl_info_tb_com_user
 alter table sc_khb_srv.tb_itrst_atlfsl_info 
 add constraint fk_tb_itrst_atlfsl_info_tb_com_user 
 foreign key (user_no_pk) 
@@ -305,22 +584,23 @@ foreign key (user_no_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
---일단 보류
---alter table sc_khb_srv.tb_itrst_atlfsl_info 
---add constraint fk_tb_itrst_atlfsl_info_tb_lrea_office_info 
---foreign key (lrea_office_info_pk) 
---	references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
-
-
-/*성공!!*/
------------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_itrst_atlfsl_info_tb_hsmp_info
 alter table sc_khb_srv.tb_itrst_atlfsl_info 
-add constraint fk_tb_itrst_atlfsl_info_tb_atlfsl_bsc_info 
-foreign key (atlfsl_bsc_info_pk) 
-	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+add constraint fk_tb_itrst_atlfsl_info_tb_hsmp_info 
+foreign key (hsmp_info_pk) 
+	references sc_khb_srv.tb_hsmp_info(hsmp_info_pk);
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_itrst_atlfsl_info_tb_lrea_office_info
+alter table sc_khb_srv.tb_itrst_atlfsl_info 
+add constraint fk_tb_itrst_atlfsl_info_tb_lrea_office_info 
+foreign key (lrea_office_info_pk) 
+	references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info
 alter table sc_khb_srv.tb_user_atlfsl_img_info 
 add constraint fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info 
 foreign key (user_atlfsl_info_pk) 
@@ -328,6 +608,7 @@ foreign key (user_atlfsl_info_pk)
  
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_user_atlfsl_info_tb_com_user
 alter table sc_khb_srv.tb_user_atlfsl_info 
 add constraint fk_tb_user_atlfsl_info_tb_com_user 
 foreign key (user_no_pk) 
@@ -335,6 +616,15 @@ foreign key (user_no_pk)
  
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_user_atlfsl_preocupy_info_tb_lrea_office_info
+alter table sc_khb_srv.tb_user_atlfsl_preocupy_info 
+add constraint fk_tb_user_atlfsl_preocupy_info_tb_lrea_office_info 
+foreign key (lrea_office_info_pk) 
+references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info
 alter table sc_khb_srv.tb_user_atlfsl_preocupy_info 
 add constraint fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info 
 foreign key (user_atlfsl_info_pk) 
@@ -343,21 +633,6 @@ foreign key (user_atlfsl_info_pk)
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 
-alter table sc_khb_srv.tb_com_job_schdl_hstry 
-add constraint fk_tb_com_job_schdl_hstry_tb_com_job_schdl_info 
-foreign key (job_schdl_info_pk) 
-    references sc_khb_srv.tb_com_job_schdl_info(job_schdl_info_pk);
-
-/*성공!!*/
------------------------------------------------------------------------------------------------------------------------------------
-
-alter table sc_khb_srv.tb_atlfsl_bsc_info 
-add constraint fk_tb_atlfsl_bsc_info_tb_lrea_office_info 
-foreign key (lrea_office_info_pk) 
-    references sc_khb_srv.tb_lrea_office_info(lrea_office_info_pk);
-
-/*tb_atlfsl_bsc_info에 중개사 번호가 0인 데이터 존재해서 실패!!!*/
------------------------------------------------------------------------------------------------------------------------------------
 
 
 

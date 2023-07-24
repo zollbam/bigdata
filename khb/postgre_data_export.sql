@@ -33,7 +33,7 @@ SELECT
 --                      'tb_k_apt_hsmp_ar_info'
 --                     )
  GROUP BY table_schema, table_name
-HAVING table_name = 'tb_k_apt_managect_info'
+HAVING table_name = 'tb_kric_statn_info'
  ORDER BY 2;
 /*
 해당 쿼리는 데이터를 뽑아내는 스크립트로
@@ -64,6 +64,34 @@ case when lwet_przwin_score_cn is null then '' else lwet_przwin_score_cn::varcha
 case when top_przwin_score_cn is null then '' else top_przwin_score_cn::varchar(4000) end,
 case when avrg_przwin_score_cn is null then '' else avrg_przwin_score_cn::varchar(4000) end)
   from tb_apply_apt_lttot_info_cmpetrt; -- 7853 행
+
+
+
+
+
+-- postgre => tb_apply_apt_lttot_info_house_ty_detail
+-- mssql => tb_link_apt_lttot_house_ty_dtl_info
+select 
+concat_ws('||',
+case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
+case when model_no is null then '' else model_no::varchar(4000) end,
+case when house_ty is null then '' else house_ty::varchar(4000) end,
+case when suply_ar is null then '' else suply_ar::varchar(4000) end,
+case when gnrl_suply_hshld_co is null then '' else gnrl_suply_hshld_co::varchar(4000) end,
+case when specl_suply_hshld_co is null then '' else specl_suply_hshld_co::varchar(4000) end,
+case when specl_suply_mnychgagu_hshld_co is null then '' else specl_suply_mnychgagu_hshld_co::varchar(4000) end,
+case when specl_suply_mrrg_mrd_hshld_co is null then '' else specl_suply_mrrg_mrd_hshld_co::varchar(4000) end,
+case when specl_suply_lfe_frst_hshld_co is null then '' else specl_suply_lfe_frst_hshld_co::varchar(4000) end,
+case when specl_suply_odsn_parnts_suport_hshld_co is null then '' else specl_suply_odsn_parnts_suport_hshld_co::varchar(4000) end,
+case when specl_suply_instt_recomend_hshld_co is null then '' else specl_suply_instt_recomend_hshld_co::varchar(4000) end,
+case when specl_suply_etc_hshld_co is null then '' else specl_suply_etc_hshld_co::varchar(4000) end,
+case when specl_suply_before_instt_hshld_co is null then '' else specl_suply_before_instt_hshld_co::varchar(4000) end,
+case when suply_lttot_top_amount is null then '' else suply_lttot_top_amount::varchar(4000) end)
+  from tb_apply_apt_lttot_info_house_ty_detail; -- 8412 행
+
+
+
 
 
 -- postgre => tb_apply_apt_lttot_info_detail
@@ -114,26 +142,7 @@ case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) end)
   from tb_apply_apt_lttot_info_detail; -- 54 행
 
 
--- postgre => tb_apply_apt_lttot_info_house_ty_detail
--- mssql => tb_link_apt_lttot_house_ty_dtl_info
-select 
-concat_ws('||',
-case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
-case when model_no is null then '' else model_no::varchar(4000) end,
-case when house_ty is null then '' else house_ty::varchar(4000) end,
-case when suply_ar is null then '' else suply_ar::varchar(4000) end,
-case when gnrl_suply_hshld_co is null then '' else gnrl_suply_hshld_co::varchar(4000) end,
-case when specl_suply_hshld_co is null then '' else specl_suply_hshld_co::varchar(4000) end,
-case when specl_suply_mnychgagu_hshld_co is null then '' else specl_suply_mnychgagu_hshld_co::varchar(4000) end,
-case when specl_suply_mrrg_mrd_hshld_co is null then '' else specl_suply_mrrg_mrd_hshld_co::varchar(4000) end,
-case when specl_suply_lfe_frst_hshld_co is null then '' else specl_suply_lfe_frst_hshld_co::varchar(4000) end,
-case when specl_suply_odsn_parnts_suport_hshld_co is null then '' else specl_suply_odsn_parnts_suport_hshld_co::varchar(4000) end,
-case when specl_suply_instt_recomend_hshld_co is null then '' else specl_suply_instt_recomend_hshld_co::varchar(4000) end,
-case when specl_suply_etc_hshld_co is null then '' else specl_suply_etc_hshld_co::varchar(4000) end,
-case when specl_suply_before_instt_hshld_co is null then '' else specl_suply_before_instt_hshld_co::varchar(4000) end,
-case when suply_lttot_top_amount is null then '' else suply_lttot_top_amount::varchar(4000) end)
-  from tb_apply_apt_lttot_info_house_ty_detail; -- 8412 행
+
 
 
 -- postgre => tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_detail
@@ -166,6 +175,9 @@ case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) end)
   from tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_detail; -- 39 행
 
 
+
+
+
 -- postgre => tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_house_ty_det
 -- mssql => tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info
 select 
@@ -181,126 +193,7 @@ case when suply_lttot_top_amount is null then '' else suply_lttot_top_amount::va
   from tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_house_ty_det; -- 2218 행
 
 
--- postgre => tb_apply_cancl_re_suply_lttot_info_cmpetrt
--- mssql => tb_link_rtrcn_re_sply_lttot_cmpet_rt_info
-select 
-concat_ws('||',
-case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
-case when model_no is null then '' else model_no::varchar(4000) end,
-case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
-case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
-case when gnrl_suply_asign_hshld_co is null then '' else gnrl_suply_asign_hshld_co::varchar(4000) end,
-case when mnych_gagu_asign_hshld_co is null then '' else mnych_gagu_asign_hshld_co::varchar(4000) end,
-case when mrrg_mrd_asign_hshld_co is null then '' else mrrg_mrd_asign_hshld_co::varchar(4000) end,
-case when lfe_frst_asign_hshld_co is null then '' else lfe_frst_asign_hshld_co::varchar(4000) end,
-case when odsn_parnts_suport_asign_hshld_co is null then '' else odsn_parnts_suport_asign_hshld_co::varchar(4000) end,
-case when instt_recomend_asign_hshld_co is null then '' else instt_recomend_asign_hshld_co::varchar(4000) end,
-case when gnrl_suply_rcept_co is null then '' else gnrl_suply_rcept_co::varchar(4000) end,
-case when mnych_gagu_rcept_co is null then '' else mnych_gagu_rcept_co::varchar(4000) end,
-case when mrrg_mrd_rcept_co is null then '' else mrrg_mrd_rcept_co::varchar(4000) end,
-case when lfe_frst_rcept_co is null then '' else lfe_frst_rcept_co::varchar(4000) end,
-case when odsn_parnts_suport_rcept_co is null then '' else odsn_parnts_suport_rcept_co::varchar(4000) end,
-case when instt_recomend_rcept_co is null then '' else instt_recomend_rcept_co::varchar(4000) end,
-case when gnrl_suply_cmpet_rt_cn is null then '' else gnrl_suply_cmpet_rt_cn::varchar(4000) end,
-case when mnych_gagu_cmpet_rt_cn is null then '' else mnych_gagu_cmpet_rt_cn::varchar(4000) end,
-case when mrrg_mrd_cmpet_rt_cn is null then '' else mrrg_mrd_cmpet_rt_cn::varchar(4000) end,
-case when lfe_frst_cmpet_rt_cn is null then '' else lfe_frst_cmpet_rt_cn::varchar(4000) end,
-case when odsn_parnts_suport_cmpet_rt_cn is null then '' else odsn_parnts_suport_cmpet_rt_cn::varchar(4000) end,
-case when instt_recomend_cmpet_rt_cn is null then '' else instt_recomend_cmpet_rt_cn::varchar(4000) end)
-  from tb_apply_cancl_re_suply_lttot_info_cmpetrt; -- 140 행
 
-
--- postgre => tb_apply_ofctl_cty_prvate_rent_lttot_house_ty_info_detail
--- mssql => tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info
-select 
-concat_ws('||',
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
-case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
-case when model_no is null then '' else model_no::varchar(4000) end,
-case when group_nm is null then '' else group_nm::varchar(4000) end,
-case when ty_nm is null then '' else ty_nm::varchar(4000) end,
-case when dvr_ar is null then '' else dvr_ar::varchar(4000) end,
-case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
-case when suply_lttot_top_amount is null then '' else suply_lttot_top_amount::varchar(4000) end,
-case when subscrpt_reqst_amount is null then '' else subscrpt_reqst_amount::varchar(4000) end)
-  from tb_apply_ofctl_cty_prvate_rent_lttot_house_ty_info_detail; -- 2527 행
-
-
--- postgre => tb_apply_ofctl_cty_prvate_rent_lttot_info_cmpetrt
--- mssql => tb_link_ofctl_cty_prvate_rent_lttot_cmpet_rt_info
-select 
-concat_ws('||',
-case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
-case when model_no is null then '' else model_no::varchar(4000) end,
-case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
-case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
-case when residnt_prior_at is null then '' else residnt_prior_at::varchar(4000) end,
-case when suply_se_nm is null then '' else suply_se_nm::varchar(4000) end,
-case when rcept_co is null then '' else rcept_co::varchar(4000) end,
-case when cmpet_rt_cn is null then '' else cmpet_rt_cn::varchar(4000) end)
-  from tb_apply_ofctl_cty_prvate_rent_lttot_info_cmpetrt; -- 1090 행
-
-
--- postgre => tb_apply_ofctl_cty_prvate_rent_lttot_info_detail
--- mssql => tb_link_ofctl_cty_prvate_rent_lttot_info
-select 
-concat_ws('||',
-case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
-case when house_nm is null then '' else house_nm::varchar(4000) end,
-case when house_se_code is null then '' else house_se_code::varchar(4000) end,
-case when house_se_code_nm is null then '' else house_se_code_nm::varchar(4000) end,
-case when house_detail_se_code is null then '' else house_detail_se_code::varchar(4000) end,
-case when house_detail_se_code_nm is null then '' else house_detail_se_code_nm::varchar(4000) end,
-case when house_se_nm is null then '' else house_se_nm::varchar(4000) end,
-case when suply_lc_zip is null then '' else suply_lc_zip::varchar(4000) end,
-case when suply_lc_nm is null then '' else suply_lc_nm::varchar(4000) end,
-case when suply_scale is null then '' else suply_scale::varchar(4000) end,
-case when rcrit_pblanc_de is null then '' else rcrit_pblanc_de::varchar(4000) end,
-case when subscrpt_rcept_begin_de is null then '' else subscrpt_rcept_begin_de::varchar(4000) end,
-case when subscrpt_rcept_end_de is null then '' else subscrpt_rcept_end_de::varchar(4000) end,
-case when przwner_presnatn_de is null then '' else przwner_presnatn_de::varchar(4000) end,
-case when cntrct_begin_de is null then '' else cntrct_begin_de::varchar(4000) end,
-case when cntrct_end_de is null then '' else cntrct_end_de::varchar(4000) end,
-case when hmpg_url is null then '' else hmpg_url::varchar(4000) end,
-case when bsns_mby_opertnprofs_nm is null then '' else bsns_mby_opertnprofs_nm::varchar(4000) end,
-case when inqry_offic_telno is null then '' else inqry_offic_telno::varchar(4000) end,
-case when mvn_prearnge_mt is null then '' else mvn_prearnge_mt::varchar(4000) end,
-case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) end)
-  from tb_apply_ofctl_cty_prvate_rent_lttot_info_detail; -- 21 행
-
-
--- postgre => tb_apply_public_sport_prvate_rent_lttot_info_cmpetrt
--- mssql => tb_link_public_sprt_prvate_rent_lttot_cmpet_rt_info
-select 
-concat_ws('||',
-case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
-case when model_no is null then '' else model_no::varchar(4000) end,
-case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
-case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
-case when suply_ty_code is null then '' else suply_ty_code::varchar(4000) end,
-case when suply_ty_code_nm is null then '' else suply_ty_code_nm::varchar(4000) end,
-case when asign_hshld_co is null then '' else asign_hshld_co::varchar(4000) end,
-case when rcept_co is null then '' else rcept_co::varchar(4000) end,
-case when cmpet_rt_cn is null then '' else cmpet_rt_cn::varchar(4000) end)
-  from tb_apply_public_sport_prvate_rent_lttot_info_cmpetrt; -- 424 행
-
-
--- postgre => tb_apply_remndr_hshld_lttot_info_cmpetrt
--- mssql => tb_link_remndr_hh_lttot_cmpet_rt_info
-select 
-concat_ws('||',
-case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
-case when beffat_aftfat_se_code is null then '' else beffat_aftfat_se_code::varchar(4000) end,
-case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
-case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
-case when rcept_co is null then '' else rcept_co::varchar(4000) end,
-case when cmpet_rt_cn is null then '' else cmpet_rt_cn::varchar(4000) end)
-  from tb_apply_remndr_hshld_lttot_info_cmpetrt; -- 2071 행
 
 
 -- postgre => tb_k_apt_hsmp_ar_info
@@ -323,9 +216,25 @@ case when bildregstr_totar is null then '' else bildregstr_totar::varchar(4000) 
   from tb_k_apt_hsmp_ar_info; -- 80320 행
 
 
+select 
+case when hsmp_code is null then '' else hsmp_code::varchar(4000) end,
+case when hsmp_nm is null then '' else hsmp_nm::varchar(4000) end,
+case when atpt_nm is null then '' else atpt_nm::varchar(4000) end,
+case when signgu_nm is null then '' else signgu_nm::varchar(4000) end,
+case when eupmyeon_nm is null then '' else eupmyeon_nm::varchar(4000) end,
+case when dongli_nm is null then '' else dongli_nm::varchar(4000) end,
+case when hshld_co is null then '' else hshld_co::varchar(4000) end,
+case when totar is null then '' else totar::varchar(4000) end,
+case when managect_levy_ar is null then '' else managect_levy_ar::varchar(4000) end,
+case when reside_dvr_ar is null then '' else reside_dvr_ar::varchar(4000) end,
+case when dvr_ar is null then '' else dvr_ar::varchar(4000) end,
+case when dong_co is null then '' else dong_co::varchar(4000) end,
+case when bildregstr_totar is null then '' else bildregstr_totar::varchar(4000) end
+  from tb_k_apt_hsmp_ar_info; -- 80320 행
+
 -- postgre => tb_k_apt_hsmp_bass_info
---          , join tb_rn_adres_buld
---          , join tb_rn_spce_buld 
+--          , tb_rn_adres_buld
+--          , tb_rn_spce_buld 
 -- mssql => tb_link_hsmp_bsc_info
 select 
 concat_ws('||',
@@ -474,6 +383,9 @@ case WHEN trunc(st_x(st_centroid(st_collect(trsb.lc_info)))::numeric, 10) IS NUL
         , tkahbi.undgrnd_floor_co; -- 18318 행
 
 
+
+
+
 -- postgre => tb_k_apt_managect_info
 -- mssql => tb_link_hsmp_managect_info
 select 
@@ -579,32 +491,206 @@ case when etc_ern_mt_incme_amount is null then '' else etc_ern_mt_incme_amount::
 OFFSET 200000; -- 95882 행
 -- 전체 295882 행
 
+
+
+
+
+-- postgre => tb_apply_ofctl_cty_prvate_rent_lttot_info_cmpetrt
+-- mssql => tb_link_ofctl_cty_prvate_rent_lttot_cmpet_rt_info
+select 
+concat_ws('||',
+case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
+case when model_no is null then '' else model_no::varchar(4000) end,
+case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
+case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
+case when residnt_prior_at is null then '' else residnt_prior_at::varchar(4000) end,
+case when suply_se_nm is null then '' else suply_se_nm::varchar(4000) end,
+case when rcept_co is null then '' else rcept_co::varchar(4000) end,
+case when cmpet_rt_cn is null then '' else cmpet_rt_cn::varchar(4000) end)
+  from tb_apply_ofctl_cty_prvate_rent_lttot_info_cmpetrt; -- 1090 행
+
+
+
+
+
+-- postgre => tb_apply_ofctl_cty_prvate_rent_lttot_info_detail
+-- mssql => tb_link_ofctl_cty_prvate_rent_lttot_info
+select 
+concat_ws('||',
+case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
+case when house_nm is null then '' else house_nm::varchar(4000) end,
+case when house_se_code is null then '' else house_se_code::varchar(4000) end,
+case when house_se_code_nm is null then '' else house_se_code_nm::varchar(4000) end,
+case when house_detail_se_code is null then '' else house_detail_se_code::varchar(4000) end,
+case when house_detail_se_code_nm is null then '' else house_detail_se_code_nm::varchar(4000) end,
+case when house_se_nm is null then '' else house_se_nm::varchar(4000) end,
+case when suply_lc_zip is null then '' else suply_lc_zip::varchar(4000) end,
+case when suply_lc_nm is null then '' else suply_lc_nm::varchar(4000) end,
+case when suply_scale is null then '' else suply_scale::varchar(4000) end,
+case when rcrit_pblanc_de is null then '' else rcrit_pblanc_de::varchar(4000) end,
+case when subscrpt_rcept_begin_de is null then '' else subscrpt_rcept_begin_de::varchar(4000) end,
+case when subscrpt_rcept_end_de is null then '' else subscrpt_rcept_end_de::varchar(4000) end,
+case when przwner_presnatn_de is null then '' else przwner_presnatn_de::varchar(4000) end,
+case when cntrct_begin_de is null then '' else cntrct_begin_de::varchar(4000) end,
+case when cntrct_end_de is null then '' else cntrct_end_de::varchar(4000) end,
+case when hmpg_url is null then '' else hmpg_url::varchar(4000) end,
+case when bsns_mby_opertnprofs_nm is null then '' else bsns_mby_opertnprofs_nm::varchar(4000) end,
+case when inqry_offic_telno is null then '' else inqry_offic_telno::varchar(4000) end,
+case when mvn_prearnge_mt is null then '' else mvn_prearnge_mt::varchar(4000) end,
+case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) en0d)
+  from tb_apply_ofctl_cty_prvate_rent_lttot_info_detail; -- 21 행
+
+
+
+
+
+-- postgre => tb_apply_ofctl_cty_prvate_rent_lttot_house_ty_info_detail
+-- mssql => tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info
+select 
+concat_ws('||',
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
+case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when model_no is null then '' else model_no::varchar(4000) end,
+case when group_nm is null then '' else group_nm::varchar(4000) end,
+case when ty_nm is null then '' else ty_nm::varchar(4000) end,
+case when dvr_ar is null then '' else dvr_ar::varchar(4000) end,
+case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
+case when suply_lttot_top_amount is null then '' else suply_lttot_top_amount::varchar(4000) end,
+case when subscrpt_reqst_amount is null then '' else subscrpt_reqst_amount::varchar(4000) end)
+  from tb_apply_ofctl_cty_prvate_rent_lttot_house_ty_info_detail; -- 2527 행
+
+
+
+
+
+-- postgre => tb_apply_public_sport_prvate_rent_lttot_info_cmpetrt
+-- mssql => tb_link_public_sprt_prvate_rent_lttot_cmpet_rt_info
+select 
+concat_ws('||',
+case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
+case when model_no is null then '' else model_no::varchar(4000) end,
+case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
+case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
+case when suply_ty_code is null then '' else suply_ty_code::varchar(4000) end,
+case when suply_ty_code_nm is null then '' else suply_ty_code_nm::varchar(4000) end,
+case when asign_hshld_co is null then '' else asign_hshld_co::varchar(4000) end,
+case when rcept_co is null then '' else rcept_co::varchar(4000) end,
+case when cmpet_rt_cn is null then '' else cmpet_rt_cn::varchar(4000) end)
+  from tb_apply_public_sport_prvate_rent_lttot_info_cmpetrt; -- 424 행
+
+
+
+
+
+-- postgre => tb_apply_remndr_hshld_lttot_info_cmpetrt
+-- mssql => tb_link_remndr_hh_lttot_cmpet_rt_info
+select 
+concat_ws('||',
+case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
+case when beffat_aftfat_se_code is null then '' else beffat_aftfat_se_code::varchar(4000) end,
+case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
+case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
+case when rcept_co is null then '' else rcept_co::varchar(4000) end,
+case when cmpet_rt_cn is null then '' else cmpet_rt_cn::varchar(4000) end)
+  from tb_apply_remndr_hshld_lttot_info_cmpetrt; -- 2071 행
+
+
+
+
+
+-- postgre => tb_apply_cancl_re_suply_lttot_info_cmpetrt
+-- mssql => tb_link_rtrcn_re_sply_lttot_cmpet_rt_info
+select 
+concat_ws('||',
+case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
+case when model_no is null then '' else model_no::varchar(4000) end,
+case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
+case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
+case when gnrl_suply_asign_hshld_co is null then '' else gnrl_suply_asign_hshld_co::varchar(4000) end,
+case when mnych_gagu_asign_hshld_co is null then '' else mnych_gagu_asign_hshld_co::varchar(4000) end,
+case when mrrg_mrd_asign_hshld_co is null then '' else mrrg_mrd_asign_hshld_co::varchar(4000) end,
+case when lfe_frst_asign_hshld_co is null then '' else lfe_frst_asign_hshld_co::varchar(4000) end,
+case when odsn_parnts_suport_asign_hshld_co is null then '' else odsn_parnts_suport_asign_hshld_co::varchar(4000) end,
+case when instt_recomend_asign_hshld_co is null then '' else instt_recomend_asign_hshld_co::varchar(4000) end,
+case when gnrl_suply_rcept_co is null then '' else gnrl_suply_rcept_co::varchar(4000) end,
+case when mnych_gagu_rcept_co is null then '' else mnych_gagu_rcept_co::varchar(4000) end,
+case when mrrg_mrd_rcept_co is null then '' else mrrg_mrd_rcept_co::varchar(4000) end,
+case when lfe_frst_rcept_co is null then '' else lfe_frst_rcept_co::varchar(4000) end,
+case when odsn_parnts_suport_rcept_co is null then '' else odsn_parnts_suport_rcept_co::varchar(4000) end,
+case when instt_recomend_rcept_co is null then '' else instt_recomend_rcept_co::varchar(4000) end,
+case when gnrl_suply_cmpet_rt_cn is null then '' else gnrl_suply_cmpet_rt_cn::varchar(4000) end,
+case when mnych_gagu_cmpet_rt_cn is null then '' else mnych_gagu_cmpet_rt_cn::varchar(4000) end,
+case when mrrg_mrd_cmpet_rt_cn is null then '' else mrrg_mrd_cmpet_rt_cn::varchar(4000) end,
+case when lfe_frst_cmpet_rt_cn is null then '' else lfe_frst_cmpet_rt_cn::varchar(4000) end,
+case when odsn_parnts_suport_cmpet_rt_cn is null then '' else odsn_parnts_suport_cmpet_rt_cn::varchar(4000) end,
+case when instt_recomend_cmpet_rt_cn is null then '' else instt_recomend_cmpet_rt_cn::varchar(4000) end)
+  from tb_apply_cancl_re_suply_lttot_info_cmpetrt; -- 140 행
+
+
+
+
+
 -- postgre => tb_kric_statn_info
 --          , tb_legal_zone_info_emg
 --          , tb_legal_zone_info_lio
--- mssql => tb_link_hsmp_managect_info
-select tksi.statn_no
-     , tksi.statn_nm
-     , tksi.route_no as rte_no
-     , tksi.route_nm as rte_nm
-     , tksi.eng_statn_nm
-     , tksi.chcrt_statn_nm
-     , tksi.trnsit_statn_se_nm
-     , tksi.trnsit_route_no as trnsit_rte_no
-     , tksi.trnsit_route_nm as trnsit_rte_nm
-     , trunc(st_y(tksi.lc_info)::numeric, 10) as statn_lat
-     , trunc(st_x(tksi.lc_info)::numeric, 10) as statn_lot
-     , tksi.oper_instt_nm as oper_inst_nm
-     , tksi.statn_rn_adres as statn_rn_addr
-     , tksi.statn_telno
-     , tksi.data_stdr_de as data_crtr_day
-     , coalesce (tlzil.li_code, tlzie.emd_code||'00') as stdg_cd
---     , trim(coalesce (tlzie.emd_nm, '') || ' ' || coalesce (tlzil.li_nm, '')) as emd_li_nm
+-- mssql => tb_link_subway_statn_info
+select 
+  concat_ws('||',
+            case when tksi.statn_no is null then '' else tksi.statn_no::varchar(4000) end,
+            case when tksi.statn_nm is null then '' else tksi.statn_nm::varchar(4000) end,
+            case when tksi.route_no is null then '' else tksi.route_no::varchar(4000) end,
+            case when tksi.route_nm is null then '' else tksi.route_nm::varchar(4000) end,
+            case when tksi.eng_statn_nm is null then '' else tksi.eng_statn_nm::varchar(4000) end,
+            case when tksi.chcrt_statn_nm is null then '' else tksi.chcrt_statn_nm::varchar(4000) end,
+            case when tksi.trnsit_statn_se_nm is null then '' else tksi.trnsit_statn_se_nm::varchar(4000) end,
+            case when tksi.trnsit_route_no is null then '' else tksi.trnsit_route_no::varchar(4000) end,
+            case when tksi.trnsit_route_nm is null then '' else tksi.trnsit_route_nm::varchar(4000) end,
+            case when trunc(st_y(tksi.lc_info)::numeric, 10) is null then '' else trunc(st_y(tksi.lc_info)::numeric, 10)::varchar(4000) end,
+            case when trunc(st_x(tksi.lc_info)::numeric, 10) is null then '' else trunc(st_x(tksi.lc_info)::numeric, 10)::varchar(4000) end,
+            case when tksi.oper_instt_nm is null then '' else tksi.oper_instt_nm::varchar(4000) end,
+            case when tksi.statn_rn_adres is null then '' else tksi.statn_rn_adres::varchar(4000) end,
+            case when tksi.statn_telno is null then '' else tksi.statn_telno::varchar(4000) end,
+            case when tksi.data_stdr_de is null then '' else tksi.data_stdr_de::varchar(4000) end,
+            '',
+            case when coalesce (tlzil.li_code, tlzie.emd_code||'00') is null then '' else coalesce (tlzil.li_code, tlzie.emd_code||'00')::varchar(4000) end,
+            '',
+            '',
+            '',
+            '')
   from tb_kric_statn_info tksi
-       left outer join tb_legal_zone_info_emg tlzie
+       left outer join 
+       tb_legal_zone_info_emg tlzie
                on st_contains(tlzie.lc_info, tksi.lc_info)
-       left outer join tb_legal_zone_info_lio tlzil
-               on st_contains(tlzil.lc_info, tksi.lc_info);
+       left outer JOIN
+       tb_legal_zone_info_lio tlzil
+               on st_contains(tlzil.lc_info, tksi.lc_info); -- 1053 행
+/*
+무슨 원인인지는 모르겠으나 4122인 신반포 데이터가 메모장에 붙여넣기 하면 ""가 생겨서 복사 붙여넣기후 큰 따옴표를 지우고 저장시키자
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

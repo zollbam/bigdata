@@ -92,7 +92,7 @@ SELECT DISTINCT
      	   ON object_name(c.object_id) = object_name(ep.major_id) 
      	      AND 
      	      c.column_id = ep.minor_id
- WHERE object_name(c.object_id) = 'tb_itrst_atlfsl_info'
+ WHERE object_name(c.object_id) = 'tb_link_hsmp_area_info'
  ORDER BY 1, 4;
 
 -- 테이블 확장 속성 삭제 쿼리 작성
@@ -1148,6 +1148,21 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'일반_공급_세�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'특별_공급_세대_수', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info', @level2type=N'COLUMN', @level2name=N'specl_sply_hh_cnt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공급_분양_최고_금액', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info', @level2type=N'COLUMN', @level2name=N'sply_lttot_top_amt';
 -----------------------------------------------------------------------------------
+-- tb_link_hsmp_area_info
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_코드', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'hsmp_cd';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'hsmp_nm';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시도_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'ctpv_nm';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시군구_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'sgg_nm';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'읍면_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'eupmyeon_nm';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'동리_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'dongli_nm';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'동_수', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'aptcmpl_cnt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'연면적', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'totar';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'관리비_부과_면적', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'managect_levy_area';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'주거_전용_면적', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'reside_prvuse_area';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'전용_면적', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'prvuse_area';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'세대_수', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'hh_cnt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'건축물대장_연면적', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_area_info', @level2type=N'COLUMN', @level2name=N'bdrg_totar';
+-----------------------------------------------------------------------------------
 -- tb_link_hsmp_bsc_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_코드', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'hsmp_cd';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'hsmp_nm';
@@ -1207,6 +1222,9 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'임대_세대_수'
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'최고_층_수', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'top_flr_cnt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'건축물대장_최고_층_수', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'bdrg_top_flr_cnt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'지하_층_수', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'udgd_flr_cnt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_위도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'hsmp_lat';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_경도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'hsmp_lot';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_좌표', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_bsc_info', @level2type=N'COLUMN', @level2name=N'hsmp_crdnt';
 -----------------------------------------------------------------------------------
 -- tb_link_hsmp_managect_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'단지_코드', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_hsmp_managect_info', @level2type=N'COLUMN', @level2name=N'hsmp_cd';
