@@ -1,7 +1,7 @@
 /*
 사용자 타입을 생성하는 파일
 작성 일시: 23-06-25
-수정 일시: 23-07-11
+수정 일시: 23-07-25
 작 성 자 : 조건영
 
 참조 사이트
@@ -98,7 +98,7 @@ SELECT name, type_name(system_type_id), max_length FROM sys.types WHERE schema_i
 SELECT CASE WHEN max_length=-1 THEN 'max' ELSE max_length/2 END FROM sys.types;
 SELECT name, type_name(system_type_id) FROM sys.types WHERE schema_id = 5;
 
-SELECT 
+SELECT
   schema_name(schema_id) "schema_name"
 , name "user_type_name"
 , CASE WHEN type_name(system_type_id) = 'decimal' THEN concat(type_name(system_type_id), '(', PRECISION,', ', SCALE, ')')
