@@ -60,6 +60,36 @@ WHERE ccu.TABLE_SCHEMA = 'sc_khb_srv'
 --      CAST(ep.value AS varchar) LIKE '%%'
 ORDER BY 1, c.column_id;
 
+-- 테이블의 열 정보(열번호 맞게 => comment 전부 보여줌)
+SELECT DISTINCT
+  object_name(c.object_id) "테이블명"
+, c.NAME "컬럼명"
+, CASE WHEN type_name(c.system_type_id) = 'numeric'
+            THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ')'
+       WHEN type_name(c.system_type_id) = 'decimal'
+            THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ', ' + CAST(c.SCALE AS varchar) + ')'
+       WHEN type_name(c.system_type_id) IN ('char', 'varchar') 
+            THEN type_name(c.system_type_id) + '(' + CAST(c.MAX_LENGTH AS varchar) + ')'
+       WHEN type_name(c.system_type_id) IN ('nchar', 'nvarchar') 
+            THEN type_name(c.system_type_id) + '(' + 
+                									 CASE WHEN c.MAX_LENGTH = -1 THEN 'max' 
+                                                          ELSE CAST(c.MAX_LENGTH/2 AS varchar)
+                                                     END + 
+                                               ')'
+       ELSE type_name(c.system_type_id)
+  END "시스템 타입"
+, type_name(c.user_type_id) "사용자 타입"
+, CASE WHEN c.IS_NULLABLE = 0 THEN ' NOT NULL'
+       ELSE ''
+  END "NULL여부"
+, ep.value "컬럼명(한글)"
+, c.column_id
+FROM sys.columns c
+     INNER JOIN
+     sys.extended_properties ep
+     	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
+ORDER BY 1, c.column_id;
+
 -- 컬럼 이름에 맞는 사용자 타입 찾기
 SELECT 
   TABLE_SCHEMA "schema_name" 
@@ -855,7 +885,7 @@ CREATE TABLE sc_khb_srv.tb_com_code (
 , updt_id sc_khb_srv.id_nv100
 , updt_dt sc_khb_srv.dt
 , rm_cn sc_khb_srv.cn_nv4000
-, parent_code sc_khb_srv.cd_v20
+, parnts_code sc_khb_srv.cd_v20
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
 );
 
@@ -884,6 +914,19 @@ BULK INSERT sc_khb_srv.tb_com_code
 );
 
 alter table sc_khb_srv.tb_com_code add constraint pk_tb_com_code primary key(code_pk);
+SELECT * FROM sc_khb_srv.tb_com_code;
+-- com_code에서 부모_코드 없던 데이터들 부모 코드에 맞게 데이터 삽입
+--SELECT * FROM sc_khb_srv.tb_com_code WHERE parnts_code IS NULL;
+--UPDATE sc_khb_srv.tb_com_code SET parnts_code = b.code
+--FROM sc_khb_srv.tb_com_code a
+--     LEFT JOIN
+--     (
+--      SELECT code_pk, code
+--        FROM sc_khb_srv.tb_com_code
+--       WHERE parnts_code IS NULL
+--         AND code_pk = parnts_code_pk) b
+--                 ON a.parnts_code_pk = b.code_pk
+-- WHERE a.parnts_code IS NULL;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1541,7 +1584,6 @@ SET STATISTICS io ON;
 -- tb_com_stplat_info
 CREATE TABLE sc_khb_srv.tb_com_stplat_info (
   com_stplat_info_pk sc_khb_srv.pk_n18 NOT NULL
-, svc_pk sc_khb_srv.pk_n18 NOT NULL
 , stplat_se_code sc_khb_srv.cd_v20
 , essntl_at sc_khb_srv.yn_c1
 , file_cours_nm sc_khb_srv.nm_nv500
@@ -2073,6 +2115,7 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
+DROP TABLE sc_khb_srv.tb_link_hsmp_bsc_info;
 -- tb_link_hsmp_bsc_info =>  ms
 CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
   hsmp_cd sc_khb_srv.cd_v20
