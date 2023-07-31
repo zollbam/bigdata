@@ -185,7 +185,7 @@ SELECT
  GROUP BY class_desc, major_id, grantee_principal_id
  ORDER BY 2,3;
 
-
+SELECT * FROM sc_khb_srv.tb_hsmp_info thi ;
 
 
 

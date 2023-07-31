@@ -1,11 +1,14 @@
 /*
 확장속성(comment)을 추가하는 파일
 작성 일시: 230624
-수정 일시: 230721
+수정 일시: 230731
 작 성 자 : 조건영 
 작성 목적 : 테이블과 컬럼에 comment를 복사하여 쿼리문을 만들기 위해 만듬
 사용 DB : mssql 2016
 */
+-- 기본 개념
+EXEC sp_dropextendedproperty 'MS_Description', 'schema',sc_khb_srv,'table',tb_hsmp_info,'column',ctgry_cd; -- 삭제
+EXEC sp_addextendedproperty 'MS_Description', '카테고리 코드','schema',sc_khb_srv,'table',tb_hsmp_info,'column',ctgry_cd; -- 추가
 
 -- 테이블 확장 속성 확인
 SELECT 
@@ -22,7 +25,7 @@ SELECT
  ORDER BY 1;
 
 -- 테이블 확장 속성 쿼리 작성
-SELECT 
+SELECT
   t.TABLE_NAME "테이블명"
 , 'EXEC SP_ADDEXTENDEDPROPERTY @name=N''MS_Description'', @value=N''' + CAST(ep.value AS varchar(500)) +
   ''', @level0type=N''SCHEMA'', @level0name=N''' + t.TABLE_SCHEMA +
