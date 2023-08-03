@@ -153,7 +153,7 @@ SELECT
             FOR xml PATH('')),1,2,'') + 
   ' on sc_khb_srv.' + 
   object_name(major_id) + 
-  ' to ' + user_name(grantee_principal_id) + ';'
+  ' to ' + user_name(grantee_principal_id) + ';' "시퀀스 권한 부여 쿼리"
   FROM sys.DATABASE_permissions dp
  WHERE class_desc != 'DATABASE' 
        AND 

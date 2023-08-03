@@ -22,7 +22,7 @@ SELECT
 --       CAST(ep.value AS varchar) LIKE '%공통%'
  ORDER BY 1;
 
--- 테이블의 열 정보(열번호 맞게 => comment 전부 보여줌)
+-- 테이블의 열 정보(열번호 맞게 => pk가 존재하는 테이블만)
 SELECT DISTINCT
   object_name(c.object_id) "테이블명"
 , c.NAME "컬럼명"
@@ -114,7 +114,7 @@ SELECT
 	   ELSE ''
   END "make_user_type"
   FROM information_schema.columns
- WHERE table_NAME = 'tb_link_subway_statn_info'
+ WHERE table_NAME = 'tb_com_sgg_cd'
 -- WHERE TABLE_NAME = 'tb_svc_bass_info';
 /*
 시스템 타입을 사용자 타입으로 변경하기 위해 만든 쿼리
