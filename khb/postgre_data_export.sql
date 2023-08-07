@@ -138,8 +138,12 @@ case when imprmn_bsns_at is null then '' else imprmn_bsns_at::varchar(4000) end,
 case when public_house_earth_at is null then '' else public_house_earth_at::varchar(4000) end,
 case when lrscl_bldlnd_devlop_earth_at is null then '' else lrscl_bldlnd_devlop_earth_at::varchar(4000) end,
 case when npln_prvopr_public_house_earth_at is null then '' else npln_prvopr_public_house_earth_at::varchar(4000) end,
-case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) end)
-  from tb_apply_apt_lttot_info_detail; -- 54 행
+case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) END,
+'',
+'',
+'',
+'')
+  from tb_apply_apt_lttot_info_detail; -- 69 행
 
 
 
@@ -171,8 +175,12 @@ case when hmpg_url is null then '' else hmpg_url::varchar(4000) end,
 case when bsns_mby_opertnprofs_nm is null then '' else bsns_mby_opertnprofs_nm::varchar(4000) end,
 case when inqry_offic_telno is null then '' else inqry_offic_telno::varchar(4000) end,
 case when mvn_prearnge_mt is null then '' else mvn_prearnge_mt::varchar(4000) end,
-case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) end)
-  from tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_detail; -- 39 행
+case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) END,
+'',
+'',
+'',
+'')
+  from tb_apply_apt_nthg_rank_remndr_hshld_lttot_info_detail; -- 46 행
 
 
 
@@ -539,7 +547,11 @@ case when hmpg_url is null then '' else hmpg_url::varchar(4000) end,
 case when bsns_mby_opertnprofs_nm is null then '' else bsns_mby_opertnprofs_nm::varchar(4000) end,
 case when inqry_offic_telno is null then '' else inqry_offic_telno::varchar(4000) end,
 case when mvn_prearnge_mt is null then '' else mvn_prearnge_mt::varchar(4000) end,
-case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) en0d)
+case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) END,
+'',
+'',
+'',
+'')
   from tb_apply_ofctl_cty_prvate_rent_lttot_info_detail; -- 21 행
 
 

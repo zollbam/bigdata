@@ -114,7 +114,8 @@ SELECT
 	   ELSE ''
   END "make_user_type"
   FROM information_schema.columns
- WHERE table_NAME = 'tb_com_sgg_cd'
+ WHERE table_NAME = 'tb_atlfsl_bsc_info'
+ ORDER BY ORDINAL_POSITION;
 -- WHERE TABLE_NAME = 'tb_svc_bass_info';
 /*
 시스템 타입을 사용자 타입으로 변경하기 위해 만든 쿼리
@@ -152,7 +153,7 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_com_sgg_cd'
+        WHERE table_NAME = 'tb_link_ofctl_cty_prvate_rent_lttot_info'
        ) tr;
 
 
@@ -394,6 +395,7 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , rcmdtn_yn sc_khb_srv.yn_c1
 , auc_yn sc_khb_srv.yn_c1
 , atlfsl_stts_cd sc_khb_srv.cd_v20
+, totar sc_khb_srv.totar_d19_9
 , atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
@@ -403,10 +405,18 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 --             CODEPAGE = '65001',
 --             FIELDTERMINATOR = '||',
 --             ROWTERMINATOR = '0x0a'
---);
+--); -- article 테이블 삭제 전
+
+--bulk insert sc_khb_srv.tb_atlfsl_bsc_info
+--from 'D:\migra_data\product_info_new.txt'
+--with (
+--    codepage = '65001'
+--  , fieldterminator = '||'
+--  , rowterminator = '0x0a'
+--); -- 연면적 추가 전
 
 bulk insert sc_khb_srv.tb_atlfsl_bsc_info
-from 'D:\migra_data\product_info_new.txt'
+from 'D:\migra_data\product_info_spc.txt'
 with (
     codepage = '65001'
   , fieldterminator = '||'
@@ -420,10 +430,6 @@ update sc_khb_srv.tb_atlfsl_bsc_info set atlfsl_crdnt = geometry::STPointFromTex
 alter table sc_khb_srv.tb_atlfsl_bsc_info drop column atlfsl_crdnt_tmp;
 
 SET STATISTICS io OFF;
-
-
-
-
 ---------------------------------------------------------------------------------------------------
 -- 좌표 데이터 삽입할 테이블
 CREATE TABLE sc_khb_srv.test(
@@ -1088,7 +1094,7 @@ with (
   , fieldterminator = '||'
   , rowterminator = '0x0a'
 );
-
+SELECT * FROM sc_khb_srv.tb_com_emd_li_cd;
 alter table sc_khb_srv.tb_com_emd_li_cd add constraint pk_tb_com_emd_li_cd primary key(emd_li_cd_pk);
 
 update sc_khb_srv.tb_com_emd_li_cd set emd_li_crdnt = geometry::STPointFromText(emd_li_crdnt_tmp, 4326) WHERE emd_li_crdnt_tmp NOT LIKE '%null%' AND emd_li_crdnt_tmp NOT LIKE '%0.0%';
@@ -2009,15 +2015,52 @@ CREATE TABLE sc_khb_srv.tb_link_apt_lttot_info (
 , lrscl_bldlnd_devlop_spcfc_yn sc_khb_srv.yn_c1
 , npln_prvopr_public_house_spcfc_yn sc_khb_srv.yn_c1
 , lttot_info_url sc_khb_srv.url_nv4000
+, stdg_cd sc_khb_srv.cd_v20
+, ctpv_cd_pk sc_khb_srv.pk_n18
+, sgg_cd_pk sc_khb_srv.pk_n18
+, emd_li_cd_pk sc_khb_srv.pk_n18
 );
 
-BU0LK INSERT sc_khb_srv.tb_link_apt_lttot_info
+BULK INSERT sc_khb_srv.tb_link_apt_lttot_info
        FROM 'D:\migra_data\tb_apply_apt_lttot_info_detail.txt'
        WITH (
              codepage = '65001',
              fieldterminator = '||',
              rowterminator = '\n'
             );
+
+UPDATE sc_khb_srv.tb_link_apt_lttot_info 
+SET stdg_cd = dp.innb, 
+    ctpv_cd_pk = dp.ctpv_cd_pk, 
+    sgg_cd_pk = dp.sgg_cd_pk, 
+    emd_li_cd_pk = dp.emd_li_cd_pk
+  from (
+		select tlali.sply_pstn_nm
+		     , tccc.ctpv_cd_pk 
+		     , tcsc.sgg_cd_pk 
+		     , tcelc.emd_li_cd_pk 
+		     , tcelc.stdg_dong_cd 
+		       as innb
+		     , substring(ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))
+		       , 0, PatIndex('%[^0-9,-]%', ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))))
+		       as jibun
+		     , tcelc.all_emd_li_nm
+		     , row_number() over (partition by tlali.sply_pstn_nm order by tcelc.emd_li_cd_pk desc) as rn
+		  from sc_khb_srv.tb_link_apt_lttot_info tlali
+		       left outer join sc_khb_srv.tb_com_ctpv_cd tccc 
+		                    on (tlali.sply_pstn_nm like tccc.ctpv_nm + ' %' 
+		                    or tlali.sply_pstn_nm like tccc.ctpv_abbrev_nm + ' %')
+		       left outer join sc_khb_srv.tb_com_sgg_cd tcsc 
+		                    on tcsc.ctpv_cd_pk = tccc.ctpv_cd_pk 
+		                   and tlali.sply_pstn_nm like '% ' + tcsc.sgg_nm  + ' %' 
+		       left outer join sc_khb_srv.tb_com_emd_li_cd tcelc 
+		                    on tcelc.ctpv_cd_pk = tccc.ctpv_cd_pk 
+		                   and tcelc.sgg_cd_pk = tcsc.sgg_cd_pk
+		                   and tlali.sply_pstn_nm like '% ' + tcelc.all_emd_li_nm + ' %'
+		                   and tcelc.stdg_dong_se_cd = 'B'
+		       ) dp
+ where rn = 1
+   AND sc_khb_srv.tb_link_apt_lttot_info.sply_pstn_nm = dp.sply_pstn_nm;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -2048,6 +2091,10 @@ CREATE TABLE sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info (
 , refrnc_telno sc_khb_srv.telno_v30
 , mvn_prnmnt_ym sc_khb_srv.ym_c6
 , lttot_info_url sc_khb_srv.url_nv4000
+, stdg_cd sc_khb_srv.cd_v20
+, ctpv_cd_pk sc_khb_srv.pk_n18
+, sgg_cd_pk sc_khb_srv.pk_n18
+, emd_li_cd_pk sc_khb_srv.pk_n18
 );
 
 BULK INSERT sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info
@@ -2057,6 +2104,39 @@ BULK INSERT sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info
              fieldterminator = '||',
              rowterminator = '\n'
             );
+
+UPDATE sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info
+SET stdg_cd= dp.innb, 
+    ctpv_cd_pk = dp.ctpv_cd_pk, 
+    sgg_cd_pk = dp.sgg_cd_pk, 
+    emd_li_cd_pk = dp.emd_li_cd_pk
+  from (
+		select tlali.sply_pstn_nm
+		     , tccc.ctpv_cd_pk 
+		     , tcsc.sgg_cd_pk 
+		     , tcelc.emd_li_cd_pk 
+		     , tcelc.stdg_dong_cd 
+		       as innb
+		     , substring(ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))
+		       , 0, PatIndex('%[^0-9,-]%', ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))))
+		       as jibun
+		     , tcelc.all_emd_li_nm
+		     , row_number() over (partition by tlali.sply_pstn_nm order by tcelc.emd_li_cd_pk desc) as rn
+		  from sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info tlali
+		       left outer join sc_khb_srv.tb_com_ctpv_cd tccc 
+		                    on (tlali.sply_pstn_nm like tccc.ctpv_nm + ' %' 
+		                    or tlali.sply_pstn_nm like tccc.ctpv_abbrev_nm + ' %')
+		       left outer join sc_khb_srv.tb_com_sgg_cd tcsc 
+		                    on tcsc.ctpv_cd_pk = tccc.ctpv_cd_pk 
+		                   and tlali.sply_pstn_nm like '% ' + tcsc.sgg_nm  + ' %' 
+		       left outer join sc_khb_srv.tb_com_emd_li_cd tcelc 
+		                    on tcelc.ctpv_cd_pk = tccc.ctpv_cd_pk 
+		                   and tcelc.sgg_cd_pk = tcsc.sgg_cd_pk
+		                   and tlali.sply_pstn_nm like '% ' + tcelc.all_emd_li_nm + ' %'
+		                   and tcelc.stdg_dong_se_cd = 'B'
+		       ) dp
+ where rn = 1
+   AND sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info.sply_pstn_nm = dp.sply_pstn_nm;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -2115,7 +2195,6 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
-DROP TABLE sc_khb_srv.tb_link_hsmp_bsc_info;
 -- tb_link_hsmp_bsc_info =>  ms
 CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
   hsmp_cd sc_khb_srv.cd_v20
@@ -2306,6 +2385,10 @@ CREATE TABLE sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info (
 , refrnc_telno sc_khb_srv.telno_v30
 , mvn_prnmnt_ym sc_khb_srv.ym_c6
 , lttot_info_url sc_khb_srv.url_nv4000
+, stdg_cd sc_khb_srv.cd_v20
+, ctpv_cd_pk sc_khb_srv.pk_n18
+, sgg_cd_pk sc_khb_srv.pk_n18
+, emd_li_cd_pk sc_khb_srv.pk_n18
 );
 
 BULK INSERT sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info
@@ -2315,6 +2398,39 @@ BULK INSERT sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info
              fieldterminator = '||',
              rowterminator = '\n'
             );
+
+UPDATE sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info
+   SET stdg_cd = dp.innb, 
+       ctpv_cd_pk = dp.ctpv_cd_pk, 
+       sgg_cd_pk = dp.sgg_cd_pk, 
+       emd_li_cd_pk = dp.emd_li_cd_pk
+  from (
+		select tlali.sply_pstn_nm
+		     , tccc.ctpv_cd_pk 
+		     , tcsc.sgg_cd_pk 
+		     , tcelc.emd_li_cd_pk 
+		     , tcelc.stdg_dong_cd 
+		       as innb
+--		     , substring(ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))
+--		       , 0, PatIndex('%[^0-9,-]%', ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))))
+--		       as jibun
+		     , tcelc.all_emd_li_nm
+		     , row_number() over (partition by tlali.sply_pstn_nm order by tcelc.emd_li_cd_pk desc) as rn
+		  from sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info tlali
+		       left outer join sc_khb_srv.tb_com_ctpv_cd tccc 
+		                    on (tlali.sply_pstn_nm like tccc.ctpv_nm + ' %' 
+		                    or tlali.sply_pstn_nm like tccc.ctpv_abbrev_nm + ' %')
+		       left outer join sc_khb_srv.tb_com_sgg_cd tcsc 
+		                    on tcsc.ctpv_cd_pk = tccc.ctpv_cd_pk 
+		                   and tlali.sply_pstn_nm like '% ' + tcsc.sgg_nm  + ' %' 
+		       left outer join sc_khb_srv.tb_com_emd_li_cd tcelc 
+		                    on tcelc.ctpv_cd_pk = tccc.ctpv_cd_pk 
+		                   and tcelc.sgg_cd_pk = tcsc.sgg_cd_pk
+		                   and tlali.sply_pstn_nm like '% ' + tcelc.all_emd_li_nm + ' %'
+		                   and tcelc.stdg_dong_se_cd = 'B'
+		       ) dp
+ where rn = 1
+   AND sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info.sply_pstn_nm = dp.sply_pstn_nm;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -2916,6 +3032,44 @@ FROM(
            COLUMN_NAME NOT LIKE '%:_dt' ESCAPE ':'
            AND 
            table_schema = 'sc_khb_srv') a;
+
+
+
+
+
+
+
+
+
+
+
+-- totar추가 되었을 때 totar열에 새로운 값 추가하기
+WITH spc_tbl AS
+(
+    SELECT DISTINCT product_no, total_spc
+      FROM (
+			 SELECT product_no, total_spc
+		       FROM hanbang.hanbang.article_type_c_info
+		      UNION 
+		     SELECT product_no, total_spc
+		       FROM hanbang.hanbang.article_type_d_info
+		      UNION 
+		     SELECT product_no, total_spc
+		       FROM hanbang.hanbang.article_type_ef_info
+		   ) a
+)
+UPDATE sc_khb_srv.tb_atlfsl_bsc_info 
+   SET totar = total_spc
+          FROM spc_tbl
+ WHERE sc_khb_srv.tb_atlfsl_bsc_info.atlfsl_bsc_info_pk = spc_tbl.product_no;
+/*
+txt파일을 만들지 않고 hanbang db를 이용하여 바로 값을 추가!!!
+*/
+
+
+
+
+
 
 
 

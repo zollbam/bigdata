@@ -33,11 +33,12 @@ SELECT
        AND 
        object_name(major_id) = ANY(SELECT name FROM sys.tables WHERE schema_id = 5)
  ORDER BY 2, 3;
-
+GRANT SELECT ,INSERT, UPDATE, DELETE ON sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info TO us_khb_exif;
 -- 권한 부여 정보 확인(테이블) => wide
 SELECT *
   FROM (SELECT
-  class_desc "클래스 설명"
+--  class_desc "클래스 설명"
+  dense_RANK() OVER (ORDER BY object_name(major_id), user_name(grantee_principal_id)) "no"
 , object_name(major_id) "객체명"
 , user_name(grantee_principal_id) "권한 받은 유저"
 , permission_name "권한명"
@@ -113,7 +114,7 @@ SELECT
        AND 
        object_name(major_id) = ANY(SELECT name FROM sys.tables WHERE schema_id = 5)
  GROUP BY class_desc, major_id, grantee_principal_id
- ORDER BY 2,3;
+ ORDER BY 2, 3;
 
 -- 권한 부여 스크립트 작성 쿼리문(사용자 타입)
 SELECT 
@@ -186,9 +187,6 @@ SELECT
  ORDER BY 2,3;
 
 SELECT * FROM sc_khb_srv.tb_hsmp_info thi ;
-
-
-
 
 
 

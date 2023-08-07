@@ -2,7 +2,7 @@
 마리아db에서 테이블을 txt파일로 만드는 작업파일
 204번
 작성 일시: 230601
-수정 일시: 230718
+수정 일시: 230804
 작 성 자 : 조건영
 */
 
@@ -100,7 +100,7 @@ SELECT
          WHERE TABLE_SCHEMA=@db_name 
          ) imq
  GROUP BY imq.table_name;
-SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME LIKE '%geocode%';
+
 -- 원하는 테이블명(TABLE_NAME)에서 쿼리문(query) 복사 붙여넣기
 select 
   IFNULL(REPLACE(BANNER_NO,CONCAT(CHAR(10)), ''), '')
@@ -174,11 +174,26 @@ SELECT * FROM product_info;
 
 
 -- product_batch_history
-
+SELECT 
+  IFNULL(REPLACE(pbh.SEQ_NO,CONCAT(CHAR(10)), ''), '')
+, IFNULL(REPLACE(pbh.KAR_CONTENT_NO,CONCAT(CHAR(10)), ''), '')
+, IFNULL(REPLACE(pbh.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
+, IFNULL(REPLACE(pbh.MODE,CONCAT(CHAR(10)), ''), '')
+, IFNULL(REPLACE(pbh.RESULT,CONCAT(CHAR(10)), ''), '')
+, IFNULL(REPLACE(pbh.BATCH_DT,CONCAT(CHAR(10)), ''), '')
+, IFNULL(REPLACE(pbh.ERROR_TEXT,CONCAT(CHAR(10)), ''), '')
+  INTO OUTFILE '/var/lib/mysql/backup/product_batch_history.txt'
+      fields TERMINATED BY '||'
+      LINES TERMINATED BY '\n'
+  FROM hanbang.product_batch_history pbh 
+       INNER JOIN
+       hanbang.product_info pi2 
+           ON pbh.PRODUCT_NO = pi2.PRODUCT_NO
+ LIMIT 100000000;
 
 -- product_info + ariticle
 select 
-  IFNULL(REPLACE(pi2.PRODUCT_NO,CONCAT(CHAR(10)), ''), '') -- product
+  IFNULL(REPLACE(pi2.PRODUCT_NO,CONCAT(CHAR(10)), ''), '') "atlfsl_bsc_info_pk" -- product
 , IFNULL(REPLACE(KAR_MM_NO, CONCAT(CHAR(10)), ''), '') -- product
 , IFNULL(REPLACE(KAR_CONTENT_NO,CONCAT(CHAR(10)), ''), '') -- product
 , IFNULL(REPLACE(REALTOR_NO,CONCAT(CHAR(10)), ''), '') -- product
@@ -248,10 +263,11 @@ select
 , ''
 , ''
 , ''
+, IFNULL(REPLACE(ifnull(ifnull(ifnull(atei.total_spc, atdi.total_spc), atci.total_spc), ''),CONCAT(CHAR(10)), ''), '') "totar" -- article
 , CASE WHEN PRODUCT_LNG < 100 THEN IFNULL(REPLACE(concat('point(',json_extract(PRODUCT_GEOCODE,'$.lng'), ' ', json_extract(PRODUCT_GEOCODE,'$.lat'),')'),CONCAT(CHAR(10)), ''), '')
        ELSE IFNULL(REPLACE(concat('point(',json_extract(PRODUCT_GEOCODE,'$.lng'), ' ', json_extract(PRODUCT_GEOCODE,'$.lat'),')'),CONCAT(CHAR(10)), ''), '') 
-  END -- product
-into outfile '/var/lib/mysql/backup/product_info_new.txt'
+  END "crdnt_tmp" -- product
+  into outfile '/var/lib/mysql/backup/product_info.txt'
         CHARACTER SET utf8
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
@@ -264,8 +280,9 @@ into outfile '/var/lib/mysql/backup/product_info_new.txt'
                     on atdi.PRODUCT_NO = pi2.PRODUCT_NO 
                    and atdi.SPLY_SPC <> 333333333335
        left join hanbang.article_type_ef_info atei
-                    on atei.PRODUCT_NO = pi2.PRODUCT_NO 
+                    on atei.PRODUCT_NO = pi2.PRODUCT_NO
  where pi2.PRODUCT_CATE_CD not in ('03', '04') -- 주상복합, 주상복합분양권 제외
+   AND pi2.PRODUCT_NO != 20502829
  LIMIT 100000000;
 
 -- product_info
@@ -360,6 +377,7 @@ SELECT
        hanbang.product_info pi2 
      	  ON pi2.PRODUCT_NO = fi.PRODUCT_NO
  WHERE fi.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
+   AND pi2.PRODUCT_NO != 20502829
  LIMIT 100000000;
 
 SELECT count(*)
@@ -371,52 +389,52 @@ SELECT count(*)
                         FROM product_info);
 
 -- article_type_d_info
-select 
-  IFNULL(REPLACE(d.ARTICLE_D_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.ROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.RESTROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.C_DATE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.DIRECTION,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.LOCAL_NDC_YN,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.SPLY_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.PARKING_PSBL,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.BUILD_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.GRND_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.DNFLR_CNT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.UPFLR_CNT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.REG_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.UPDT_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(d.STAT,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/article_type_d_info.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
-  FROM hanbang.article_type_d_info d
-       INNER JOIN
-       hanbang.product_info pi2 
-           ON d.PRODUCT_NO = pi2.PRODUCT_NO
- WHERE d.ARTICLE_D_NO != 3043522
-     LIMIT 10000000;
-
-SELECT count(*)
-  FROM article_type_d_info
- WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
-                        FROM article_type_d_info
-                      EXCEPT 
-                      SELECT PRODUCT_NO
-                        FROM product_info);
-
-SELECT *
-  FROM article_type_d_info  
- WHERE ARTICLE_D_NO = 3043522;
+-- select 
+--   IFNULL(REPLACE(d.ARTICLE_D_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.ROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.RESTROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.C_DATE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.DIRECTION,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.LOCAL_NDC_YN,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.SPLY_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.PARKING_PSBL,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.BUILD_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.GRND_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.DNFLR_CNT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.UPFLR_CNT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.REG_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.UPDT_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(d.STAT,CONCAT(CHAR(10)), ''), '')
+-- into outfile '/var/lib/mysql/backup/article_type_d_info.txt'
+--         FIELDS TERMINATED BY '||'
+--         LINES TERMINATED BY '\n'
+--   FROM hanbang.article_type_d_info d
+--        INNER JOIN
+--        hanbang.product_info pi2 
+--            ON d.PRODUCT_NO = pi2.PRODUCT_NO
+--  WHERE d.ARTICLE_D_NO != 3043522
+--      LIMIT 10000000;
+-- 
+-- SELECT count(*)
+--   FROM article_type_d_info
+--  WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
+--                         FROM article_type_d_info
+--                       EXCEPT 
+--                       SELECT PRODUCT_NO
+--                         FROM product_info);
+-- 
+-- SELECT *
+--   FROM article_type_d_info  
+--  WHERE ARTICLE_D_NO = 3043522;
 
 -- trade_info
-select count(*)
+select 
   IFNULL(REPLACE(ti.TRADE_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(ti.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(ti.TRADE_TYPE,CONCAT(CHAR(10)), ''), '')
@@ -437,7 +455,8 @@ into outfile '/var/lib/mysql/backup/trade_info.txt'
        INNER JOIN
        hanbang.product_info pi2 
            ON ti.PRODUCT_NO = pi2.PRODUCT_NO
- WHERE ti.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0);
+ WHERE ti.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
+   AND pi2.PRODUCT_NO != 20502829
  LIMIT 100000000;
 
 SELECT count(*)
@@ -449,87 +468,87 @@ SELECT count(*)
                         FROM product_info);
 
 -- article_type_ef_info
-select 
-  IFNULL(REPLACE(ef.ARTICLE_EF_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.ROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.C_DATE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.DIRECTION,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(OPTION_INFO,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(DTL_ADDR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.LOCAL_NDC_YN,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BLD_TYPE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(PLACE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.SPLY_SPC,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(HOUSE_HOLD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(PARKING,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.PARKING_PSBL,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.BUILD_SPC,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(TOTAL_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.GRND_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.DNFLR_CNT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.UPFLR_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ELEVATOR,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(GUNRAK_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BUILD_NAME,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(CUR_USG,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(RCMD_USG,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(SELL_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BLDG_ARCH_TYPE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(USE_EPWR_TP_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(USG_AREA,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(AREA_NO,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BIZ_STEP_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(CONST_COMPANY,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(EXPECT_SPC,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ZONE_METER,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ESTIMATE_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(YONGJUK_RATE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(GUNPE_RATE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(POWER,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(JIMOK_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(JIMOK_GUSUNG,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(YONG_JIYUK1_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(YONG_JIYUK2_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ROAD_METER,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(AMT_REAL_INVEST,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(AMT_MOVE_FREE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(SUKBAK_IPJI_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(FACTORY_TYPE_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(FACTORY_CATE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BUILDING_TYPE_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(WAREHOUSE_TYPE_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(AMT_MOVE_NOFREE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(SUKBAK_CATE_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(FACTORY_IPJI_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(FLOOR_HIGH,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(JIBUN_METER,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(RECOM_USE2,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(GRND_SHR_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.REG_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.UPDT_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ef.STAT,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/article_type_ef_info.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
-  FROM hanbang.article_type_ef_info ef
-       INNER JOIN
-       hanbang.product_info pi2 
-           ON ef.PRODUCT_NO = pi2.PRODUCT_NO
- LIMIT 10000000;
+-- select 
+--   IFNULL(REPLACE(ef.ARTICLE_EF_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.ROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.C_DATE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.DIRECTION,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(OPTION_INFO,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(DTL_ADDR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.LOCAL_NDC_YN,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BLD_TYPE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(PLACE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.SPLY_SPC,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(HOUSE_HOLD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(PARKING,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.PARKING_PSBL,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.BUILD_SPC,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(TOTAL_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.GRND_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.DNFLR_CNT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.UPFLR_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ELEVATOR,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(GUNRAK_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BUILD_NAME,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(CUR_USG,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(RCMD_USG,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(SELL_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BLDG_ARCH_TYPE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(USE_EPWR_TP_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(USG_AREA,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(AREA_NO,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BIZ_STEP_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(CONST_COMPANY,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(EXPECT_SPC,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ZONE_METER,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ESTIMATE_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(YONGJUK_RATE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(GUNPE_RATE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(POWER,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(JIMOK_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(JIMOK_GUSUNG,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(YONG_JIYUK1_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(YONG_JIYUK2_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ROAD_METER,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(AMT_REAL_INVEST,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(AMT_MOVE_FREE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(SUKBAK_IPJI_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(FACTORY_TYPE_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(FACTORY_CATE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BUILDING_TYPE_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(WAREHOUSE_TYPE_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(AMT_MOVE_NOFREE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(SUKBAK_CATE_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(FACTORY_IPJI_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(FLOOR_HIGH,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(JIBUN_METER,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(RECOM_USE2,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(GRND_SHR_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.REG_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.UPDT_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ef.STAT,CONCAT(CHAR(10)), ''), '')
+-- into outfile '/var/lib/mysql/backup/article_type_ef_info.txt'
+--         FIELDS TERMINATED BY '||'
+--         LINES TERMINATED BY '\n'
+--   FROM hanbang.article_type_ef_info ef
+--        INNER JOIN
+--        hanbang.product_info pi2 
+--            ON ef.PRODUCT_NO = pi2.PRODUCT_NO
+--  LIMIT 10000000;
 
-SELECT count(*)
-  FROM article_type_ef_info
- WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
-                        FROM article_type_ef_info
-                      EXCEPT 
-                      SELECT PRODUCT_NO
-                        FROM product_info);
+-- SELECT count(*)
+--   FROM article_type_ef_info
+--  WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
+--                         FROM article_type_ef_info
+--                       EXCEPT 
+--                       SELECT PRODUCT_NO
+--                         FROM product_info);
 
 -- etc_info
 select
@@ -552,6 +571,7 @@ into outfile '/var/lib/mysql/backup/etc_info.txt'
        hanbang.product_info pi2 
            ON ei.PRODUCT_NO = pi2.PRODUCT_NO
  WHERE ei.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
+   AND pi2.PRODUCT_NO != 20502829
  LIMIT 100000000;
 
 SELECT count(*)
@@ -613,6 +633,7 @@ into outfile '/var/lib/mysql/backup/grnd_info.txt'
        product_info pi2
            ON gi.PRODUCT_NO = pi2.PRODUCT_NO
  WHERE gi.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
+   AND pi2.PRODUCT_NO != 20502829
  LIMIT 100000000;
 
 SELECT count(*)
@@ -624,134 +645,134 @@ SELECT count(*)
                         FROM product_info);
 
 -- article_type_c_info
-select 
-  IFNULL(REPLACE(c.ARTICLE_C_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.ROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.RESTROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.C_DATE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.DIRECTION,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(DOOR_TYPE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(DUPLEX_YN,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(OPTION_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(MNEX,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(OPTION_INFO,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(DTL_ADDR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.LOCAL_NDC_YN,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BLD_TYPE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(PLACE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.SPLY_SPC,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(GRND_SHR_SPC,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(HOUSE_HOLD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(PARKING,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.PARKING_PSBL,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.BUILD_SPC,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(TOTAL_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.GRND_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.DNFLR_CNT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.UPFLR_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(RDVLP_AREA,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ELEVATOR,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(GUNRAK_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(SHAPE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BLD_DONG,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ROOM1_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ROOM2_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ROOM3_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ROOM4_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ROOM_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(YOKSIL_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(SETAK_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(JUBANG_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(JIBUN_METER,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.FCOR_FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.STAIR_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(PARK_CNT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(CONST_USE_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BALCONY_CD,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.REG_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.UPDT_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(c.STAT,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/article_type_c_info.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
-  FROM hanbang.article_type_c_info c
-       INNER JOIN
-       hanbang.product_info pi2
-           ON c.PRODUCT_NO = pi2.PRODUCT_NO
- LIMIT 10000000;
-
-SELECT count(*)
-  FROM article_type_c_info
- WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
-                        FROM article_type_c_info
-                      EXCEPT 
-                      SELECT PRODUCT_NO
-                        FROM product_info);
+-- select 
+--   IFNULL(REPLACE(c.ARTICLE_C_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.ROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.RESTROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.C_DATE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.DIRECTION,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(DOOR_TYPE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(DUPLEX_YN,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(OPTION_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(MNEX,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(OPTION_INFO,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(DTL_ADDR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.LOCAL_NDC_YN,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BLD_TYPE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(PLACE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.SPLY_SPC,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(GRND_SHR_SPC,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(HOUSE_HOLD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(PARKING,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.PARKING_PSBL,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.BUILD_SPC,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(TOTAL_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.GRND_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.DNFLR_CNT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.UPFLR_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(RDVLP_AREA,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ELEVATOR,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(GUNRAK_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(SHAPE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BLD_DONG,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ROOM1_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ROOM2_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ROOM3_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ROOM4_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ROOM_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(YOKSIL_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(SETAK_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(JUBANG_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(JIBUN_METER,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.FCOR_FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.STAIR_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(PARK_CNT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(CONST_USE_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BALCONY_CD,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.REG_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.UPDT_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(c.STAT,CONCAT(CHAR(10)), ''), '')
+-- into outfile '/var/lib/mysql/backup/article_type_c_info.txt'
+--         FIELDS TERMINATED BY '||'
+--         LINES TERMINATED BY '\n'
+--   FROM hanbang.article_type_c_info c
+--        INNER JOIN
+--        hanbang.product_info pi2
+--            ON c.PRODUCT_NO = pi2.PRODUCT_NO
+--  LIMIT 10000000;
+-- 
+-- SELECT count(*)
+--   FROM article_type_c_info
+--  WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
+--                         FROM article_type_c_info
+--                       EXCEPT 
+--                       SELECT PRODUCT_NO
+--                         FROM product_info);
 
 -- article_type_ab_info
-select 
-  IFNULL(REPLACE(ab.ARTICLE_AB_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.APT_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.ROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.RESTROOM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.STAIR_CD,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.C_DATE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.DIRECTION,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(I_SALE_PRICE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(PREMIUM,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.LOAN_PRICE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(PTP_NO,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.APT_DONG,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.HO,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(DOOR_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.FCOR_FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(USAGE_TEXT,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(DUPLEX_YN,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(OPTION_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(MNEX,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(OPTION_INFO,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(OFFICETEL_USE_CD,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.BALCONY_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(BALCONY_EXT_YN,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(ROOM_CD,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(SALE_TYPE,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(AMT_REAL_INVEST,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(AMT_PAY,CONCAT(CHAR(10)), ''), '')
--- , IFNULL(REPLACE(MID_GBN,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.REG_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.UPDT_DT,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(ab.STAT,CONCAT(CHAR(10)), ''), '')
-into outfile '/var/lib/mysql/backup/article_type_ab_info.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
-  FROM hanbang.article_type_ab_info ab
-       INNER JOIN
-       product_info pi2
-           ON ab.PRODUCT_NO = pi2.PRODUCT_NO
- WHERE ab.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
- LIMIT 10000000;
-
-SELECT count(*)
-  FROM article_type_ab_info
- WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
-                        FROM article_type_ab_info
-                      EXCEPT 
-                      SELECT PRODUCT_NO
-                        FROM product_info);
+-- select 
+--   IFNULL(REPLACE(ab.ARTICLE_AB_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.PRODUCT_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.ARTICLE_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.CORTAR_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.APT_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.EXCLS_SPC,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.TOTAL_FLOOR,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.ROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.RESTROOM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.STAIR_CD,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.C_DATE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.DIRECTION,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(I_SALE_PRICE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(PREMIUM,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.LOAN_PRICE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(PTP_NO,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.APT_DONG,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.HO,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(DOOR_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.FCOR_FLR_EXPS_TYPE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(USAGE_TEXT,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(DUPLEX_YN,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(OPTION_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(MNEX,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(OPTION_INFO,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(OFFICETEL_USE_CD,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.BALCONY_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(BALCONY_EXT_YN,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(ROOM_CD,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(SALE_TYPE,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(AMT_REAL_INVEST,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(AMT_PAY,CONCAT(CHAR(10)), ''), '')
+-- -- , IFNULL(REPLACE(MID_GBN,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.REG_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.UPDT_DT,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(ab.STAT,CONCAT(CHAR(10)), ''), '')
+-- into outfile '/var/lib/mysql/backup/article_type_ab_info.txt'
+--         FIELDS TERMINATED BY '||'
+--         LINES TERMINATED BY '\n'
+--   FROM hanbang.article_type_ab_info ab
+--        INNER JOIN
+--        product_info pi2
+--            ON ab.PRODUCT_NO = pi2.PRODUCT_NO
+--  WHERE ab.PRODUCT_NO NOT IN (SELECT product_no FROM product_info WHERE realtor_no=0)
+--  LIMIT 10000000;
+-- 
+-- SELECT count(*)
+--   FROM article_type_ab_info
+--  WHERE PRODUCT_NO IN (SELECT PRODUCT_NO
+--                         FROM article_type_ab_info
+--                       EXCEPT 
+--                       SELECT PRODUCT_NO
+--                         FROM product_info);
 
 -- banner_info
 select 
@@ -809,21 +830,22 @@ into outfile '/var/lib/mysql/backup/board_info.txt'
  LIMIT 100000000;
 
 -- com_code
+SELECT * FROM com_code;
 /*대분류*/
 select 
-  ROW_NUMBER () OVER(ORDER BY GUBUN, grd_cd, code) code_pk
-, ROW_NUMBER () OVER(ORDER BY GUBUN, grd_cd) parnts_code_pk
-, IFNULL(REPLACE(concat(GUBUN,code),CONCAT(CHAR(10)), ''), '') code
-, IFNULL(REPLACE(CODE_NM,CONCAT(CHAR(10)), ''), '') code_nm
-, IFNULL(REPLACE(CODE_VAL,CONCAT(CHAR(10)), ''), '') sort_ordr
-, IFNULL(REPLACE(STAT,CONCAT(CHAR(10)), ''), '') use_at
+  ROW_NUMBER () OVER(ORDER BY GUBUN, grd_cd, code) 
+, ROW_NUMBER () OVER(ORDER BY GUBUN, grd_cd) 
+, IFNULL(REPLACE(concat(GUBUN,code),CONCAT(CHAR(10)), ''), '') 
+, IFNULL(REPLACE(CODE_NM,CONCAT(CHAR(10)), ''), '') 
+, IFNULL(REPLACE(CODE_VAL,CONCAT(CHAR(10)), ''), '') 
+, IFNULL(REPLACE(STAT,CONCAT(CHAR(10)), ''), '') 
 , '' regist_id
 , '' regist_dt
 , '' updt_id
 , '' updt_dt
 , IFNULL(REPLACE(CODE_DESC,CONCAT(CHAR(10)), ''), '') rm_cn
-, IFNULL(REPLACE(concat(GUBUN,grd_cd),CONCAT(CHAR(10)), ''), '') parent_code
-, IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '') synchrn_pnttm_vl
+, IFNULL(REPLACE(concat(GUBUN,code),CONCAT(CHAR(10)), ''), '') 
+, IFNULL(REPLACE(SYS_TIMESTAMP,CONCAT(CHAR(10)), ''), '') 
   into outfile '/var/lib/mysql/backup/com_code_dea.txt'
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
@@ -939,6 +961,7 @@ select
 , IFNULL(REPLACE(UPD_USER,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(UPD_DATETIME,CONCAT(CHAR(10)), ''), '')
 , ''
+, ''
   into outfile '/var/lib/mysql/backup/theme_info.txt'
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
@@ -971,19 +994,19 @@ select
 , ''
 , IFNULL(REPLACE(mod_date,CONCAT(CHAR(10)), ''), '')
 , ''
-, ''
 , IFNULL(REPLACE(social_type,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(mem_img,CONCAT(CHAR(10)), ''), '')
-, IFNULL(REPLACE(platform,CONCAT(CHAR(10)), ''), '')
+-- , IFNULL(REPLACE(platform,CONCAT(CHAR(10)), ''), '')
+, ''
 , ''
 , ''
 -- , IFNULL(REPLACE(user_passwd_tmp,CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(user_token,CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(device_id,CONCAT(CHAR(10)), ''), '')
-  into outfile '/var/lib/mysql/backup/user_info.txt'
-	   CHARACTER SET utf8
-       FIELDS TERMINATED BY '||'
-       LINES TERMINATED BY '\n'
+--   into outfile '/var/lib/mysql/backup/user_info.txt'
+-- 	   CHARACTER SET utf8
+--        FIELDS TERMINATED BY '||'
+--        LINES TERMINATED BY '\n'
   FROM hanbang.user_info 
  LIMIT 100000000;
 
@@ -1188,9 +1211,9 @@ select
 , CASE WHEN COMPANY_GEOCODE NOT LIKE '%null%' THEN IFNULL(REPLACE(concat('point(', json_extract(COMPANY_GEOCODE, '$.lng'), ' ', json_extract(COMPANY_GEOCODE, '$.lat'), ')'), CONCAT(CHAR(10)), ''), '')
        ELSE ''
   END 
-into outfile '/var/lib/mysql/backup/realtor_info.txt'
-        FIELDS TERMINATED BY '||'
-        LINES TERMINATED BY '\n'
+-- into outfile '/var/lib/mysql/backup/realtor_info.txt'
+--         FIELDS TERMINATED BY '||'
+--         LINES TERMINATED BY '\n'
   FROM hanbang.realtor_info 
  LIMIT 100000000;
 
@@ -1203,7 +1226,7 @@ SELECT
 , ''
 , IFNULL(REPLACE(REALTOR_PHONE,CONCAT(CHAR(10)), ''), '')
 , ''
-, ''
+, '02'
 , ''
 , ''
 , ''
@@ -1217,11 +1240,10 @@ SELECT
 , IFNULL(REPLACE(UPT_DT,CONCAT(CHAR(10)), ''), '')
 , ''
 , ''
-, ''
 , IFNULL(REPLACE(REALTOR_PIC1,CONCAT(CHAR(10)), ''), '')
-, ''
 , IFNULL(REPLACE(COMPANY_NAME,CONCAT(CHAR(10)), ''), '')
 , IFNULL(REPLACE(REALTOR_NO,CONCAT(CHAR(10)), ''), '')
+, ''
 -- , IFNULL(REPLACE(BIZ_NO,CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(EXPS_TEL_TYPE,CONCAT(CHAR(10)), ''), '')
 -- , IFNULL(REPLACE(COMPANY_SAFETY_PHONE,CONCAT(CHAR(10)), ''), '')

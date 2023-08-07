@@ -85,9 +85,60 @@ SELECT
          GROUP BY LEFT(signgu_code,2)) a
  ORDER BY 1;
 /*
-나온 쿼리 결과를 엑셀 파일로 복사하고 crdnt.txt 파일로 저장 시킴
+나온 쿼리 결과를 엑셀 파일로 복사
+ -> crdnt.txt : 강원도, 군위군 변경 전
+ -> crdnt_new.txt : 강원도, 군위군 변경 후
 시도/시군구 코드와 좌표를 ||로 구분하고 행 구분은 \n
 resultset tetch size를 270이상으로 맞추고 쿼리 실행
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
