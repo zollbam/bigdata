@@ -1,7 +1,7 @@
 /*
 pk와 fk를 작성하는 쿼리문을 추출하는 파일
 작성 일시: 230623
-수정 일시: 230714
+수정 일시: 230810
 작 성 자 : 조건영
 */
 
@@ -85,7 +85,7 @@ SELECT
               fkc.referenced_column_id = c.ORDINAL_POSITION
  ORDER BY 4, 2;
 
-SELECT 
+SELECT
   a.constraint_name
 , a.kid_table_name
 , a.kid_column_name
@@ -600,6 +600,14 @@ foreign key (lrea_office_info_pk)
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_itrst_atlfsl_info_tb_lttot_info
+alter table sc_khb_srv.tb_itrst_atlfsl_info 
+add constraint fk_tb_itrst_atlfsl_info_tb_lttot_info
+foreign key (lttot_info_pk) 
+	references sc_khb_srv.tb_lttot_info(lttot_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
 -- fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info
 alter table sc_khb_srv.tb_user_atlfsl_img_info 
 add constraint fk_tb_user_atlfsl_img_info_tb_user_atlfsl_info 
@@ -632,6 +640,31 @@ foreign key (user_atlfsl_info_pk)
  
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

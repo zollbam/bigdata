@@ -95,7 +95,7 @@ SELECT DISTINCT
      	   ON object_name(c.object_id) = object_name(ep.major_id) 
      	      AND 
      	      c.column_id = ep.minor_id
- WHERE object_name(c.object_id) = 'tb_link_apt_lttot_info'
+ WHERE object_name(c.object_id) = 'tb_itrst_atlfsl_info'
  ORDER BY 1, 4;
 
 -- 테이블 확장 속성 삭제 쿼리 작성
@@ -131,6 +131,33 @@ SELECT DISTINCT
            ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
  WHERE object_name(c.object_id) = 'tb_com_banner_info' -- 컬럼명 조건
  ORDER BY 1, c.column_id;
+
+
+
+-- comment 존재 하지 않을 때 확장속성 문법 기본틀 생성
+/*테이블*/
+SELECT
+  table_name
+, 'EXEC SP_ADDEXTENDEDPROPERTY @name=N''MS_Description'', @value=N'''', @level0type=N''SCHEMA'', @level0name=N''' + TABLE_SCHEMA + '''' +
+                                                                     ', @level1type=N''TABLE'', @level1name=N''' + TABLE_NAME + ''';' "테이블 확장속성 기본틀"
+  FROM information_schema.tables
+ WHERE table_schema = 'sc_khb_srv'
+   AND table_name NOT LIKE '%vw%'
+ ORDER BY TABLE_NAME;
+
+/*속성*/
+SELECT
+  table_name
+, column_name
+, 'EXEC SP_ADDEXTENDEDPROPERTY @name=N''MS_Description'', @value=N'''', @level0type=N''SCHEMA'', @level0name=N''' + TABLE_SCHEMA + '''' +
+                                                                     ', @level1type=N''TABLE'', @level1name=N''' + TABLE_NAME + '''' +
+                                                                     ', @level2type=N''COLUMN'', @level2name=N''' + COLUMN_NAME + ''';' "컬럼 확장속성 기본틀"
+  FROM information_schema.columns
+ WHERE table_schema = 'sc_khb_srv'
+--   AND table_name = ''
+ ORDER BY TABLE_NAME, ORDINAL_POSITION;
+
+
 
 -- 테이블
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_배치_이력', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_batch_hstry';
@@ -177,7 +204,7 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_시군구_�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_약관_이력', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_stplat_hist';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_약관_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_stplat_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_약관_매핑', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_stplat_mapng';
-EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_서비스_아이피_관리', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_서비스_IP_관리', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_테마_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_thema_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_사용자', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_user';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_사용자_권한', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_user_author';
@@ -874,10 +901,10 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'약관_동의_일�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'약관_거부_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_stplat_mapng', @level2type=N'COLUMN', @level2name=N'stplat_reject_dt';
 -----------------------------------------------------------------------------------
 -- tb_com_svc_ip_manage
-EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'아이피_관리_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'ip_manage_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'IP_관리_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'ip_manage_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'권한_번호_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'author_no_pk';
-EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'아이피_주소', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'ip_adres';
-EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'아이피_사용_기관_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'ip_use_instt_nm';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'IP_주소', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'ip_adres';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'IP_사용_기관_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'ip_use_instt_nm';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'regist_id';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'regist_dt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_svc_ip_manage', @level2type=N'COLUMN', @level2name=N'updt_id';
@@ -1022,6 +1049,10 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_아이디',
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'reg_dt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'mdfcn_id';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'대표_여부', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'rprs_yn';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_테이블_구분_코드', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'lttot_tbl_se_cd';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'주택_관리_번호', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'house_mng_no';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'lttot_info_pk';
 -----------------------------------------------------------------------------------
 -- tb_jado_index
 -----------------------------------------------------------------------------------

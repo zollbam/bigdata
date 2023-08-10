@@ -114,7 +114,7 @@ SELECT
 	   ELSE ''
   END "make_user_type"
   FROM information_schema.columns
- WHERE table_NAME = 'tb_atlfsl_bsc_info'
+ WHERE table_NAME = 'tb_com_bbs_cmnt'
  ORDER BY ORDINAL_POSITION;
 -- WHERE TABLE_NAME = 'tb_svc_bass_info';
 /*
@@ -153,7 +153,7 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_link_ofctl_cty_prvate_rent_lttot_info'
+        WHERE table_NAME = 'tb_com_bbs_cmnt'
        ) tr;
 
 
@@ -861,6 +861,7 @@ CREATE TABLE sc_khb_srv.tb_com_bbs_cmnt (
 , rgtr_nm sc_khb_srv.nm_nv500
 , reg_id sc_khb_srv.id_nv100
 , reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
 );
 
@@ -920,7 +921,7 @@ BULK INSERT sc_khb_srv.tb_com_code
 );
 
 alter table sc_khb_srv.tb_com_code add constraint pk_tb_com_code primary key(code_pk);
-SELECT * FROM sc_khb_srv.tb_com_code;
+
 -- com_code에서 부모_코드 없던 데이터들 부모 코드에 맞게 데이터 삽입
 --SELECT * FROM sc_khb_srv.tb_com_code WHERE parnts_code IS NULL;
 --UPDATE sc_khb_srv.tb_com_code SET parnts_code = b.code
@@ -1849,7 +1850,7 @@ CREATE TABLE sc_khb_srv.tb_hsmp_info (
 , compet_mt sc_khb_srv.mt_c2
 , heat_cd sc_khb_srv.cd_v20
 , fuel_cd sc_khb_srv.cd_v20
-, ctlg_cd sc_khb_srv.cd_v20
+, ctgry_cd sc_khb_srv.cd_v20
 , mng_office_telno sc_khb_srv.telno_v30
 , bus_rte_info sc_khb_srv.cn_nv4000
 , subway_rte_info sc_khb_srv.cn_nv4000
@@ -1883,7 +1884,7 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
--- tb_itrst_atlfsl_info => 3297 ms
+-- tb_itrst_atlfsl_info => ms
 CREATE TABLE sc_khb_srv.tb_itrst_atlfsl_info (
   itrst_atlfsl_info_pk sc_khb_srv.pk_n18 NOT NULL
 , user_no_pk sc_khb_srv.pk_n18
@@ -1896,6 +1897,10 @@ CREATE TABLE sc_khb_srv.tb_itrst_atlfsl_info (
 , reg_dt sc_khb_srv.dt
 , mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
+, rprs_yn sc_khb_srv.yn_c1
+, lttot_tbl_se_cd sc_khb_srv.cd_v20
+, house_mng_no sc_khb_srv.no_n15
+, lttot_info_pk sc_khb_srv.pk_n18
 );
 
 BULK INSERT sc_khb_srv.tb_itrst_atlfsl_info
@@ -2245,9 +2250,9 @@ CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
 , udgd_parkng_cnt sc_khb_srv.cnt_n15
 , cctv_cnt sc_khb_srv.cnt_n15
 , parkng_cntrl_hrk_yn_nm sc_khb_srv.nm_nv500
-, mngoffice_addr sc_khb_srv.addr_nv1000
-, mngoffice_telno sc_khb_srv.telno_v30
-, mngoffice_fxno sc_khb_srv.fxno_v30
+, mng_office_addr sc_khb_srv.addr_nv1000
+, mng_office_telno sc_khb_srv.telno_v30
+, mng_office_fxno sc_khb_srv.fxno_v30
 , anclr_wlfare_fclt_nm sc_khb_srv.nm_nv500
 , join_day sc_khb_srv.day_nv100
 , lttot_hh_cnt sc_khb_srv.cnt_n15
@@ -2269,6 +2274,81 @@ BULK INSERT sc_khb_srv.tb_link_hsmp_bsc_info
             );
 
 UPDATE sc_khb_srv.tb_link_hsmp_bsc_info SET hsmp_crdnt = geometry::STPointFromText(concat('point(', hsmp_lot, ' ', hsmp_lat, ')'), 4326) WHERE hsmp_lat IS NOT NULL;
+
+
+/*다른 방법*/
+--CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
+--  hsmp_cd sc_khb_srv.cd_v20
+--, hsmp_nm sc_khb_srv.nm_nv500
+--, ctpv_nm sc_khb_srv.nm_nv500
+--, sgg_nm sc_khb_srv.nm_nv500
+--, eupmyeon_nm sc_khb_srv.nm_nv500
+--, dongli_nm sc_khb_srv.nm_nv500
+--, hsmp_clsf_nm sc_khb_srv.nm_nv500
+--, stdg_addr sc_khb_srv.addr_nv1000
+--, rn_addr sc_khb_srv.addr_nv1000
+--, lttot_stle_nm sc_khb_srv.nm_nv500
+--, use_aprv_day sc_khb_srv.day_nv100
+--, aptcmpl_cnt sc_khb_srv.cnt_n15
+--, hh_cnt sc_khb_srv.cnt_n15
+--, mng_mthd_nm sc_khb_srv.nm_nv500
+--, heat_mthd_nm sc_khb_srv.nm_nv500
+--, crrdpr_type_nm sc_khb_srv.nm_nv500
+--, bldr_nm sc_khb_srv.nm_nv500
+--, dvlr_nm sc_khb_srv.nm_nv500
+--, house_mng_bsmn_nm sc_khb_srv.nm_nv500
+--, gnrl_mng_mthd_nm sc_khb_srv.nm_nv500
+--, gnrl_mng_nmpr_cnt sc_khb_srv.cnt_n15
+--, expens_mng_mthd_nm sc_khb_srv.nm_nv500
+--, expens_mng_nmpr_cnt sc_khb_srv.cnt_n15
+--, expens_mng_ctrt_bzenty_nm sc_khb_srv.nm_nv500
+--, cln_mng_mthd_nm sc_khb_srv.nm_nv500
+--, cln_mng_nmpr_cnt sc_khb_srv.cnt_n15
+--, fdndrk_prcs_mthd_nm sc_khb_srv.nm_nv500
+--, dsnf_mng_mthd_nm sc_khb_srv.nm_nv500
+--, fyer_dsnf_cnt sc_khb_srv.cnt_n15
+--, dsnf_mthd_nm sc_khb_srv.nm_nv500
+--, bldg_strct_nm sc_khb_srv.nm_nv500
+--, elcty_pwrsuply_cpcty sc_khb_srv.cpcty_d25_15
+--, hh_elcty_ctrt_mthd_nm sc_khb_srv.nm_nv500
+--, elcty_safe_mngr_apnt_mthd_nm sc_khb_srv.nm_nv500
+--, fire_rcivr_mthd_nm sc_khb_srv.nm_nv500
+--, wsp_mthd_nm sc_khb_srv.nm_nv500
+--, elvtr_mng_stle_nm sc_khb_srv.nm_nv500
+--, psnger_elvtr_cnt sc_khb_srv.cnt_n15
+--, frght_elvtr_cnt sc_khb_srv.cnt_n15
+--, psnger_frght_elvtr_cnt sc_khb_srv.cnt_n15
+--, pwdbs_elvtr_cnt sc_khb_srv.cnt_n15
+--, emgnc_elvtr_cnt sc_khb_srv.cnt_n15
+--, etc_elvtr_cnt sc_khb_srv.cnt_n15
+--, tot_parkng_cntom sc_khb_srv.cntom_n15
+--, grnd_parkng_cnt sc_khb_srv.cnt_n15
+--, udgd_parkng_cnt sc_khb_srv.cnt_n15
+--, cctv_cnt sc_khb_srv.cnt_n15
+--, parkng_cntrl_hrk_yn_nm sc_khb_srv.nm_nv500
+--, mngoffice_addr sc_khb_srv.addr_nv1000
+--, mngoffice_telno sc_khb_srv.telno_v30
+--, mngoffice_fxno sc_khb_srv.fxno_v30
+--, anclr_wlfare_fclt_nm sc_khb_srv.nm_nv500
+--, join_day sc_khb_srv.day_nv100
+--, lttot_hh_cnt sc_khb_srv.cnt_n15
+--, rent_hh_cnt sc_khb_srv.cnt_n15
+--, top_flr_cnt sc_khb_srv.cnt_n15
+--, bdrg_top_flr_cnt sc_khb_srv.cnt_n15
+--, udgd_flr_cnt sc_khb_srv.cnt_n15
+--, hsmp_lat sc_khb_srv.lat_d12_10
+--, hsmp_lot sc_khb_srv.lot_d13_10
+--, hsmp_crdnt AS iif(hsmp_lot IS NOT NULL, geometry::STPointFromText(concat('point(', hsmp_lot, ' ', hsmp_lat, ')'), 4326), NULL)
+--);
+--
+--BULK INSERT sc_khb_srv.tb_link_hsmp_bsc_info
+--       FROM 'D:\migra_data\tb_k_apt_hsmp_bass_info.txt'
+--       WITH (
+--             codepage = '65001',
+--             fieldterminator = '||',
+--             rowterminator = '\n'
+--            );
+
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -2582,6 +2662,45 @@ BULK INSERT sc_khb_srv.tb_link_subway_statn_info
             );
 
 UPDATE sc_khb_srv.tb_link_subway_statn_info SET statn_crdnt = geometry::STPointFromText(concat('point(',statn_lot, ' ',statn_lat, ')'), 4326);
+
+
+
+/*다른 방법*/
+--CREATE TABLE sc_khb_srv.tb_link_subway_statn_info (
+--  statn_no sc_khb_srv.no_v200
+--, statn_nm sc_khb_srv.nm_nv500
+--, rte_no sc_khb_srv.no_v200
+--, rte_nm sc_khb_srv.nm_nv500
+--, eng_statn_nm sc_khb_srv.nm_nv500
+--, chcrt_statn_nm sc_khb_srv.nm_nv500
+--, trnsit_statn_se_nm sc_khb_srv.nm_nv500
+--, trnsit_rte_no sc_khb_srv.no_v200
+--, trnsit_rte_nm sc_khb_srv.nm_nv500
+--, statn_lat sc_khb_srv.lat_d12_10
+--, statn_lot sc_khb_srv.lot_d13_10
+--, oper_inst_nm sc_khb_srv.nm_nv500
+--, statn_rn_addr sc_khb_srv.addr_nv200
+--, statn_telno sc_khb_srv.telno_v30
+--, data_crtr_day sc_khb_srv.day_nv100
+--, statn_crdnt AS iif(statn_lot IS NOT NULL, 
+--                     geometry::STPointFromText(concat('point(', statn_lot, ' ', statn_lat, ')'), 4326),
+--                     NULL
+--                    )
+--, stdg_cd sc_khb_srv.cd_v20
+--, reg_id sc_khb_srv.id_nv100
+--, reg_dt sc_khb_srv.dt
+--, mdfcn_id sc_khb_srv.id_nv100
+--, mdfcn_dt sc_khb_srv.dt
+--);
+--
+--BULK INSERT sc_khb_srv.tb_link_subway_statn_info
+--       FROM 'D:\migra_data\tb_kric_statn_info.txt'
+--       WITH (
+--             codepage = '65001',
+--             fieldterminator = '||',
+--             rowterminator = '0x0a'
+--            );
+
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------

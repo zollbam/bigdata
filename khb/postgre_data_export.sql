@@ -1,6 +1,6 @@
 /*
 작 성 일 : 230706
-수 정 일 : 230720
+수 정 일 : 230810
 작 성 자 : 조 건 영
 사용 DB : postgresql , 192.168.0.5, 3524번
 사용 스키마 : sc_appd_srv
@@ -33,7 +33,7 @@ SELECT
 --                      'tb_k_apt_hsmp_ar_info'
 --                     )
  GROUP BY table_schema, table_name
-HAVING table_name = 'tb_kric_statn_info'
+HAVING table_name = 'tb_apply_ofctl_cty_prvate_rent_lttot_info_detail'
  ORDER BY 2;
 /*
 해당 쿼리는 데이터를 뽑아내는 스크립트로
@@ -214,12 +214,12 @@ case when atpt_nm is null then '' else atpt_nm::varchar(4000) end,
 case when signgu_nm is null then '' else signgu_nm::varchar(4000) end,
 case when eupmyeon_nm is null then '' else eupmyeon_nm::varchar(4000) end,
 case when dongli_nm is null then '' else dongli_nm::varchar(4000) end,
-case when hshld_co is null then '' else hshld_co::varchar(4000) end,
+case when dong_co is null then '' else dong_co::varchar(4000) end,
 case when totar is null then '' else totar::varchar(4000) end,
 case when managect_levy_ar is null then '' else managect_levy_ar::varchar(4000) end,
 case when reside_dvr_ar is null then '' else reside_dvr_ar::varchar(4000) end,
 case when dvr_ar is null then '' else dvr_ar::varchar(4000) end,
-case when dong_co is null then '' else dong_co::varchar(4000) end,
+case when hshld_co is null then '' else hshld_co::varchar(4000) end,
 case when bildregstr_totar is null then '' else bildregstr_totar::varchar(4000) end)
   from tb_k_apt_hsmp_ar_info; -- 80320 행
 
@@ -231,12 +231,12 @@ case when atpt_nm is null then '' else atpt_nm::varchar(4000) end,
 case when signgu_nm is null then '' else signgu_nm::varchar(4000) end,
 case when eupmyeon_nm is null then '' else eupmyeon_nm::varchar(4000) end,
 case when dongli_nm is null then '' else dongli_nm::varchar(4000) end,
-case when hshld_co is null then '' else hshld_co::varchar(4000) end,
+case when dong_co is null then '' else dong_co::varchar(4000) end,
 case when totar is null then '' else totar::varchar(4000) end,
 case when managect_levy_ar is null then '' else managect_levy_ar::varchar(4000) end,
 case when reside_dvr_ar is null then '' else reside_dvr_ar::varchar(4000) end,
 case when dvr_ar is null then '' else dvr_ar::varchar(4000) end,
-case when dong_co is null then '' else dong_co::varchar(4000) end,
+case when hshld_co is null then '' else hshld_co::varchar(4000) end,
 case when bildregstr_totar is null then '' else bildregstr_totar::varchar(4000) end
   from tb_k_apt_hsmp_ar_info; -- 80320 행
 
@@ -547,12 +547,8 @@ case when hmpg_url is null then '' else hmpg_url::varchar(4000) end,
 case when bsns_mby_opertnprofs_nm is null then '' else bsns_mby_opertnprofs_nm::varchar(4000) end,
 case when inqry_offic_telno is null then '' else inqry_offic_telno::varchar(4000) end,
 case when mvn_prearnge_mt is null then '' else mvn_prearnge_mt::varchar(4000) end,
-case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) END,
-'',
-'',
-'',
-'')
-  from tb_apply_ofctl_cty_prvate_rent_lttot_info_detail; -- 21 행
+case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) end)
+  from tb_apply_ofctl_cty_prvate_rent_lttot_info_detail; -- 23 행
 
 
 
@@ -562,8 +558,8 @@ case when lttot_info_url is null then '' else lttot_info_url::varchar(4000) END,
 -- mssql => tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info
 select 
 concat_ws('||',
-case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
 case when house_manage_no is null then '' else house_manage_no::varchar(4000) end,
+case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
 case when model_no is null then '' else model_no::varchar(4000) end,
 case when group_nm is null then '' else group_nm::varchar(4000) end,
 case when ty_nm is null then '' else ty_nm::varchar(4000) end,
@@ -622,7 +618,7 @@ case when house_manage_no is null then '' else house_manage_no::varchar(4000) en
 case when pblanc_no is null then '' else pblanc_no::varchar(4000) end,
 case when model_no is null then '' else model_no::varchar(4000) end,
 case when house_ty_nm is null then '' else house_ty_nm::varchar(4000) end,
-case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
+--case when suply_hshld_co is null then '' else suply_hshld_co::varchar(4000) end,
 case when gnrl_suply_asign_hshld_co is null then '' else gnrl_suply_asign_hshld_co::varchar(4000) end,
 case when mnych_gagu_asign_hshld_co is null then '' else mnych_gagu_asign_hshld_co::varchar(4000) end,
 case when mrrg_mrd_asign_hshld_co is null then '' else mrrg_mrd_asign_hshld_co::varchar(4000) end,
@@ -641,7 +637,7 @@ case when mrrg_mrd_cmpet_rt_cn is null then '' else mrrg_mrd_cmpet_rt_cn::varcha
 case when lfe_frst_cmpet_rt_cn is null then '' else lfe_frst_cmpet_rt_cn::varchar(4000) end,
 case when odsn_parnts_suport_cmpet_rt_cn is null then '' else odsn_parnts_suport_cmpet_rt_cn::varchar(4000) end,
 case when instt_recomend_cmpet_rt_cn is null then '' else instt_recomend_cmpet_rt_cn::varchar(4000) end)
-  from tb_apply_cancl_re_suply_lttot_info_cmpetrt; -- 140 행
+  from tb_apply_cancl_re_suply_lttot_info_cmpetrt; -- 142 행
 
 
 

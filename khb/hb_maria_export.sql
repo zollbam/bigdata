@@ -1142,6 +1142,10 @@ select
 , IFNULL(REPLACE(REG_DT,CONCAT(CHAR(10)), ''), '')
 , ''
 , IFNULL(REPLACE(UPDT_DT,CONCAT(CHAR(10)), ''), '')
+, ''
+, ''
+, ''
+, ''
   into outfile '/var/lib/mysql/backup/fav_info.txt'
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
