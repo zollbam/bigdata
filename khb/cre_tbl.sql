@@ -85,7 +85,7 @@ SELECT DISTINCT
 , ep.value "컬럼명(한글)"
 , c.column_id
 FROM sys.columns c
-     INNER JOIN
+     LEFT JOIN
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
 ORDER BY 1, c.column_id;
