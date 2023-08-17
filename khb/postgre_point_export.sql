@@ -11,6 +11,7 @@
 -- 시군구코드와 멀티 폴리곤으로 각 시군구의 중심점 잡기
 SELECT  
   signgu_code
+, signgu_nm
 , concat('point(', 
          CAST(st_x(st_pointonsurface(st_mpolyfromtext(string_agg(st_astext(lc_info), ',' ORDER BY signgu_code), 4326))) AS NUMERIC(13,10)),
          ' ',
@@ -38,6 +39,7 @@ SELECT
   FROM tb_legal_zone_info_sig tlzis
  GROUP BY LEFT(signgu_code,2);
 
+
 -- 2) st_centroid
 SELECT  
   LEFT(signgu_code,2)
@@ -57,7 +59,15 @@ SELECT
  GROUP BY LEFT(signgu_code,2);
 
 
-
+-- 3) st_pointonsurface와 st_centroid의 비교
+SELECT  
+  LEFT(signgu_code,2) "시군구 코드"
+, st_collect(st_pointonsurface(st_geomcollfromtext(concat('geometrycollection(', string_agg(st_astext(lc_info), ',' ORDER BY signgu_code), ')'))), 
+                               st_geomcollfromtext(concat('geometrycollection(', string_agg(st_astext(lc_info), ',' ORDER BY signgu_code), ')'))) "pointonsurface"
+, st_collect(st_centroid(st_geomcollfromtext(concat('geometrycollection(', string_agg(st_astext(lc_info), ',' ORDER BY signgu_code), ')'))),
+                         st_geomcollfromtext(concat('geometrycollection(', string_agg(st_astext(lc_info), ',' ORDER BY signgu_code), ')'))) "centroid"
+  FROM tb_legal_zone_info_sig tlzis
+ GROUP BY LEFT(signgu_code,2);
 
 
 -- 시도, 시군구 코드에 대한 중심점 좌표 데이터

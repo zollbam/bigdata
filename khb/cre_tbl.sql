@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 23-07-21
+수정 일시: 230816
 작 성 자 : 조건영
 
 */
@@ -88,6 +88,7 @@ FROM sys.columns c
      LEFT JOIN
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
+WHERE object_name(c.object_id) = 'tb_lttot_info'
 ORDER BY 1, c.column_id;
 
 -- 컬럼 이름에 맞는 사용자 타입 찾기
@@ -114,7 +115,7 @@ SELECT
 	   ELSE ''
   END "make_user_type"
   FROM information_schema.columns
- WHERE table_NAME = 'tb_com_bbs_cmnt'
+ WHERE table_NAME = 'tb_com_rss_info'
  ORDER BY ORDINAL_POSITION;
 -- WHERE TABLE_NAME = 'tb_svc_bass_info';
 /*
@@ -153,7 +154,7 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_com_bbs_cmnt'
+        WHERE table_NAME = 'tb_lttot_info'
        ) tr;
 
 
@@ -256,7 +257,7 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
 --            WHEN c2.TABLE_NAME = 'tb_com_ctpv_cd' THEN ', ctpv_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
             WHEN c2.TABLE_NAME = 'tb_com_emd_li_cd' THEN ', emd_li_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
 --            WHEN c2.TABLE_NAME = 'tb_com_sgg_cd' THEN ', sgg_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
-            WHEN c2.TABLE_NAME = 'tb_hsmp_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+--            WHEN c2.TABLE_NAME = 'tb_hsmp_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
 --            WHEN c2.TABLE_NAME = 'tb_link_hsmp_bsc_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
             ELSE ''
        END,
@@ -390,12 +391,16 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , use_yn sc_khb_srv.yn_c1
 , clustr_info_stts_cd sc_khb_srv.cd_v20
 , push_stts_cd sc_khb_srv.cd_v20
-, reg_dt sc_khb_srv.dt
-, mdfcn_dt sc_khb_srv.dt
 , rcmdtn_yn sc_khb_srv.yn_c1
 , auc_yn sc_khb_srv.yn_c1
 , atlfsl_stts_cd sc_khb_srv.cd_v20
 , totar sc_khb_srv.totar_d19_9
+, atlfsl_vrfc_yn sc_khb_srv.yn_c1
+, atlfsl_vrfc_day sc_khb_srv.day_nv100
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 , atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
@@ -893,7 +898,7 @@ CREATE TABLE sc_khb_srv.tb_com_code (
 , updt_dt sc_khb_srv.dt
 , rm_cn sc_khb_srv.cn_nv4000
 , parnts_code sc_khb_srv.cd_v20
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
+--, synchrn_pnttm_vl sc_khb_srv.vl_v100
 );
 
 BULK INSERT sc_khb_srv.tb_com_code
@@ -970,7 +975,10 @@ CREATE TABLE sc_khb_srv.tb_com_ctpv_cd (
 , ctpv_nm sc_khb_srv.nm_nv500
 , ctpv_abbrev_nm sc_khb_srv.nm_nv500
 , ctpv_crdnt geometry
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 );
 
 bulk insert sc_khb_srv.tb_com_ctpv_cd
@@ -983,31 +991,28 @@ with (
 
 alter table sc_khb_srv.tb_com_ctpv_cd add constraint pk_tb_com_ctpv_cd primary key(ctpv_cd_pk);
 
--- 시군구 pk와 시군구 코드 매칭
-CREATE VIEW sc_khb_srv.tb_sggmat
+-- 시도pk 시도코드 매칭
+CREATE VIEW sc_khb_srv.tb_sdmat
 AS
 SELECT
-  sggmat.sgg_cd_pk
+  cd.ctpv_cd_pk
 , ssc.crdnt
-  FROM sc_khb_srv.sd_sgg_crdnt ssc
-       INNER JOIN 
-       (SELECT DISTINCT
-          sgg_cd_pk "sgg_cd_pk"
-        , substring(stdg_dong_cd, 1, 5) "sgg_cd"
-          FROM sc_khb_srv.tb_com_emd_li_cd
-         WHERE (sgg_cd_pk != 252 AND substring(stdg_dong_cd, 1, 5) != '43113' AND stdg_dong_se_cd != 'H') -- 43113, 250 인 데이터 뺵기
-                OR 
-               (sgg_cd_pk != 248 AND substring(stdg_dong_cd, 1, 5) != '43111' AND stdg_dong_se_cd != 'H') -- 43111, 248 인 데이터 빼기
-       ) sggmat
-           on ssc.code = sggmat.sgg_cd;
+  FROM (SELECT DISTINCT
+          ctpv_cd_pk 
+        , substring(stdg_dong_cd, 1, 2) "ctpv_cd"
+           FROM sc_khb_srv.tb_com_emd_li_cd
+       ) cd
+       INNER JOIN
+       sc_khb_srv.sd_sgg_crdnt ssc
+           ON cd.ctpv_cd = ssc.code;
 
 
--- 시군구 테이블에 좌표 데이터 삽입
-UPDATE sc_khb_srv.tb_com_sgg_cd SET sgg_crdnt = tb_sggmat.crdnt
-  FROM sc_khb_srv.tb_sggmat
- WHERE tb_com_sgg_cd.sgg_cd_pk = tb_sggmat.sgg_cd_pk;
+-- 시도 테이블에 좌표 데이터 삽입
+UPDATE sc_khb_srv.tb_com_ctpv_cd SET ctpv_crdnt = tb_sdmat.crdnt
+  FROM sc_khb_srv.tb_sdmat
+ WHERE tb_com_ctpv_cd.ctpv_cd_pk = tb_sdmat.ctpv_cd_pk;
 
-DROP VIEW sc_khb_srv.tb_sggmat;
+DROP VIEW sc_khb_srv.tb_sdmat;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1084,7 +1089,10 @@ CREATE TABLE sc_khb_srv.tb_com_emd_li_cd (
 , emd_li_crdnt geometry
 , stdg_dong_se_cd sc_khb_srv.cd_v20
 , stdg_dong_cd sc_khb_srv.cd_v20
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 , emd_li_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
@@ -1095,7 +1103,7 @@ with (
   , fieldterminator = '||'
   , rowterminator = '0x0a'
 );
-SELECT * FROM sc_khb_srv.tb_com_emd_li_cd;
+
 alter table sc_khb_srv.tb_com_emd_li_cd add constraint pk_tb_com_emd_li_cd primary key(emd_li_cd_pk);
 
 update sc_khb_srv.tb_com_emd_li_cd set emd_li_crdnt = geometry::STPointFromText(emd_li_crdnt_tmp, 4326) WHERE emd_li_crdnt_tmp NOT LIKE '%null%' AND emd_li_crdnt_tmp NOT LIKE '%0.0%';
@@ -1279,10 +1287,20 @@ CREATE TABLE sc_khb_srv.tb_com_job_schdl_info (
 , job_nm sc_khb_srv.nm_nv500
 , job_cycle sc_khb_srv.cycle_v20
 , last_excn_dt sc_khb_srv.dt
+, synchrn_pnttm_vl sc_khb_srv.vl_v100 -- 새로운 열 추가
 );
 
+/*타임 스탬프 추가전 쿼리*/
+--BULK INSERT sc_khb_srv.tb_com_job_schdl_info
+--       FROM 'D:\migra_data\cron_info.txt'
+--       WITH (
+--             CODEPAGE = '65001',
+--             FIELDTERMINATOR = '||',
+--             ROWTERMINATOR = '0x0a'
+--);
+
 BULK INSERT sc_khb_srv.tb_com_job_schdl_info
-       FROM 'D:\migra_data\cron_info.txt'
+       FROM 'D:\migra_data\cron_info_timestamp.txt'
        WITH (
              CODEPAGE = '65001',
              FIELDTERMINATOR = '||',
@@ -1290,6 +1308,13 @@ BULK INSERT sc_khb_srv.tb_com_job_schdl_info
 );
 
 alter table sc_khb_srv.tb_com_job_schdl_info add constraint pk_tb_com_job_schdl_info primary key(job_schdl_info_pk);
+
+-- 데이터 삽입
+--INSERT INTO sc_khb_srv.tb_com_job_schdl_info VALUES (14, 'news', 'all', '0 0 0/7 * * *', '2023-08-17 14:00:00.040', null);	
+--INSERT INTO sc_khb_srv.tb_com_job_schdl_info VALUES (15, 'lttot', 'batch', '0 30 1-22 * * *', NULL, null);
+
+UPDATE sc_khb_srv.tb_com_job_schdl_info SET synchrn_pnttm_vl = (SELECT max(synchrn_pnttm_vl) FROM sc_khb_srv.tb_lttot_info)
+ WHERE job_se_cd='lttot';
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1531,7 +1556,10 @@ CREATE TABLE sc_khb_srv.tb_com_sgg_cd (
 , sgg_nm sc_khb_srv.nm_nv500
 , sgg_crdnt geometry
 , stdg_dong_se_cd sc_khb_srv.cd_v20
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 );
 
 BULK INSERT sc_khb_srv.tb_com_sgg_cd
@@ -1544,28 +1572,31 @@ BULK INSERT sc_khb_srv.tb_com_sgg_cd
 
 alter table sc_khb_srv.tb_com_sgg_cd add constraint pk_tb_com_sgg_cd primary key(sgg_cd_pk);
 
--- 시도pk 시도코드 매칭
-CREATE VIEW sc_khb_srv.tb_sdmat
+-- 시군구 pk와 시군구 코드 매칭
+CREATE VIEW sc_khb_srv.tb_sggmat
 AS
 SELECT
-  cd.ctpv_cd_pk
+  sggmat.sgg_cd_pk
 , ssc.crdnt
-  FROM (SELECT DISTINCT
-          ctpv_cd_pk 
-        , substring(stdg_dong_cd, 1, 2) "ctpv_cd"
-           FROM sc_khb_srv.tb_com_emd_li_cd
-       ) cd
-       INNER JOIN
-       sc_khb_srv.sd_sgg_crdnt ssc
-           ON cd.ctpv_cd = ssc.code;
+  FROM sc_khb_srv.sd_sgg_crdnt ssc
+       INNER JOIN 
+       (SELECT DISTINCT
+          sgg_cd_pk "sgg_cd_pk"
+        , substring(stdg_dong_cd, 1, 5) "sgg_cd"
+          FROM sc_khb_srv.tb_com_emd_li_cd
+         WHERE (sgg_cd_pk != 252 AND substring(stdg_dong_cd, 1, 5) != '43113' AND stdg_dong_se_cd != 'H') -- 43113, 250 인 데이터 뺵기
+                OR 
+               (sgg_cd_pk != 248 AND substring(stdg_dong_cd, 1, 5) != '43111' AND stdg_dong_se_cd != 'H') -- 43111, 248 인 데이터 빼기
+       ) sggmat
+           on ssc.code = sggmat.sgg_cd;
 
 
 -- 시군구 테이블에 좌표 데이터 삽입
-UPDATE sc_khb_srv.tb_com_ctpv_cd SET ctpv_crdnt = tb_sdmat.crdnt
-  FROM sc_khb_srv.tb_sdmat
- WHERE tb_com_ctpv_cd.ctpv_cd_pk = tb_sdmat.ctpv_cd_pk;
+UPDATE sc_khb_srv.tb_com_sgg_cd SET sgg_crdnt = tb_sggmat.crdnt
+  FROM sc_khb_srv.tb_sggmat
+ WHERE tb_com_sgg_cd.sgg_cd_pk = tb_sggmat.sgg_cd_pk;
 
-DROP VIEW sc_khb_srv.tb_sdmat;
+DROP VIEW sc_khb_srv.tb_sggmat;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -1810,9 +1841,10 @@ CREATE TABLE sc_khb_srv.tb_hsmp_dtl_info (
 , flrpln_url sc_khb_srv.url_nv4000
 , estn_flrpln_url sc_khb_srv.url_nv4000
 , use_yn sc_khb_srv.yn_c1
+, reg_id sc_khb_srv.id_nv100
 , reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
 );
 
 BULK INSERT sc_khb_srv.tb_hsmp_dtl_info
@@ -1837,7 +1869,7 @@ CREATE TABLE sc_khb_srv.tb_hsmp_info (
 , sgg_cd_pk sc_khb_srv.pk_n18
 , emd_li_cd_pk sc_khb_srv.pk_n18
 , lotno sc_khb_srv.lotno_nv100
-, rn_addr sc_khb_srv.addr_nv200
+, rn_addr sc_khb_srv.addr_nv1000
 , tot_hh_cnt sc_khb_srv.cnt_n15
 , tot_aptcmpl_cnt sc_khb_srv.cnt_n15
 , flr_cnt sc_khb_srv.cnt_n15
@@ -1856,14 +1888,16 @@ CREATE TABLE sc_khb_srv.tb_hsmp_info (
 , subway_rte_info sc_khb_srv.cn_nv4000
 , schl_info sc_khb_srv.cn_nv4000
 , cvntl_info sc_khb_srv.cn_nv4000
-, hsmp_crdnt geometry
+, hsmp_crdnt AS CASE WHEN hsmp_lot IS NULL OR hsmp_lat IS NULL THEN NULL
+                     ELSE geometry::STPointFromText(concat('point(', hsmp_lot, ' ', hsmp_lat, ')'), 4326)
+                END
 , hsmp_lot sc_khb_srv.lot_d13_10
 , hsmp_lat sc_khb_srv.lat_d12_10
 , use_yn sc_khb_srv.yn_c1
+, reg_id sc_khb_srv.id_nv100
 , reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
-, hsmp_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
 BULK INSERT sc_khb_srv.tb_hsmp_info
@@ -1876,9 +1910,9 @@ BULK INSERT sc_khb_srv.tb_hsmp_info
 
 alter table sc_khb_srv.tb_hsmp_info add constraint pk_tb_hsmp_info primary key(hsmp_info_pk);
 
-update sc_khb_srv.tb_hsmp_info set hsmp_crdnt = geometry::STPointFromText(hsmp_crdnt_tmp, 4326) WHERE hsmp_crdnt_tmp NOT LIKE '%null%' AND hsmp_crdnt_tmp NOT LIKE '%0.0%';
+--update sc_khb_srv.tb_hsmp_info set hsmp_crdnt = geometry::STPointFromText(hsmp_crdnt_tmp, 4326) WHERE hsmp_crdnt_tmp NOT LIKE '%null%' AND hsmp_crdnt_tmp NOT LIKE '%0.0%';
 
-alter table sc_khb_srv.tb_hsmp_info drop column hsmp_crdnt_tmp;
+--alter table sc_khb_srv.tb_hsmp_info drop column hsmp_crdnt_tmp;
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -2722,19 +2756,21 @@ CREATE TABLE sc_khb_srv.tb_lrea_office_info (
 , stdg_innb sc_khb_srv.innb_v20
 , dong_innb sc_khb_srv.innb_v20
 , user_level_no sc_khb_srv.no_v200
-, rprs_img_1_url sc_khb_srv.url_nv4000
-, rprs_img_2_url sc_khb_srv.url_nv4000
-, rprs_img_3_url sc_khb_srv.url_nv4000
+, rprs_img_one_url sc_khb_srv.url_nv4000
+, rprs_img_two_url sc_khb_srv.url_nv4000
+, rprs_img_three_url sc_khb_srv.url_nv4000
 , lat sc_khb_srv.lat_d12_10
 , lot sc_khb_srv.lot_d13_10
 , user_ty_cd sc_khb_srv.cd_v20
 , stts_cd sc_khb_srv.cd_v20
-, reg_dt sc_khb_srv.dt
-, mdfcn_dt sc_khb_srv.dt
 , use_yn sc_khb_srv.yn_c1
 , lrea_office_crdnt geometry
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
 , hmpg_url sc_khb_srv.url_nv4000
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+, lrea_office_intrcn_cn sc_khb_srv.cn_nvmax
 , lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
@@ -2756,6 +2792,61 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
+-- tb_lrea_schdl_ntcn_info =>  ms 
+CREATE TABLE sc_khb_srv.tb_lrea_schdl_ntcn_info (
+  lrea_schdl_ntcn_info_pk sc_khb_srv.numeric NOT NULL
+, schdl_se_cd sc_khb_srv.varchar
+, schdl_type_cd sc_khb_srv.varchar
+, lrea_office_info_pk sc_khb_srv.numeric
+, schdl_se_pk sc_khb_srv.numeric
+, schdl_ntcn_day sc_khb_srv.nvarchar
+, reg_id sc_khb_srv.nvarchar
+, reg_dt sc_khb_srv.datetime
+, mdfcn_id sc_khb_srv.nvarchar
+, mdfcn_dt sc_khb_srv.datetime
+);
+
+alter table sc_khb_srv.tb_lrea_schdl_ntcn_info add constraint pk_tb_lrea_schdl_ntcn_info primary key(lrea_schdl_ntcn_info_pk);
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_lrea_sns_url_info =>  ms 
+CREATE TABLE sc_khb_srv.tb_lrea_sns_url_info (
+  lrea_sns_url_info_pk sc_khb_srv.numeric NOT NULL
+, lrea_office_info_pk sc_khb_srv.numeric
+, sns_cd sc_khb_srv.varchar
+, sns_url sc_khb_srv.nvarchar
+, reg_id sc_khb_srv.nvarchar
+, reg_dt sc_khb_srv.datetime
+, mdfcn_id sc_khb_srv.nvarchar
+, mdfcn_dt sc_khb_srv.datetime
+);
+
+alter table sc_khb_srv.tb_lrea_sns_url_info add constraint pk_tb_lrea_sns_url_info primary key(lrea_sns_url_info_pk);
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_lrea_spclty_fld_info =>  ms 
+CREATE TABLE sc_khb_srv.tb_lrea_spclty_fld_info (
+  lrea_spclty_fld_info_pk sc_khb_srv.numeric NOT NULL
+, lrea_office_info_pk sc_khb_srv.numeric
+, spclty_fld_cd sc_khb_srv.varchar
+, reg_id sc_khb_srv.nvarchar
+, reg_dt sc_khb_srv.datetime
+, mdfcn_id sc_khb_srv.nvarchar
+, mdfcn_dt sc_khb_srv.datetime
+);
+
+alter table sc_khb_srv.tb_lrea_spclty_fld_info add constraint pk_tb_lrea_spclty_fld_info primary key(lrea_spclty_fld_info_pk);
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_lttot_info => 197 ms
 CREATE TABLE sc_khb_srv.tb_lttot_info (
   lttot_info_pk sc_khb_srv.pk_n18 NOT NULL
@@ -2767,7 +2858,7 @@ CREATE TABLE sc_khb_srv.tb_lttot_info (
 , sgg_nm sc_khb_srv.nm_nv500
 , emd_li_cd_pk sc_khb_srv.pk_n18
 , all_emd_li_nm sc_khb_srv.nm_nv500
-, dtl_addr sc_khb_srv.addr_nv200
+, dtl_addr sc_khb_srv.addr_nv1000
 , sply_scale_cn sc_khb_srv.cn_nv4000
 , sply_house_area_cn sc_khb_srv.cn_nvmax
 , lttot_pc_cn sc_khb_srv.cn_nv4000
@@ -2783,9 +2874,10 @@ CREATE TABLE sc_khb_srv.tb_lttot_info (
 , trnsport_envrn_info_cn sc_khb_srv.cn_nvmax
 , edu_envrn_info_cn sc_khb_srv.cn_nvmax
 , img_url sc_khb_srv.url_nv4000
-, rgtr_id sc_khb_srv.id_nv100
-, reg_day sc_khb_srv.day_nv100
-, synchrn_pnttm_vl sc_khb_srv.vl_v100
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
 );
 
 BULK INSERT sc_khb_srv.tb_lttot_info
@@ -2905,7 +2997,7 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_user_atlfsl_preocupy_info
 CREATE TABLE sc_khb_srv.tb_user_atlfsl_preocupy_info (
-  user_mapng_info_pk sc_khb_srv.pk_n18 NOT NULL
+  user_atlfsl_preocupy_info_pk sc_khb_srv.pk_n18 NOT NULL
 , user_atlfsl_info_pk sc_khb_srv.pk_n18
 , lrea_office_info_pk sc_khb_srv.pk_n18
 , preocupy_yn sc_khb_srv.yn_c1
