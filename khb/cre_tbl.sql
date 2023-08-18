@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 230816
+수정 일시: 230818
 작 성 자 : 조건영
 
 */
@@ -251,11 +251,11 @@ SELECT DISTINCT c2.TABLE_NAME "테이블명",
               WHERE c1.TABLE_NAME = c2.TABLE_name
               ORDER BY ORDINAL_POSITION
               	FOR xml PATH('')), 1, 2, '') +
-       CASE WHEN c2.TABLE_NAME = 'tb_lrea_office_info' THEN ', lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
-            WHEN c2.TABLE_NAME = 'tb_link_subway_statn_info' THEN ', statn_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
-            WHEN c2.TABLE_NAME = 'tb_atlfsl_bsc_info' THEN ', atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+       CASE WHEN c2.TABLE_NAME = 'tb_com_emd_li_cd' THEN ', emd_li_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+--            WHEN c2.TABLE_NAME = 'tb_link_subway_statn_info' THEN ', statn_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+--            WHEN c2.TABLE_NAME = 'tb_atlfsl_bsc_info' THEN ', atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
 --            WHEN c2.TABLE_NAME = 'tb_com_ctpv_cd' THEN ', ctpv_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
-            WHEN c2.TABLE_NAME = 'tb_com_emd_li_cd' THEN ', emd_li_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
+--            WHEN c2.TABLE_NAME = 'tb_lrea_office_info' THEN ', lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
 --            WHEN c2.TABLE_NAME = 'tb_com_sgg_cd' THEN ', sgg_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
 --            WHEN c2.TABLE_NAME = 'tb_hsmp_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
 --            WHEN c2.TABLE_NAME = 'tb_link_hsmp_bsc_info' THEN ', hsmp_crdnt_tmp sc_khb_srv.crdnt_v500' + char(13)
@@ -404,6 +404,79 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
+/*AS방법으로 테이블 만들기*/
+--CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
+--  atlfsl_bsc_info_pk sc_khb_srv.pk_n18 NOT NULL
+--, asoc_atlfsl_no sc_khb_srv.no_n15
+--, asoc_app_intrlck_no sc_khb_srv.no_n15
+--, lrea_office_info_pk sc_khb_srv.pk_n18
+--, ctpv_cd_pk sc_khb_srv.pk_n18
+--, sgg_cd_pk sc_khb_srv.pk_n18
+--, emd_li_cd_pk sc_khb_srv.pk_n18
+--, hsmp_info_pk sc_khb_srv.pk_n18
+--, hsmp_dtl_info_pk sc_khb_srv.pk_n18
+--, atlfsl_ty_cd sc_khb_srv.cd_v20
+--, atlfsl_dtl_ty_cd sc_khb_srv.cd_v20
+--, atlfsl_knd_cd sc_khb_srv.cd_v20
+--, stdg_dong_cd sc_khb_srv.cd_v20
+--, stdg_cd sc_khb_srv.cd_v20
+--, stdg_innb sc_khb_srv.innb_v20
+--, dong_innb sc_khb_srv.innb_v20
+--, mno sc_khb_srv.mno_n4
+--, sno sc_khb_srv.sno_n4
+--, aptcmpl_nm sc_khb_srv.nm_nv500
+--, ho_nm sc_khb_srv.nm_nv500
+--, atlfsl_crdnt AS CASE WHEN (atlfsl_lot IS NULL OR atlfsl_lot = 0) THEN NULL
+--                       ELSE geometry::STPointFromText(concat('point(', atlfsl_lot, ' ', atlfsl_lat, ')'), 4326)
+--                  END 
+--, atlfsl_lot sc_khb_srv.lot_d13_10
+--, atlfsl_lat sc_khb_srv.lat_d12_10
+--, atlfsl_trsm_dt sc_khb_srv.dt
+--, bldg_aptcmpl_indct_yn sc_khb_srv.yn_c1
+--, pyeong_indct_yn sc_khb_srv.yn_c1
+--, vr_exst_yn sc_khb_srv.yn_c1
+--, img_exst_yn sc_khb_srv.yn_c1
+--, thema_cd_list sc_khb_srv.list_nv1000
+--, pic_no sc_khb_srv.no_n15
+--, pic_nm sc_khb_srv.nm_nv500
+--, pic_telno sc_khb_srv.telno_v30
+--, dtl_scrn_prsl_cnt sc_khb_srv.cnt_n15
+--, prvuse_area sc_khb_srv.area_d19_9
+--, sply_area sc_khb_srv.area_d19_9
+--, plot_area sc_khb_srv.area_d19_9
+--, arch_area sc_khb_srv.area_d19_9
+--, room_cnt sc_khb_srv.cnt_n15
+--, toilet_cnt sc_khb_srv.cnt_n15
+--, atlfsl_inq_cnt sc_khb_srv.cnt_n15
+--, flr_expsr_mthd_cd sc_khb_srv.cd_v20
+--, now_flr_expsr_mthd_cd sc_khb_srv.cd_v20
+--, flr_cnt sc_khb_srv.cnt_n15
+--, top_flr_cnt sc_khb_srv.cnt_n15
+--, grnd_flr_cnt sc_khb_srv.cnt_n15
+--, udgd_flr_cnt sc_khb_srv.cnt_n15
+--, stairs_stle_cd sc_khb_srv.cd_v20
+--, drc_cd sc_khb_srv.cd_v20
+--, blcn_cd sc_khb_srv.cd_v20
+--, pstn_expln_cn sc_khb_srv.cn_nvmax
+--, parkng_psblty_yn sc_khb_srv.yn_c1
+--, parkng_cnt sc_khb_srv.cnt_n15
+--, cmcn_day sc_khb_srv.day_nv100
+--, financ_amt sc_khb_srv.amt_n18
+--, use_yn sc_khb_srv.yn_c1
+--, clustr_info_stts_cd sc_khb_srv.cd_v20
+--, push_stts_cd sc_khb_srv.cd_v20
+--, rcmdtn_yn sc_khb_srv.yn_c1
+--, auc_yn sc_khb_srv.yn_c1
+--, atlfsl_stts_cd sc_khb_srv.cd_v20
+--, totar sc_khb_srv.totar_d19_9
+--, atlfsl_vrfc_yn sc_khb_srv.yn_c1
+--, atlfsl_vrfc_day sc_khb_srv.day_nv100
+--, reg_id sc_khb_srv.id_nv100
+--, reg_dt sc_khb_srv.dt
+--, mdfcn_id sc_khb_srv.id_nv100
+--, mdfcn_dt sc_khb_srv.dt
+--);
+
 --BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
 --       FROM 'D:\migra_data\product_info.txt'
 --       WITH (
@@ -419,6 +492,14 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 --  , fieldterminator = '||'
 --  , rowterminator = '0x0a'
 --); -- 연면적 추가 전
+
+--BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
+--       FROM 'D:\migra_data\product_info_test.txt'
+--       WITH (
+--             CODEPAGE = '65001',
+--             FIELDTERMINATOR = '||',
+--             ROWTERMINATOR = '0x0a'
+--); -- AS 방법
 
 bulk insert sc_khb_srv.tb_atlfsl_bsc_info
 from 'D:\migra_data\product_info_spc.txt'
@@ -2773,6 +2854,49 @@ CREATE TABLE sc_khb_srv.tb_lrea_office_info (
 , lrea_office_intrcn_cn sc_khb_srv.cn_nvmax
 , lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500
 );
+
+/*AS 방법*/
+--CREATE TABLE sc_khb_srv.tb_lrea_office_info (
+--  lrea_office_info_pk sc_khb_srv.pk_n18 NOT NULL
+--, bzmn_no sc_khb_srv.no_v200
+--, lrea_office_nm sc_khb_srv.nm_nv500
+--, lrea_office_rprsv_nm sc_khb_srv.nm_nv500
+--, tlphon_type_cd sc_khb_srv.cd_v20
+--, safety_no sc_khb_srv.no_v200
+--, lrea_office_rprs_telno sc_khb_srv.telno_v30
+--, lrea_telno sc_khb_srv.telno_v30
+--, lrea_office_addr sc_khb_srv.addr_nv1000
+--, ctpv_cd_pk sc_khb_srv.pk_n18
+--, sgg_cd_pk sc_khb_srv.pk_n18
+--, stdg_innb sc_khb_srv.innb_v20
+--, dong_innb sc_khb_srv.innb_v20
+--, user_level_no sc_khb_srv.no_v200
+--, rprs_img_one_url sc_khb_srv.url_nv4000
+--, rprs_img_two_url sc_khb_srv.url_nv4000
+--, rprs_img_three_url sc_khb_srv.url_nv4000
+--, lat sc_khb_srv.lat_d12_10
+--, lot sc_khb_srv.lot_d13_10
+--, user_ty_cd sc_khb_srv.cd_v20
+--, stts_cd sc_khb_srv.cd_v20
+--, use_yn sc_khb_srv.yn_c1
+--, lrea_office_crdnt AS CASE WHEN lat IS NULL OR lat = 0 THEN NULL 
+--                            ELSE geometry::STPointFromText(concat('point(', lot, ' ', lat, ')'), 4326)
+--                       END
+--, hmpg_url sc_khb_srv.url_nv4000
+--, reg_id sc_khb_srv.id_nv100
+--, reg_dt sc_khb_srv.dt
+--, mdfcn_id sc_khb_srv.id_nv100
+--, mdfcn_dt sc_khb_srv.dt
+--, lrea_office_intrcn_cn sc_khb_srv.cn_nvmax
+--);
+--
+--BULK INSERT sc_khb_srv.tb_lrea_office_info
+--       FROM 'D:\migra_data\realtor_info_test.txt'
+--       WITH (
+--             CODEPAGE = '65001',
+--             FIELDTERMINATOR = '||',
+--             ROWTERMINATOR = '0x0a'
+--);
 
 BULK INSERT sc_khb_srv.tb_lrea_office_info
        FROM 'D:\migra_data\realtor_info.txt'
