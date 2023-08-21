@@ -1,6 +1,6 @@
 /*
 작성일 : 23-08-01
-수정일 : 23-08-11
+수정일 : 23-08-21
 사용 DB : 20번 KLMS
 작성자 : 조건영
 */
@@ -167,6 +167,35 @@ SELECT
 
 
 
+-- 위도나 경도의 중앙값을 찾아서 시군구/시도 좌표 찾기
+SELECT sido_no
+     , sido
+     , geometry::STPointFromText('point(' + CAST(sum(lng)/count(lng) AS varchar(500))+ ' ' + CAST(sum(lat)/count(lat) AS varchar(5000)) + ')', 4326).STAsText()
+  FROM (
+SELECT dong_no
+     , dong_gbn
+     , jungbu_cd
+     , sido_no
+     , sido
+     , gugun_no
+     , gugun
+     , dong
+     , dong_disp
+     , lng
+     , lat
+     , ROW_NUMBER() OVER (PARTITION BY sido_no ORDER BY lat,lng) "rank" 
+  FROM DONG_CODE
+ WHERE dong_gbn = 'B'
+   AND lng IS NOT NULL
+   AND lng != 0) a
+ GROUP BY sido_no,sido,rank 
+HAVING rank = (max(rank)+1)/2 OR (rank = (max(rank))/2 AND rank = (max(rank))/2 + 1)
+ ORDER BY sido_no;
+
+
+
+
+
 -- KLMS 테이블 정보
 SELECT 
   t.TABLE_NAME "테이블명"
@@ -220,7 +249,7 @@ SELECT DISTINCT
        sys.extended_properties ep
      	      ON object_name(c.object_id) = object_name(ep.major_id) 
      	     AND c.column_id = ep.minor_id
--- WHERE object_name(c.object_id) = 'MEMBER'
+ WHERE object_name(c.object_id) = 'DANJI_CONV_TEST'
  ORDER BY 1, c.column_id;
 
 

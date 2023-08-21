@@ -404,6 +404,10 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , atlfsl_crdnt_tmp sc_khb_srv.crdnt_v500
 );
 
+
+/*insert into openrowset*/
+
+
 /*AS방법으로 테이블 만들기*/
 --CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 --  atlfsl_bsc_info_pk sc_khb_srv.pk_n18 NOT NULL
