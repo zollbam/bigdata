@@ -13,7 +13,7 @@
 
 -- format xml파일 내용 작성 쿼리
 SELECT TABLE_NAME 
-     , concat('<?xml version="1.0"?>', char(10),
+     , concat('<?xml version="1.0" encoding="utf-8"?>', char(10),
               '<BCPFORMAT xmlns="http://schemas.microsoft.com/sqlserver/2004/bulkload/format" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', char(10),
               '<RECORD>', char(10),
               replace(
@@ -26,13 +26,13 @@ SELECT TABLE_NAME
                                                                             FROM information_schema.columns
                                                                            WHERE TABLE_SCHEMA = 'sc_khb_srv'
                                                                              AND table_name = 'tb_atlfsl_bsc_info') 
-                                                                                                                   THEN '\r\n'
+                                                                                                                   THEN '\n'
                                                  ELSE '||'
                                             END + 
                                             '" MAX_LENGTH="' +
                                             CASE WHEN DATA_TYPE IN ('char', 'nvarchar', 'varchar') THEN 
-                                                                                                        CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '4000' + '" COLLATION = "Korean_Wansung_CI_AS'
-                                                                                                             ELSE CAST(CHARACTER_MAXIMUM_LENGTH AS nvarchar(4000)) + '" COLLATION = "Korean_Wansung_CI_AS'
+                                                                                                        CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '4000'
+                                                                                                             ELSE CAST(CHARACTER_MAXIMUM_LENGTH AS nvarchar(4000))
                                                                                                         END
                                                  WHEN DATA_TYPE IN ('decimal', 'int', 'numeric') THEN CAST(NUMERIC_PRECISION+NUMERIC_SCALE AS nvarchar(4000))
                                                  WHEN DATA_TYPE IN ('datetime', 'geometry') THEN '4000'

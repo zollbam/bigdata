@@ -169,6 +169,7 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_기타_정�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_이미지_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_img_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_문의_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_inqry_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_토지_용도_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_land_usg_info';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_테마_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_권한', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_author';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_배너_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_banner_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'공통_게시판', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_com_bbs';
@@ -238,6 +239,7 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'서비스_기초_�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'사용자_매물_이미지_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_img_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'사용자_매물_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'사용자_매물_선점_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_preocupy_info';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'사용자_매물_테마_정보', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info';
 
 
 
@@ -441,6 +443,15 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'건축_허가_여�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'토지_거래_허가_여부', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_land_usg_info', @level2type=N'COLUMN', @level2name=N'land_dlng_prmsn_yn';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_land_usg_info', @level2type=N'COLUMN', @level2name=N'reg_dt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_land_usg_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
+-----------------------------------------------------------------------------------
+-- tb_atlfsl_land_usg_info
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_테마_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'atlfsl_thema_info_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_기본_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'atlfsl_bsc_info_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'테마_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'thema_info_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'reg_id';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'reg_dt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'mdfcn_id';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
 -----------------------------------------------------------------------------------
 -- tb_atlfsl_reside_gnrl_dtl_info => 삭제
 --EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_주거_일반_상세_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_reside_gnrl_dtl_info', @level2type=N'COLUMN', @level2name=N'atlfsl_reside_gnrl_dtl_info_pk';
@@ -1621,4 +1632,12 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @l
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_preocupy_info', @level2type=N'COLUMN', @level2name=N'mdfcn_id';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_preocupy_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
 -----------------------------------------------------------------------------------
---
+-- tb_user_atlfsl_thema_info
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'사용자_매물_테마_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'user_atlfsl_thema_info_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'사용자_매물_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'user_atlfsl_info_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'테마_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'thema_info_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'reg_id';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'reg_dt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'mdfcn_id';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
+-----------------------------------------------------------------------------------

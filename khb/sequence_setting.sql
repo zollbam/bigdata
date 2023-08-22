@@ -82,6 +82,13 @@ CREATE SEQUENCE sc_khb_srv.sq_atlfsl_land_usg_info
     MAXVALUE 999999999999999999
     CACHE;
 
+CREATE SEQUENCE sc_khb_srv.sq_atlfsl_thema_info
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    MAXVALUE 999999999999999999
+    CACHE;
+
 CREATE SEQUENCE sc_khb_srv.sq_com_author
     START WITH 1
     INCREMENT BY 1
@@ -460,6 +467,12 @@ CREATE SEQUENCE sc_khb_srv.sq_user_atlfsl_preocupy_info
     MAXVALUE 999999999999999999
     CACHE;
 
+CREATE SEQUENCE sc_khb_srv.sq_user_atlfsl_thema_info
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    MAXVALUE 999999999999999999
+    CACHE;
 
 
 
@@ -507,6 +520,7 @@ select max(atlfsl_etc_info_pk) from sc_khb_srv.tb_atlfsl_etc_info;
 select max(atlfsl_img_info_pk) from sc_khb_srv.tb_atlfsl_img_info;
 select max(atlfsl_inqry_info_pk) from sc_khb_srv.tb_atlfsl_inqry_info;
 select max(atlfsl_land_usg_info_pk) from sc_khb_srv.tb_atlfsl_land_usg_info;
+select max(atlfsl_thema_info_pk) from sc_khb_srv.tb_atlfsl_thema_info;
 select max(author_no_pk) from sc_khb_srv.tb_com_author;
 select max(banner_info_pk) from sc_khb_srv.tb_com_banner_info;
 select max(bbs_pk) from sc_khb_srv.tb_com_bbs;
@@ -558,10 +572,10 @@ select max(lrea_sns_url_info_pk) from sc_khb_srv.tb_lrea_sns_url_info;
 select max(lrea_spclty_fld_info_pk) from sc_khb_srv.tb_lrea_spclty_fld_info;
 select max(lttot_info_pk) from sc_khb_srv.tb_lttot_info;
 select max(svc_pk) from sc_khb_srv.tb_svc_bass_info;
-select max(user_no) from sc_khb_srv.tb_tmp_user_mst;
 select max(user_atlfsl_img_info_pk) from sc_khb_srv.tb_user_atlfsl_img_info;
 select max(user_atlfsl_info_pk) from sc_khb_srv.tb_user_atlfsl_info;
 select max(user_atlfsl_preocupy_info_pk) from sc_khb_srv.tb_user_atlfsl_preocupy_info;
+select max(user_atlfsl_thema_info_pk) from sc_khb_srv.tb_user_atlfsl_thema_info;
 
 
 -- 시퀀스 업데이트(162)
@@ -577,7 +591,7 @@ SELECT
 		  SELECT ' ' + char(10) +
 		  'select ''' + TABLE_NAME + ''' "table_name", max(' + COLUMN_NAME + ') "max_value"' + char(10) + 
 		  '  from ' + TABLE_SCHEMA + '.' + TABLE_NAME +
-		  CASE WHEN TABLE_NAME = 'tb_user_atlfsl_preocupy_info' THEN ''
+		  CASE WHEN TABLE_NAME = 'tb_user_atlfsl_thema_info' THEN ''
 		       WHEN TABLE_NAME != (SELECT TOP 1 TABLE_NAME
 		                              FROM information_schema.tables
 		                             WHERE TABLE_SCHEMA = 'sc_khb_srv'
@@ -620,6 +634,9 @@ select 'tb_atlfsl_inqry_info' "table_name", max(atlfsl_inqry_info_pk) "max_value
  union 
 select 'tb_atlfsl_land_usg_info' "table_name", max(atlfsl_land_usg_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_land_usg_info
+ union 
+select 'tb_atlfsl_thema_info' "table_name", max(atlfsl_thema_info_pk) "max_value"
+  from sc_khb_srv.tb_atlfsl_thema_info
  union 
 select 'tb_com_author' "table_name", max(author_no_pk) "max_value"
   from sc_khb_srv.tb_com_author
@@ -774,9 +791,6 @@ select 'tb_lttot_info' "table_name", max(lttot_info_pk) "max_value"
 select 'tb_svc_bass_info' "table_name", max(svc_pk) "max_value"
   from sc_khb_srv.tb_svc_bass_info
  union 
-select 'tb_tmp_user_mst' "table_name", max(user_no) "max_value"
-  from sc_khb_srv.tb_tmp_user_mst
- union 
 select 'tb_user_atlfsl_img_info' "table_name", max(user_atlfsl_img_info_pk) "max_value"
   from sc_khb_srv.tb_user_atlfsl_img_info
  union 
@@ -785,6 +799,9 @@ select 'tb_user_atlfsl_info' "table_name", max(user_atlfsl_info_pk) "max_value"
  union 
 select 'tb_user_atlfsl_preocupy_info' "table_name", max(user_atlfsl_preocupy_info_pk) "max_value"
   from sc_khb_srv.tb_user_atlfsl_preocupy_info
+ union 
+select 'tb_user_atlfsl_thema_info' "table_name", max(user_atlfsl_thema_info_pk) "max_value"
+  from sc_khb_srv.tb_user_atlfsl_thema_info
 )
 SELECT * from max_value;
 
@@ -796,7 +813,7 @@ SELECT
 		  SELECT ' ' + char(10) +
 		  'select ''' + TABLE_NAME + ''' "table_name", max(' + COLUMN_NAME + ') "max_value"' + char(10) + 
 		  '  from ' + TABLE_SCHEMA + '.' + TABLE_NAME +
-		  CASE WHEN table_name = 'tb_user_atlfsl_preocupy_info' THEN '' 
+		  CASE WHEN table_name = 'tb_user_atlfsl_thema_info' THEN '' 
 		       WHEN TABLE_NAME != (SELECT TOP 1 TABLE_NAME
 		                              FROM information_schema.tables
 		                             WHERE TABLE_SCHEMA = 'sc_khb_srv'
@@ -848,6 +865,9 @@ select 'tb_atlfsl_inqry_info' "table_name", max(atlfsl_inqry_info_pk) "max_value
 select 'tb_atlfsl_land_usg_info' "table_name", max(atlfsl_land_usg_info_pk) "max_value"
   from sc_khb_srv.tb_atlfsl_land_usg_info
  union 
+select 'tb_atlfsl_thema_info' "table_name", max(atlfsl_thema_info_pk) "max_value"
+  from sc_khb_srv.tb_atlfsl_thema_info
+ union 
 select 'tb_com_author' "table_name", max(author_no_pk) "max_value"
   from sc_khb_srv.tb_com_author
  union 
@@ -1001,9 +1021,6 @@ select 'tb_lttot_info' "table_name", max(lttot_info_pk) "max_value"
 select 'tb_svc_bass_info' "table_name", max(svc_pk) "max_value"
   from sc_khb_srv.tb_svc_bass_info
  union 
-select 'tb_tmp_user_mst' "table_name", max(user_no) "max_value"
-  from sc_khb_srv.tb_tmp_user_mst
- union 
 select 'tb_user_atlfsl_img_info' "table_name", max(user_atlfsl_img_info_pk) "max_value"
   from sc_khb_srv.tb_user_atlfsl_img_info
  union 
@@ -1012,6 +1029,9 @@ select 'tb_user_atlfsl_info' "table_name", max(user_atlfsl_info_pk) "max_value"
  union 
 select 'tb_user_atlfsl_preocupy_info' "table_name", max(user_atlfsl_preocupy_info_pk) "max_value"
   from sc_khb_srv.tb_user_atlfsl_preocupy_info
+ union 
+select 'tb_user_atlfsl_thema_info' "table_name", max(user_atlfsl_thema_info_pk) "max_value"
+  from sc_khb_srv.tb_user_atlfsl_thema_info
 )
 SELECT
      replace(table_name, 'tb_', 'sq_') "시퀀스명"
@@ -1024,6 +1044,7 @@ SELECT
             ';') "시퀀스 업데이트 쿼리"
      from max_value;
 
+
 alter sequence sc_khb_srv.sq_atlfsl_batch_hstry restart with 48788649;
 alter sequence sc_khb_srv.sq_atlfsl_bsc_info restart with 20849890;
 alter sequence sc_khb_srv.sq_atlfsl_cfr_fclt_info restart with 20848922;
@@ -1032,61 +1053,62 @@ alter sequence sc_khb_srv.sq_atlfsl_etc_info restart with 20848922;
 alter sequence sc_khb_srv.sq_atlfsl_img_info restart with 836227;
 alter sequence sc_khb_srv.sq_atlfsl_inqry_info restart with 1;
 alter sequence sc_khb_srv.sq_atlfsl_land_usg_info restart with 20848922;
+alter sequence sc_khb_srv.sq_atlfsl_thema_info restart with 155376;
 alter sequence sc_khb_srv.sq_com_author restart with 5;
 alter sequence sc_khb_srv.sq_com_banner_info restart with 23;
 alter sequence sc_khb_srv.sq_com_bbs restart with 173;
 alter sequence sc_khb_srv.sq_com_bbs_cmnt restart with 68;
-alter sequence sc_khb_srv.sq_com_code restart with 1299;
+alter sequence sc_khb_srv.sq_com_code restart with 1322;
 alter sequence sc_khb_srv.sq_com_crtfc_tmpr restart with 154;
 alter sequence sc_khb_srv.sq_com_ctpv_cd restart with 18;
-alter sequence sc_khb_srv.sq_com_device_info restart with 21;
-alter sequence sc_khb_srv.sq_com_device_ntcn_mapng_info restart with 148;
-alter sequence sc_khb_srv.sq_com_device_stng_info restart with 143;
-alter sequence sc_khb_srv.sq_com_emd_li_cd restart with 24372;
-alter sequence sc_khb_srv.sq_com_error_log restart with 5293;
+alter sequence sc_khb_srv.sq_com_device_info restart with 22;
+alter sequence sc_khb_srv.sq_com_device_ntcn_mapng_info restart with 161;
+alter sequence sc_khb_srv.sq_com_device_stng_info restart with 157;
+alter sequence sc_khb_srv.sq_com_emd_li_cd restart with 24356;
+alter sequence sc_khb_srv.sq_com_error_log restart with 5870;
 alter sequence sc_khb_srv.sq_com_faq restart with 1;
 alter sequence sc_khb_srv.sq_com_file restart with 1;
 alter sequence sc_khb_srv.sq_com_file_mapng restart with 1;
 alter sequence sc_khb_srv.sq_com_group restart with 5;
 alter sequence sc_khb_srv.sq_com_group_author restart with 11;
-alter sequence sc_khb_srv.sq_com_gtwy_svc restart with 447;
-alter sequence sc_khb_srv.sq_com_gtwy_svc_author restart with 592;
-alter sequence sc_khb_srv.sq_com_job_schdl_hstry restart with 273;
+alter sequence sc_khb_srv.sq_com_gtwy_svc restart with 470;
+alter sequence sc_khb_srv.sq_com_gtwy_svc_author restart with 617;
+alter sequence sc_khb_srv.sq_com_job_schdl_hstry restart with 639;
 alter sequence sc_khb_srv.sq_com_job_schdl_info restart with 16;
-alter sequence sc_khb_srv.sq_com_login_hist restart with 1528;
-alter sequence sc_khb_srv.sq_com_menu restart with 74;
-alter sequence sc_khb_srv.sq_com_menu_author restart with 72;
+alter sequence sc_khb_srv.sq_com_login_hist restart with 1590;
+alter sequence sc_khb_srv.sq_com_menu restart with 76;
+alter sequence sc_khb_srv.sq_com_menu_author restart with 78;
 alter sequence sc_khb_srv.sq_com_notice restart with 3;
-alter sequence sc_khb_srv.sq_com_ntcn_info restart with 97;
+alter sequence sc_khb_srv.sq_com_ntcn_info restart with 113;
 alter sequence sc_khb_srv.sq_com_push_meta_info restart with 27;
 alter sequence sc_khb_srv.sq_com_qna restart with 1;
 alter sequence sc_khb_srv.sq_com_recsroom restart with 1;
-alter sequence sc_khb_srv.sq_com_rss_info restart with 61865;
-alter sequence sc_khb_srv.sq_com_scrin restart with 125;
-alter sequence sc_khb_srv.sq_com_scrin_author restart with 133;
+alter sequence sc_khb_srv.sq_com_rss_info restart with 64397;
+alter sequence sc_khb_srv.sq_com_scrin restart with 127;
+alter sequence sc_khb_srv.sq_com_scrin_author restart with 136;
 alter sequence sc_khb_srv.sq_com_sgg_cd restart with 253;
 alter sequence sc_khb_srv.sq_com_stplat_hist restart with 1;
 alter sequence sc_khb_srv.sq_com_stplat_info restart with 1;
 alter sequence sc_khb_srv.sq_com_stplat_mapng restart with 1;
 alter sequence sc_khb_srv.sq_com_svc_ip_manage restart with 1;
 alter sequence sc_khb_srv.sq_com_thema_info restart with 80;
-alter sequence sc_khb_srv.sq_com_user restart with 73469;
+alter sequence sc_khb_srv.sq_com_user restart with 73470;
 alter sequence sc_khb_srv.sq_com_user_author restart with 1;
-alter sequence sc_khb_srv.sq_com_user_group restart with 73105;
-alter sequence sc_khb_srv.sq_com_user_ntcn_mapng_info restart with 93;
+alter sequence sc_khb_srv.sq_com_user_group restart with 73106;
+alter sequence sc_khb_srv.sq_com_user_ntcn_mapng_info restart with 109;
 alter sequence sc_khb_srv.sq_hsmp_dtl_info restart with 222;
 alter sequence sc_khb_srv.sq_hsmp_info restart with 10055181;
 alter sequence sc_khb_srv.sq_itrst_atlfsl_info restart with 34431;
 alter sequence sc_khb_srv.sq_lrea_office_info restart with 1601796;
-alter sequence sc_khb_srv.sq_lrea_schdl_ntcn_info restart with 47;
-alter sequence sc_khb_srv.sq_lrea_sns_url_info restart with 1;
-alter sequence sc_khb_srv.sq_lrea_spclty_fld_info restart with 1;
+alter sequence sc_khb_srv.sq_lrea_schdl_ntcn_info restart with 50;
+alter sequence sc_khb_srv.sq_lrea_sns_url_info restart with 3;
+alter sequence sc_khb_srv.sq_lrea_spclty_fld_info restart with 4;
 alter sequence sc_khb_srv.sq_lttot_info restart with 1310;
 alter sequence sc_khb_srv.sq_svc_bass_info restart with 3;
-alter sequence sc_khb_srv.sq_tmp_user_mst restart with 2653211;
 alter sequence sc_khb_srv.sq_user_atlfsl_img_info restart with 158443;
 alter sequence sc_khb_srv.sq_user_atlfsl_info restart with 20906;
 alter sequence sc_khb_srv.sq_user_atlfsl_preocupy_info restart with 23201;
+alter sequence sc_khb_srv.sq_user_atlfsl_thema_info restart with 1;
 
 -- 유저에게 시퀀스 권한 주기
 DECLARE @user_name nvarchar(100) = 'us_khb_com'

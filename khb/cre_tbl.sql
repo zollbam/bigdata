@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 230818
+수정 일시: 230822
 작 성 자 : 조건영
 
 */
@@ -154,7 +154,7 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_lttot_info'
+        WHERE table_NAME = 'tb_user_atlfsl_thema_info'
        ) tr;
 
 
@@ -303,6 +303,12 @@ SELECT
        TABLE_SCHEMA = 'sc_khb_srv'
  ORDER BY 1;
 
+
+-- insert into openrowset
+SELECT TABLE_NAME
+     , stuff((SELECT '' + COLUMN_NAME))
+  FROM information_schema.columns;
+
 -- 테이블 생성
  ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
@@ -406,7 +412,79 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 
 
 /*insert into openrowset*/
-
+insert into sc_khb_srv.tb_atlfsl_bsc_info
+select abi.atlfsl_bsc_info_pk 
+     , abi.asoc_atlfsl_no 
+, abi.asoc_app_intrlck_no 
+, abi.lrea_office_info_pk 
+, abi.ctpv_cd_pk 
+, abi.sgg_cd_pk 
+, abi.emd_li_cd_pk
+, abi.hsmp_info_pk
+, abi.hsmp_dtl_info_pk
+, abi.atlfsl_ty_cd 
+, abi.atlfsl_dtl_ty_cd 
+, abi.atlfsl_knd_cd 
+, abi.stdg_dong_cd 
+, abi.stdg_cd 
+, abi.stdg_innb 
+, abi.dong_innb
+, abi.mno
+, abi.sno
+, abi.aptcmpl_nm
+, abi.ho_nm 
+, abi.atlfsl_crdnt 
+, abi.atlfsl_lot 
+, abi.atlfsl_lat 
+, abi.atlfsl_trsm_dt
+, abi.bldg_aptcmpl_indct_yn 
+, abi.pyeong_indct_yn 
+, abi.vr_exst_yn
+, abi.img_exst_yn 
+, abi.thema_cd_list 
+, abi.pic_no 
+, abi.pic_nm
+, abi.pic_telno
+, abi.dtl_scrn_prsl_cnt
+, abi.prvuse_area 
+, abi.sply_area
+, abi.plot_area 
+, abi.arch_area 
+, abi.room_cnt 
+, abi.toilet_cnt 
+, abi.atlfsl_inq_cnt 
+, abi.flr_expsr_mthd_cd 
+, abi.now_flr_expsr_mthd_cd 
+, abi.flr_cnt 
+, abi.top_flr_cnt
+, abi.grnd_flr_cnt
+, abi.udgd_flr_cnt 
+, abi.stairs_stle_cd 
+, abi.drc_cd 
+, abi.blcn_cd 
+, abi.pstn_expln_cn
+, abi.parkng_psblty_yn 
+, abi.parkng_cnt 
+, abi.cmcn_day
+, abi.financ_amt
+, abi.use_yn 
+, abi.clustr_info_stts_cd 
+, abi.push_stts_cd
+, abi.rcmdtn_yn 
+, abi.auc_yn 
+, abi.atlfsl_stts_cd 
+, abi.totar 
+, abi.atlfsl_vrfc_yn 
+, abi.atlfsl_vrfc_day 
+, abi.reg_id 
+, abi.reg_dt 
+, abi.mdfcn_id
+, abi.mdfcn_dt 
+  from openrowset (
+                    bulk 'D:\migra_data\product_info_openrowset.txt'
+                    ,FORMATFILE = 'D:\formatxml\tb_atlfsl_bsc_info.xml'
+                    ,codepage=65001
+                  ) as abi;
 
 /*AS방법으로 테이블 만들기*/
 --CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
@@ -774,6 +852,31 @@ BULK INSERT sc_khb_srv.tb_atlfsl_land_usg_info
 );
 
 alter table sc_khb_srv.tb_atlfsl_land_usg_info add constraint pk_tb_atlfsl_land_usg_info primary key(atlfsl_land_usg_info_pk);
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_atlfsl_thema_info
+CREATE TABLE sc_khb_srv.tb_atlfsl_thema_info (
+  atlfsl_thema_info_pk sc_khb_srv.pk_n18 NOT NULL
+, atlfsl_bsc_info_pk sc_khb_srv.pk_n18
+, thema_info_pk sc_khb_srv.pk_n18
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+);
+
+BULK INSERT sc_khb_srv.tb_atlfsl_thema_info
+       FROM 'D:\migra_data\product_thema.txt'
+       WITH (
+             codepage = '65001',
+             fieldterminator = '||',
+             rowterminator = '0x0a'
+            );
+
+alter table sc_khb_srv.tb_atlfsl_thema_info add constraint pk_tb_atlfsl_thema_info primary key(atlfsl_thema_info_pk);
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
@@ -3147,9 +3250,23 @@ alter table sc_khb_srv.tb_user_atlfsl_preocupy_info add constraint pk_tb_user_at
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_user_atlfsl_thema_info
+CREATE TABLE sc_khb_srv.tb_user_atlfsl_thema_info (
+  user_atlfsl_thema_info_pk sc_khb_srv.pk_n18 NOT NULL
+, user_atlfsl_info_pk sc_khb_srv.pk_n18
+, thema_info_pk sc_khb_srv.pk_n18
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+);
 
+alter table sc_khb_srv.tb_user_atlfsl_thema_info add constraint pk_tb_user_atlfsl_thema_info primary key(user_atlfsl_thema_info_pk);
 
-
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
 -- com유저에게 테이블 권한 주기
 SELECT 
   table_name

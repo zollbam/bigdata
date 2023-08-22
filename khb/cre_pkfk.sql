@@ -1,7 +1,7 @@
 /*
 pk와 fk를 작성하는 쿼리문을 추출하는 파일
 작성 일시: 230623
-수정 일시: 230810
+수정 일시: 230822
 작 성 자 : 조건영
 */
 
@@ -280,6 +280,25 @@ alter table sc_khb_srv.tb_atlfsl_land_usg_info
 add constraint fk_tb_atlfsl_land_usg_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
 	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_thema_info_tb_atlfsl_bsc_info
+alter table sc_khb_srv.tb_atlfsl_thema_info 
+add constraint fk_tb_atlfsl_thema_info_tb_atlfsl_bsc_info 
+foreign key (atlfsl_bsc_info_pk) 
+     references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
+
+
+
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_atlfsl_thema_info_tb_com_thema_info
+alter table sc_khb_srv.tb_atlfsl_thema_info
+add constraint fk_tb_atlfsl_thema_info_tb_com_thema_info 
+foreign key (thema_info_pk) 
+     references sc_khb_srv.tb_com_thema_info(thema_info_pk);
+
 
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -640,11 +659,31 @@ foreign key (user_atlfsl_info_pk)
  
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info
+alter table sc_khb_srv.tb_user_atlfsl_preocupy_info 
+add constraint fk_tb_user_atlfsl_preocupy_info_tb_user_atlfsl_info 
+foreign key (user_atlfsl_info_pk) 
+	references sc_khb_srv.tb_user_atlfsl_info(user_atlfsl_info_pk);
+ 
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_user_atlfsl_thema_info_tb_com_thema_info
+alter table sc_khb_srv.tb_user_atlfsl_thema_info
+add constraint fk_tb_user_atlfsl_thema_info_tb_com_thema_info
+foreign key (thema_info_pk) 
+     references sc_khb_srv.tb_com_thema_info(thema_info_pk);
 
 
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
+-- fk_tb_user_atlfsl_thema_info_tb_user_atlfsl_info
+alter table sc_khb_srv.tb_user_atlfsl_thema_info 
+add constraint fk_tb_user_atlfsl_thema_info_tb_user_atlfsl_info 
+foreign key (user_atlfsl_info_pk) 
+     references sc_khb_srv.tb_user_atlfsl_info(user_atlfsl_info_pk);
 
-
-
+/*성공!!*/
+-----------------------------------------------------------------------------------------------------------------------------------
 
 
 

@@ -2,7 +2,7 @@
 마리아db에서 테이블을 txt파일로 만드는 작업파일
 204번
 작성 일시: 230601
-수정 일시: 230818
+수정 일시: 230822
 작 성 자 : 조건영
 */
 
@@ -769,6 +769,62 @@ SELECT count(*)
                       EXCEPT 
                       SELECT PRODUCT_NO
                         FROM product_info);
+
+-- tb_atlfsl_thema_info
+/*mssql의 string_split 방법을 maria에서 사용한 방법*/
+/*
+참고 사이트
+ - 여러 개의 구분자를 활용해 여러 열 만들기 => https://estenpark.tistory.com/363
+*/
+SELECT ROW_NUMBER() OVER(ORDER BY B.product_no, B.COMMA_CNT) AS atlfsl_thema_info_pk
+     , B.product_no AS atlfsl_bsc_info_pk
+     , CASE WHEN B.COMMA_CNT = 1 THEN IFNULL(REPLACE(CAST(B.DATA AS int),CONCAT(CHAR(10)), ''), '')
+            ELSE IFNULL(REPLACE(CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(B.DATA, ',', S.the_no), ',', -1)) AS int),CONCAT(CHAR(10)), ''), '')
+       END AS thema_info_pk
+     , '' reg_id
+     , '' reg_dt
+     , '' mdfcn_id
+     , '' mdfcn_dt
+  into outfile '/var/lib/mysql/backup/product_thema.txt'
+        FIELDS TERMINATED BY '||'
+        LINES TERMINATED BY '\n'
+  FROM (SELECT A.product_no
+             , CASE WHEN A.DATA LIKE '%,%'
+                                THEN (LENGTH(A.DATA) - LENGTH(REPLACE(A.DATA, ',', ''))) / LENGTH(',') + 1
+                    WHEN LENGTH(A.DATA) = 3
+                                THEN 1
+                    ELSE 0
+               END AS COMMA_CNT -- 콤마의 개수
+             , A.DATA
+             , RANK() OVER(PARTITION BY A.product_no ORDER BY A.DATA) AS the_no
+          FROM (SELECT product_no
+                     , THEME_CDS AS DATA
+                  FROM product_info pi2
+                 WHERE pi2.PRODUCT_NO in (select pi3.PRODUCT_NO
+                                            from hanbang.product_info pi3 
+                                                 left join 
+                                                 hanbang.article_type_ab_info atai
+                                                        on atai.PRODUCT_NO = pi2.PRODUCT_NO 
+                                                 left join 
+                                                 hanbang.article_type_c_info atci
+                                                        on atci.PRODUCT_NO = pi2.PRODUCT_NO 
+                                                 left join 
+                                                 hanbang.article_type_d_info atdi
+                                                        on atdi.PRODUCT_NO = pi2.PRODUCT_NO 
+                                                       and atdi.SPLY_SPC <> 333333333335
+                                                 left join 
+                                                 hanbang.article_type_ef_info atei
+                                                        on atei.PRODUCT_NO = pi2.PRODUCT_NO
+                                           where pi2.PRODUCT_CATE_CD not in ('03', '04') -- 주상복합, 주상복합분양권 제외
+                                             AND pi2.PRODUCT_NO != 20502829)
+               ) A
+       ) B
+       INNER JOIN 
+       (SELECT CAST(seq AS INT) as the_no
+          FROM seq_1_to_74
+       ) S
+               ON (S.the_no <= B.COMMA_CNT)
+ LIMIT 100000000;
 
 -- article_type_c_info
 -- select 
