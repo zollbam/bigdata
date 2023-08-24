@@ -1,7 +1,7 @@
 /*
 확장속성(comment)을 추가하는 파일
 작성 일시: 230624
-수정 일시: 230816
+수정 일시: 230823
 작 성 자 : 조건영 
 작성 목적 : 테이블과 컬럼에 comment를 복사하여 쿼리문을 만들기 위해 만듬
 사용 DB : mssql 2016
@@ -1607,8 +1607,8 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'읍면동_리_코�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'전체_읍면동_리_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'all_emd_li_nm';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'본번', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'mno';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'부번', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'sno';
-EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'동_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'aptcmpl_nm';
-EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'호_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'ho_nm';
+--EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'동_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'aptcmpl_nm';
+--EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'호_명', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'ho_nm';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'위도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'lat';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'경도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'lot';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매매_가격', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'trde_pc';
@@ -1621,6 +1621,7 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_아이디',
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'reg_dt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_아이디', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'mdfcn_id';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'상세_주소', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_info', @level2type=N'COLUMN', @level2name=N'dtl_addr';
 -----------------------------------------------------------------------------------
 -- tb_user_atlfsl_preocupy_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'사용자_매물_선점_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_user_atlfsl_preocupy_info', @level2type=N'COLUMN', @level2name=N'user_atlfsl_preocupy_info_pk';

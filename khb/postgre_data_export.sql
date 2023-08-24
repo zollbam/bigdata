@@ -390,7 +390,154 @@ case WHEN trunc(st_x(st_centroid(st_collect(trsb.lc_info)))::numeric, 10) IS NUL
         , tkahbi.bildregstr_top_floor_co
         , tkahbi.undgrnd_floor_co; -- 18318 행
 
-
+/*openrowset 방법*/
+SELECT
+concat_ws('||',
+case when tkahbi.hsmp_code is null then '' else tkahbi.hsmp_code::varchar(4000) END,
+case when tkahbi.hsmp_nm is null then '' else tkahbi.hsmp_nm::varchar(4000) END,
+case when tkahbi.atpt_nm is null then '' else tkahbi.atpt_nm::varchar(4000) END,
+case when tkahbi.signgu_nm is null then '' else tkahbi.signgu_nm::varchar(4000) END,
+case when tkahbi.eupmyeon_nm is null then '' else tkahbi.eupmyeon_nm::varchar(4000) END,
+case when tkahbi.dongli_nm is null then '' else tkahbi.dongli_nm::varchar(4000) END,
+case when tkahbi.hsmp_cl_nm is null then '' else tkahbi.hsmp_cl_nm::varchar(4000) END,
+case when tkahbi.legaldong_adres is null then '' else tkahbi.legaldong_adres::varchar(4000) END,
+case when tkahbi.rn_adres is null then '' else tkahbi.rn_adres::varchar(4000) END,
+case when tkahbi.lttot_stle_nm is null then '' else tkahbi.lttot_stle_nm::varchar(4000) END,
+case when tkahbi.use_confm_de is null then '' else tkahbi.use_confm_de::varchar(4000) END,
+case when tkahbi.dong_co is null then '' else tkahbi.dong_co::varchar(4000) end,
+case when tkahbi.hshld_co is null then '' else tkahbi.hshld_co::varchar(4000) end,
+case when tkahbi.manage_mthd_nm is null then '' else tkahbi.manage_mthd_nm::varchar(4000) end,
+case when tkahbi.heat_mthd_nm is null then '' else tkahbi.heat_mthd_nm::varchar(4000) end,
+case when tkahbi.crrdpr_ty_nm is null then '' else tkahbi.crrdpr_ty_nm::varchar(4000) end,
+case when tkahbi.cnstrctprofs_nm is null then '' else tkahbi.cnstrctprofs_nm::varchar(4000) end,
+case when tkahbi.opertnprofs_nm is null then '' else tkahbi.opertnprofs_nm::varchar(4000) end,
+case when tkahbi.housemgbsman_nm is null then '' else tkahbi.housemgbsman_nm::varchar(4000) end,
+case when tkahbi.gnrl_manage_mthd_nm is null then '' else tkahbi.gnrl_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.gnrl_manage_nmpr_co is null then '' else tkahbi.gnrl_manage_nmpr_co::varchar(4000) end,
+case when tkahbi.expens_manage_mthd_nm is null then '' else tkahbi.expens_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.expens_manage_nmpr_co is null then '' else tkahbi.expens_manage_nmpr_co::varchar(4000) end,
+case when tkahbi.expens_manage_cntrct_entrps_nm is null then '' else tkahbi.expens_manage_cntrct_entrps_nm::varchar(4000) end,
+case when tkahbi.cln_manage_mthd_nm is null then '' else tkahbi.cln_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.cln_manage_nmpr_co is null then '' else tkahbi.cln_manage_nmpr_co::varchar(4000) end,
+case when tkahbi.fdwater_process_mth_nm is null then '' else tkahbi.fdwater_process_mth_nm::varchar(4000) end,
+case when tkahbi.dsnf_manage_mthd_nm is null then '' else tkahbi.dsnf_manage_mthd_nm::varchar(4000) end,
+case when tkahbi.fyer_dsnf_co is null then '' else tkahbi.fyer_dsnf_co::varchar(4000) end,
+case when tkahbi.dsnf_mth_nm is null then '' else tkahbi.dsnf_mth_nm::varchar(4000) end,
+case when tkahbi.buld_strct_nm is null then '' else tkahbi.buld_strct_nm::varchar(4000) end,
+case when tkahbi.elcty_cobfe_cpcty is null then '' else tkahbi.elcty_cobfe_cpcty::varchar(4000) end,
+case when tkahbi.hshld_elcty_cntrct_mthd_nm is null then '' else tkahbi.hshld_elcty_cntrct_mthd_nm::varchar(4000) end,
+case when tkahbi.elcty_safe_mngr_apnt_mthd_nm is null then '' else tkahbi.elcty_safe_mngr_apnt_mthd_nm::varchar(4000) end,
+case when tkahbi.fire_recptnban_mthd_nm is null then '' else tkahbi.fire_recptnban_mthd_nm::varchar(4000) end,
+case when tkahbi.wsp_mthd_nm is null then '' else tkahbi.wsp_mthd_nm::varchar(4000) end,
+case when tkahbi.elvtr_manage_stle_nm is null then '' else tkahbi.elvtr_manage_stle_nm::varchar(4000) end,
+case when tkahbi.psnger_elvtr_co is null then '' else tkahbi.psnger_elvtr_co::varchar(4000) end,
+case when tkahbi.frght_elvtr_co is null then '' else tkahbi.frght_elvtr_co::varchar(4000) end,
+case when tkahbi.psnger_frght_elvtr_co is null then '' else tkahbi.psnger_frght_elvtr_co::varchar(4000) end,
+case when tkahbi.troblrit_elvtr_co is null then '' else tkahbi.troblrit_elvtr_co::varchar(4000) end,
+case when tkahbi.emgnc_elvtr_co is null then '' else tkahbi.emgnc_elvtr_co::varchar(4000) end,
+case when tkahbi.etc_elvtr_co is null then '' else tkahbi.etc_elvtr_co::varchar(4000) end,
+case when tkahbi.tot_parkng_alge is null then '' else tkahbi.tot_parkng_alge::varchar(4000) end,
+case when tkahbi.ground_parkng_alge is null then '' else tkahbi.ground_parkng_alge::varchar(4000) end,
+case when tkahbi.undgrnd_parkng_alge is null then '' else tkahbi.undgrnd_parkng_alge::varchar(4000) end,
+case when tkahbi.cctv_alge is null then '' else tkahbi.cctv_alge::varchar(4000) end,
+case when tkahbi.parkngcntrl_hrk_at_nm is null then '' else tkahbi.parkngcntrl_hrk_at_nm::varchar(4000) end,
+case when tkahbi.manageoffice_adres is null then '' else tkahbi.manageoffice_adres::varchar(4000) end,
+case when tkahbi.manageoffice_cttpc is null then '' else tkahbi.manageoffice_cttpc::varchar(4000) end,
+case when tkahbi.manageoffice_fax is null then '' else tkahbi.manageoffice_fax::varchar(4000) end,
+case when tkahbi.mrn_cmpnint_fclty_nm is null then '' else tkahbi.mrn_cmpnint_fclty_nm::varchar(4000) end,
+case when tkahbi.sbscrb_de is null then '' else tkahbi.sbscrb_de::varchar(4000) end,
+case when tkahbi.lttot_hshld_co is null then '' else tkahbi.lttot_hshld_co::varchar(4000) end,
+case when tkahbi.rent_hshld_co is null then '' else tkahbi.rent_hshld_co::varchar(4000) end,
+case when tkahbi.top_floor_co is null then '' else tkahbi.top_floor_co::varchar(4000) end,
+case when tkahbi.bildregstr_top_floor_co is null then '' else tkahbi.bildregstr_top_floor_co::varchar(4000) end,
+case when tkahbi.undgrnd_floor_co is null then '' else tkahbi.undgrnd_floor_co::varchar(4000) END,
+case WHEN trunc(st_y(st_centroid(st_collect(trsb.lc_info)))::numeric, 10) IS NULL THEN '' ELSE trunc(st_y(st_centroid(st_collect(trsb.lc_info)))::numeric, 10)::varchar(4000) END, -- hsmp_lat
+case WHEN trunc(st_x(st_centroid(st_collect(trsb.lc_info)))::numeric, 10) IS NULL THEN '' ELSE trunc(st_x(st_centroid(st_collect(trsb.lc_info)))::numeric, 10)::varchar(4000) END, -- hsmp_lot
+case WHEN trunc(st_y(st_centroid(st_collect(trsb.lc_info)))::numeric, 10) IS NULL THEN '' 
+     ELSE concat('point(', trunc(st_x(st_centroid(st_collect(trsb.lc_info)))::numeric, 10), ' ',trunc(st_y(st_centroid(st_collect(trsb.lc_info)))::numeric, 10), ')') END -- hsmp_crdnt
+) AS RESULT
+  from tb_k_apt_hsmp_bass_info tkahbi
+       left outer join 
+       tb_rn_adres_buld trab
+           on trab.atpt_nm = tkahbi.atpt_nm
+              and 
+              trab.signgu_nm = tkahbi.signgu_nm
+              and 
+              trab.road_nm = trim(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 1))
+              and 
+              trab.buld_mnnm_no = case when length(regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 1), '[^0-9]', '', 'g')) = 0 then null
+                                       else regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 1), '[^0-9]', '', 'g')::numeric
+                                  end
+              and trab.buld_slno_no = case when length(regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 2), '[^0-9]', '', 'g')) = 0 then 0
+                                           else regexp_replace(split_part(trim(split_part(split_part(trim(replace(tkahbi.rn_adres, tkahbi.atpt_nm||' '||tkahbi.signgu_nm, '')), ' ', 2), ',', 1)), '-', 2), '[^0-9]', '', 'g')::numeric
+                                      end
+       left outer join 
+       tb_rn_spce_buld trsb
+           on trsb.signgu_code = substring(trab.legaldong_code, 1, 5)
+              and 
+              trsb.rn_code = substring(trab.rn_code, 6, 7)
+              and 
+              trsb.buld_mnnm_no = trab.buld_mnnm_no
+              and 
+              trsb.buld_slno_no = trab.buld_slno_no
+ group by tkahbi.hsmp_code
+        , tkahbi.hsmp_nm
+        , tkahbi.atpt_nm
+        , tkahbi.signgu_nm
+        , tkahbi.eupmyeon_nm
+        , tkahbi.dongli_nm
+        , tkahbi.hsmp_cl_nm
+        , tkahbi.legaldong_adres
+        , tkahbi.rn_adres
+        , tkahbi.lttot_stle_nm
+        , tkahbi.use_confm_de
+        , tkahbi.dong_co
+        , tkahbi.hshld_co
+        , tkahbi.manage_mthd_nm
+        , tkahbi.heat_mthd_nm
+        , tkahbi.crrdpr_ty_nm
+        , tkahbi.cnstrctprofs_nm
+        , tkahbi.opertnprofs_nm
+        , tkahbi.housemgbsman_nm
+        , tkahbi.gnrl_manage_mthd_nm
+        , tkahbi.gnrl_manage_nmpr_co
+        , tkahbi.expens_manage_mthd_nm
+        , tkahbi.expens_manage_nmpr_co
+        , tkahbi.expens_manage_cntrct_entrps_nm
+        , tkahbi.cln_manage_mthd_nm
+        , tkahbi.cln_manage_nmpr_co
+        , tkahbi.fdwater_process_mth_nm
+        , tkahbi.dsnf_manage_mthd_nm
+        , tkahbi.fyer_dsnf_co
+        , tkahbi.dsnf_mth_nm
+        , tkahbi.buld_strct_nm
+        , tkahbi.elcty_cobfe_cpcty
+        , tkahbi.hshld_elcty_cntrct_mthd_nm
+        , tkahbi.elcty_safe_mngr_apnt_mthd_nm
+        , tkahbi.fire_recptnban_mthd_nm
+        , tkahbi.wsp_mthd_nm
+        , tkahbi.elvtr_manage_stle_nm
+        , tkahbi.psnger_elvtr_co
+        , tkahbi.frght_elvtr_co
+        , tkahbi.psnger_frght_elvtr_co
+        , tkahbi.troblrit_elvtr_co
+        , tkahbi.emgnc_elvtr_co
+        , tkahbi.etc_elvtr_co
+        , tkahbi.tot_parkng_alge
+        , tkahbi.ground_parkng_alge
+        , tkahbi.undgrnd_parkng_alge
+        , tkahbi.cctv_alge
+        , tkahbi.parkngcntrl_hrk_at_nm
+        , tkahbi.manageoffice_adres
+        , tkahbi.manageoffice_cttpc
+        , tkahbi.manageoffice_fax
+        , tkahbi.mrn_cmpnint_fclty_nm
+        , tkahbi.sbscrb_de
+        , tkahbi.lttot_hshld_co
+        , tkahbi.rent_hshld_co
+        , tkahbi.top_floor_co
+        , tkahbi.bildregstr_top_floor_co
+        , tkahbi.undgrnd_floor_co; -- 18375 행
 
 
 
@@ -681,9 +828,45 @@ select
 무슨 원인인지는 모르겠으나 4122인 신반포 데이터가 메모장에 붙여넣기 하면 ""가 생겨서 복사 붙여넣기후 큰 따옴표를 지우고 저장시키자
 */
 
-
-
-
+/*openrowset 방법*/
+select 
+  concat_ws('||',
+            case when tksi.statn_no is null then '' else tksi.statn_no::varchar(4000) end,
+            case when tksi.statn_nm is null then '' else tksi.statn_nm::varchar(4000) end,
+            case when tksi.route_no is null then '' else tksi.route_no::varchar(4000) end,
+            case when tksi.route_nm is null then '' else tksi.route_nm::varchar(4000) end,
+            case when tksi.eng_statn_nm is null then '' else tksi.eng_statn_nm::varchar(4000) end,
+            case when tksi.chcrt_statn_nm is null then '' else tksi.chcrt_statn_nm::varchar(4000) end,
+            case when tksi.trnsit_statn_se_nm is null then '' else tksi.trnsit_statn_se_nm::varchar(4000) end,
+            case when tksi.trnsit_route_no is null then '' else tksi.trnsit_route_no::varchar(4000) end,
+            case when tksi.trnsit_route_nm is null then '' else tksi.trnsit_route_nm::varchar(4000) end,
+            case when trunc(st_y(tksi.lc_info)::numeric, 10) is NULL OR trunc(st_y(tksi.lc_info)::numeric, 10) = 0 
+                                                             then '' 
+                 else trunc(st_y(tksi.lc_info)::numeric, 10)::varchar(4000) END,
+            case when trunc(st_x(tksi.lc_info)::numeric, 10) is null OR trunc(st_x(tksi.lc_info)::numeric, 10) = 0
+                                                             then ''
+                 else trunc(st_x(tksi.lc_info)::numeric, 10)::varchar(4000) END,
+            case when tksi.oper_instt_nm is null then '' else tksi.oper_instt_nm::varchar(4000) end,
+            case when tksi.statn_rn_adres is null then '' else tksi.statn_rn_adres::varchar(4000) end,
+            case when tksi.statn_telno is null then '' else tksi.statn_telno::varchar(4000) end,
+            case when tksi.data_stdr_de is null then '' else tksi.data_stdr_de::varchar(4000) end,
+            case when trunc(st_y(tksi.lc_info)::numeric, 10) is null then '' 
+                 else concat('point(', trunc(st_x(tksi.lc_info)::numeric, 10), ' ', trunc(st_y(tksi.lc_info)::numeric, 10), ')') end,
+            case when coalesce (tlzil.li_code, tlzie.emd_code||'00') is null then '' else coalesce (tlzil.li_code, tlzie.emd_code||'00')::varchar(4000) end,
+            '',
+            '',
+            '',
+            '')
+  from tb_kric_statn_info tksi
+       left outer join 
+       tb_legal_zone_info_emg tlzie
+               on st_contains(tlzie.lc_info, tksi.lc_info)
+       left outer JOIN
+       tb_legal_zone_info_lio tlzil
+               on st_contains(tlzil.lc_info, tksi.lc_info); -- 1053 행
+/*
+무슨 원인인지는 모르겠으나 4122인 신반포 데이터가 메모장에 붙여넣기 하면 ""가 생겨서 복사 붙여넣기후 큰 따옴표를 지우고 저장시키자 => 해당 데이터 앞뒤쪽 다 생김
+*/
 
 
 
