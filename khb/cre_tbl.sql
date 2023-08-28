@@ -154,8 +154,9 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_user_atlfsl_info'
+        WHERE table_NAME = 'tb_link_apt_nthg_rank_remndr_hh_lttot_info'
        ) tr;
+/*geometry은 설정을 안 해 두어서 null 발생*/
 
 
 -- 테이블 생성 쿼리(시스템 타입)
@@ -2047,7 +2048,7 @@ CREATE TABLE sc_khb_srv.tb_itrst_atlfsl_info (
 , rprs_yn sc_khb_srv.yn_c1
 , lttot_tbl_se_cd sc_khb_srv.cd_v20
 , house_mng_no sc_khb_srv.no_n15
-, lttot_info_pk sc_khb_srv.pk_n18
+--, lttot_info_pk sc_khb_srv.pk_n18 -- 열 삭제
 );
 
 BULK INSERT sc_khb_srv.tb_itrst_atlfsl_info
@@ -2171,6 +2172,9 @@ CREATE TABLE sc_khb_srv.tb_link_apt_lttot_info (
 , ctpv_cd_pk sc_khb_srv.pk_n18
 , sgg_cd_pk sc_khb_srv.pk_n18
 , emd_li_cd_pk sc_khb_srv.pk_n18
+, lttot_lat sc_khb_srv.lat_d12_10
+, lttot_lot sc_khb_srv.lot_d13_10
+, lttot_crdnt geometry
 );
 
 BULK INSERT sc_khb_srv.tb_link_apt_lttot_info
@@ -2193,8 +2197,9 @@ SET stdg_cd = dp.innb,
 		     , tcelc.emd_li_cd_pk 
 		     , tcelc.stdg_dong_cd 
 		       as innb
-		     , substring(ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))
-		       , 0, PatIndex('%[^0-9,-]%', ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))))
+		     , substring(ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, '')), 
+		                 0, 
+		                 PatIndex('%[^0-9,-]%', ltrim(replace(tlali.sply_pstn_nm, tccc.ctpv_nm + ' ' + tcsc.sgg_nm + ' ' + tcelc.all_emd_li_nm, ''))))
 		       as jibun
 		     , tcelc.all_emd_li_nm
 		     , row_number() over (partition by tlali.sply_pstn_nm order by tcelc.emd_li_cd_pk desc) as rn
@@ -2210,7 +2215,7 @@ SET stdg_cd = dp.innb,
 		                   and tcelc.sgg_cd_pk = tcsc.sgg_cd_pk
 		                   and tlali.sply_pstn_nm like '% ' + tcelc.all_emd_li_nm + ' %'
 		                   and tcelc.stdg_dong_se_cd = 'B'
-		       ) dp
+	   ) dp
  where rn = 1
    AND sc_khb_srv.tb_link_apt_lttot_info.sply_pstn_nm = dp.sply_pstn_nm;
 
@@ -2247,6 +2252,9 @@ CREATE TABLE sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info (
 , ctpv_cd_pk sc_khb_srv.pk_n18
 , sgg_cd_pk sc_khb_srv.pk_n18
 , emd_li_cd_pk sc_khb_srv.pk_n18
+, lttot_lat sc_khb_srv.lat_d12_10
+, lttot_lot sc_khb_srv.lot_d13_10
+, lttot_crdnt geometry
 );
 
 BULK INSERT sc_khb_srv.tb_link_apt_nthg_rank_remndr_hh_lttot_info
@@ -2616,6 +2624,9 @@ CREATE TABLE sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info (
 , ctpv_cd_pk sc_khb_srv.pk_n18
 , sgg_cd_pk sc_khb_srv.pk_n18
 , emd_li_cd_pk sc_khb_srv.pk_n18
+, lttot_lat sc_khb_srv.lat_d12_10
+, lttot_lot sc_khb_srv.lot_d13_10
+, lttot_crdnt geometry
 );
 
 BULK INSERT sc_khb_srv.tb_link_ofctl_cty_prvate_rent_lttot_info
@@ -2810,7 +2821,7 @@ BULK INSERT sc_khb_srv.tb_link_subway_statn_info
 
 UPDATE sc_khb_srv.tb_link_subway_statn_info SET statn_crdnt = geometry::STPointFromText(concat('point(',statn_lot, ' ',statn_lat, ')'), 4326);
 
-
+SELECT * FROM sc_khb_srv.tb_link_subway_statn_info;
 
 /*다른 방법*/
 --CREATE TABLE sc_khb_srv.tb_link_subway_statn_info (

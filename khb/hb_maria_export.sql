@@ -1489,7 +1489,6 @@ select
 , ''
 , ''
 , ''
-, ''
   into outfile '/var/lib/mysql/backup/fav_info.txt'
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
@@ -1504,7 +1503,7 @@ select
        OR 
        (FAV_CATE_CD = 'P' AND FAV_SEQ_NO IN (SELECT product_no FROM product_info pi2 )))
 LIMIT 100000000;
-SELECT * FROM hanbang.bunyang_info;
+
 SELECT count(*)
   FROM fav_info
  WHERE USER_TYPE = 'U' AND MEM_NO NOT IN (SELECT mem_no FROM user_info); -- 831

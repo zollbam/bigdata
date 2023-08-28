@@ -1100,7 +1100,7 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @l
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'대표_여부', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'rprs_yn';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_테이블_구분_코드', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'lttot_tbl_se_cd';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'주택_관리_번호', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'house_mng_no';
-EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'lttot_info_pk';
+--EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_itrst_atlfsl_info', @level2type=N'COLUMN', @level2name=N'lttot_info_pk';
 -----------------------------------------------------------------------------------
 -- tb_jado_index
 -----------------------------------------------------------------------------------
@@ -1182,6 +1182,9 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'법정동_코드',
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시도_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_lttot_info', @level2type=N'COLUMN', @level2name=N'ctpv_cd_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시군구_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_lttot_info', @level2type=N'COLUMN', @level2name=N'sgg_cd_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'읍면동_리_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_lttot_info', @level2type=N'COLUMN', @level2name=N'emd_li_cd_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_위도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_lat';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_경도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_lot';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_좌표', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_crdnt';
 -----------------------------------------------------------------------------------
 -- tb_link_apt_nthg_rank_remndr_hh_lttot_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'주택_관리_번호', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_info', @level2type=N'COLUMN', @level2name=N'house_mng_no';
@@ -1211,6 +1214,9 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'법정동_코드',
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시도_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_info', @level2type=N'COLUMN', @level2name=N'ctpv_cd_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시군구_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_info', @level2type=N'COLUMN', @level2name=N'sgg_cd_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'읍면동_리_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_info', @level2type=N'COLUMN', @level2name=N'emd_li_cd_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_위도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_lat';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_경도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_lot';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_좌표', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_crdnt';
 -----------------------------------------------------------------------------------
 -- tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'주택_관리_번호', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info', @level2type=N'COLUMN', @level2name=N'house_mng_no';
@@ -1386,6 +1392,9 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'법정동_코드',
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시도_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_ofctl_cty_prvate_rent_lttot_info', @level2type=N'COLUMN', @level2name=N'ctpv_cd_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'시군구_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_ofctl_cty_prvate_rent_lttot_info', @level2type=N'COLUMN', @level2name=N'sgg_cd_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'읍면동_리_코드_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_ofctl_cty_prvate_rent_lttot_info', @level2type=N'COLUMN', @level2name=N'emd_li_cd_pk';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_위도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_ofctl_cty_prvate_rent_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_lat';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_경도', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_ofctl_cty_prvate_rent_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_lot';
+EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'분양_좌표', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_ofctl_cty_prvate_rent_lttot_info', @level2type=N'COLUMN', @level2name=N'lttot_crdnt';
 -----------------------------------------------------------------------------------
 -- tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'주택_관리_번호', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info', @level2type=N'COLUMN', @level2name=N'house_mng_no';
