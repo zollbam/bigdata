@@ -26,7 +26,7 @@ SELECT TABLE_NAME
                                             CASE WHEN ORDINAL_POSITION = (SELECT max(ORDINAL_POSITION) 
                                                                             FROM information_schema.columns
                                                                            WHERE TABLE_SCHEMA = 'sc_khb_srv'
-                                                                             AND table_name = 'tb_atlfsl_bsc_info') 
+                                                                             AND table_name = 'tb_com_code') 
                                                                                                                    THEN '\n'
                                                  ELSE '||'
                                             END + 
@@ -68,7 +68,7 @@ SELECT TABLE_NAME
               '</BCPFORMAT>')
   FROM information_schema.columns c2
  WHERE TABLE_SCHEMA = 'sc_khb_srv'
-   AND table_name = 'tb_atlfsl_bsc_info'
+   AND table_name = 'tb_com_code'
  GROUP BY TABLE_NAME;
 /*
 테이블 이름 변경시 서브쿼리에 있는 where절에도 테이블 이름을 변경 해주어야 한다. => 총 2개의 조건을 변경 시켜야 함
@@ -854,7 +854,9 @@ select
 
 alter table sc_khb_srv.tb_com_code add constraint pk_tb_com_code primary key(code_pk);
 
-SELECT * FROM sc_khb_srv.tb_com_code;
+SELECT * FROM sc_khb_srv.tb_com_code ORDER BY code_pk desc;
+
+
 
 -- tb_com_crtfc_tmpr
 

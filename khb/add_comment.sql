@@ -1,7 +1,7 @@
 /*
 확장속성(comment)을 추가하는 파일
 작성 일시: 230624
-수정 일시: 230823
+수정 일시: 230830
 작 성 자 : 조건영 
 작성 목적 : 테이블과 컬럼에 comment를 복사하여 쿼리문을 만들기 위해 만듬
 사용 DB : mssql 2016
@@ -444,7 +444,7 @@ EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'토지_거래_허�
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'등록_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_land_usg_info', @level2type=N'COLUMN', @level2name=N'reg_dt';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'수정_일시', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_land_usg_info', @level2type=N'COLUMN', @level2name=N'mdfcn_dt';
 -----------------------------------------------------------------------------------
--- tb_atlfsl_land_usg_info
+-- tb_atlfsl_thema_info
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_테마_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'atlfsl_thema_info_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'매물_기본_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'atlfsl_bsc_info_pk';
 EXEC SP_ADDEXTENDEDPROPERTY @name=N'MS_Description', @value=N'테마_정보_PK', @level0type=N'SCHEMA', @level0name=N'sc_khb_srv', @level1type=N'TABLE', @level1name=N'tb_atlfsl_thema_info', @level2type=N'COLUMN', @level2name=N'thema_info_pk';

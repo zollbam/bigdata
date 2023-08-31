@@ -211,7 +211,16 @@ SELECT lrea_office_info_pk
 */
 -----------------------------------------------------------------------------------------------------------------------------------
 -- fk_tb_atlfsl_cfr_fclt_info_tb_atlfsl_bsc_info
-alter table sc_khb_srv.tb_atlfsl_cfr_fclt_info 
+/*pkfk관계를 위한 삭제*/
+DELETE sc_khb_srv.tb_atlfsl_cfr_fclt_info 
+ WHERE atlfsl_bsc_info_pk in (
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_cfr_fclt_info
+                              EXCEPT
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_bsc_info tabi);
+
+ alter table sc_khb_srv.tb_atlfsl_cfr_fclt_info 
 add constraint fk_tb_atlfsl_cfr_fclt_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
 	references sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
@@ -227,6 +236,15 @@ foreign key (atlfsl_bsc_info_pk)
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 -- fk_tb_atlfsl_dlng_info_tb_atlfsl_bsc_info
+/*pkfk관계를 위한 삭제*/
+DELETE sc_khb_srv.tb_atlfsl_dlng_info
+ WHERE atlfsl_bsc_info_pk in (
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_dlng_info tadi
+                              EXCEPT
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_bsc_info tabi);
+
 alter table sc_khb_srv.tb_atlfsl_dlng_info 
 add constraint fk_tb_atlfsl_dlng_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk)
@@ -243,6 +261,15 @@ foreign key (atlfsl_bsc_info_pk)
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 -- fk_tb_atlfsl_etc_info_tb_atlfsl_bsc_info
+/*pkfk관계를 위한 삭제*/
+DELETE sc_khb_srv.tb_atlfsl_etc_info
+ WHERE atlfsl_bsc_info_pk in (
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_etc_info taei
+                              EXCEPT
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_bsc_info tabi);
+
 alter table sc_khb_srv.tb_atlfsl_etc_info 
 add constraint fk_tb_atlfsl_etc_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
@@ -251,6 +278,15 @@ foreign key (atlfsl_bsc_info_pk)
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 -- fk_tb_atlfsl_img_info_tb_atlfsl_bsc_info
+/*pkfk관계를 위한 삭제*/
+DELETE sc_khb_srv.tb_atlfsl_img_info
+ WHERE atlfsl_bsc_info_pk in (
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_img_info taii
+                              EXCEPT
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_bsc_info tabi);
+
 alter table sc_khb_srv.tb_atlfsl_img_info 
 add constraint fk_tb_atlfsl_img_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
@@ -276,6 +312,15 @@ references sc_khb_srv.tb_com_user(user_no_pk);
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 -- fk_tb_atlfsl_land_usg_info_tb_atlfsl_bsc_info
+/*pkfk관계를 위한 삭제*/
+DELETE sc_khb_srv.tb_atlfsl_land_usg_info
+ WHERE atlfsl_bsc_info_pk in (
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_land_usg_info talui
+                              EXCEPT
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_bsc_info tabi);
+
 alter table sc_khb_srv.tb_atlfsl_land_usg_info 
 add constraint fk_tb_atlfsl_land_usg_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 
@@ -588,6 +633,15 @@ references sc_khb_srv.tb_hsmp_info(hsmp_info_pk);
 /*성공!!*/
 -----------------------------------------------------------------------------------------------------------------------------------
 -- fk_tb_itrst_atlfsl_info_tb_atlfsl_bsc_info
+/*pkfk관계를 위한 삭제*/
+DELETE sc_khb_srv.tb_itrst_atlfsl_info
+ WHERE atlfsl_bsc_info_pk in (
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_itrst_atlfsl_info tiai
+                              EXCEPT
+                              SELECT atlfsl_bsc_info_pk 
+                                FROM sc_khb_srv.tb_atlfsl_bsc_info tabi);
+
 alter table sc_khb_srv.tb_itrst_atlfsl_info 
 add constraint fk_tb_itrst_atlfsl_info_tb_atlfsl_bsc_info 
 foreign key (atlfsl_bsc_info_pk) 

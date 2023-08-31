@@ -1,7 +1,7 @@
 /*
 mssql에서 결과 쿼리를 txt로 만드는 파일
 시작 일시: 23-06-28
-수정 일시: 23-07-18
+수정 일시: 230831
 작 성 자 : 조건영
 */
 
@@ -80,12 +80,12 @@ SELECT
   FROM information_schema.columns c2
  WHERE TABLE_SCHEMA='sc_khb_srv'
        AND
-       table_name = 'tb_atlfsl_bsc_info'
+       table_name = 'tb_com_group'
  GROUP BY TABLE_NAME;
 
 -- com_code
 SELECT *
-  FROM sc_khb_srv.tb_com_code;
+  FROM sc_khb_srv.tb_com_code
  WHERE code_pk < 12 OR code_pk > 1231
  ORDER BY parnts_code_pk;
 
@@ -108,6 +108,8 @@ declare @sql varchar(8000) = 'bcp ' +
 ' queryout "D:\migra_data\mssql_com_code.txt" -w -t "||" -T -S 192.168.0.161\HBSERVER -U sa -d db_khb_srv';
 EXEC xp_cmdshell @sql;
 
+
+
 -- tb_com_bbs
 declare @sql varchar(8000) = 'bcp ' +
 '"SELECT ' + 
@@ -126,6 +128,24 @@ declare @sql varchar(8000) = 'bcp ' +
 EXEC xp_cmdshell @sql;
 
 
+
+-- tb_com_group
+declare @sql nvarchar(4000) = 'bcp ' +
+'"select '+
+  'iif(group_no_pk is null or len(group_no_pk)=0, null, group_no_pk)' +
+', iif(parnts_group_no_pk is null or len(parnts_group_no_pk)=0, null, parnts_group_no_pk)' +
+', iif(group_nm is null or len(group_nm)=0, null, group_nm)' +
+', iif(use_at is null or len(use_at)=0, null, use_at)' +
+', iif(rm_cn is null or len(rm_cn)=0, null, rm_cn)' +
+', iif(valid_pd_begin_dt is null or len(valid_pd_begin_dt)=0, null, valid_pd_begin_dt)' +
+', iif(valid_pd_end_dt is null or len(valid_pd_end_dt)=0, null, valid_pd_end_dt)' +
+', iif(regist_id is null or len(regist_id)=0, null, regist_id)' +
+', iif(regist_dt is null or len(regist_dt)=0, null, regist_dt)' +
+', iif(updt_id is null or len(updt_id)=0, null, updt_id)' +
+', iif(updt_dt is null or len(updt_dt)=0, null, updt_dt)' +
+'   from sc_khb_srv.tb_com_group" ' +
+'queryout "D:\migra_data\mssql_com_group.txt" -w -t "||" -T -S 192.168.0.161\HBSERVER -U sa -d db_khb_srv';
+EXEC xp_cmdshell @sql;
 
 
 
