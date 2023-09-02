@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 230830
+수정 일시: 230901
 작 성 자 : 조건영
 
 */
@@ -417,113 +417,113 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 
 
 /*AS방법으로 테이블 만들기*/
---CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
---  atlfsl_bsc_info_pk sc_khb_srv.pk_n18 NOT NULL
---, asoc_atlfsl_no sc_khb_srv.no_n15
---, asoc_app_intrlck_no sc_khb_srv.no_n15
---, lrea_office_info_pk sc_khb_srv.pk_n18
---, ctpv_cd_pk sc_khb_srv.pk_n18
---, sgg_cd_pk sc_khb_srv.pk_n18
---, emd_li_cd_pk sc_khb_srv.pk_n18
---, hsmp_info_pk sc_khb_srv.pk_n18
---, hsmp_dtl_info_pk sc_khb_srv.pk_n18
---, atlfsl_ty_cd sc_khb_srv.cd_v20
---, atlfsl_dtl_ty_cd sc_khb_srv.cd_v20
---, atlfsl_knd_cd sc_khb_srv.cd_v20
---, stdg_dong_cd sc_khb_srv.cd_v20
---, stdg_cd sc_khb_srv.cd_v20
---, stdg_innb sc_khb_srv.innb_v20
---, dong_innb sc_khb_srv.innb_v20
---, mno sc_khb_srv.mno_n4
---, sno sc_khb_srv.sno_n4
---, aptcmpl_nm sc_khb_srv.nm_nv500
---, ho_nm sc_khb_srv.nm_nv500
---, atlfsl_crdnt AS CASE WHEN (atlfsl_lot IS NULL OR atlfsl_lot = 0) THEN NULL
---                       ELSE geometry::STPointFromText(concat('point(', atlfsl_lot, ' ', atlfsl_lat, ')'), 4326)
---                  END 
---, atlfsl_lot sc_khb_srv.lot_d13_10
---, atlfsl_lat sc_khb_srv.lat_d12_10
---, atlfsl_trsm_dt sc_khb_srv.dt
---, bldg_aptcmpl_indct_yn sc_khb_srv.yn_c1
---, pyeong_indct_yn sc_khb_srv.yn_c1
---, vr_exst_yn sc_khb_srv.yn_c1
---, img_exst_yn sc_khb_srv.yn_c1
---, thema_cd_list sc_khb_srv.list_nv1000
---, pic_no sc_khb_srv.no_n15
---, pic_nm sc_khb_srv.nm_nv500
---, pic_telno sc_khb_srv.telno_v30
---, dtl_scrn_prsl_cnt sc_khb_srv.cnt_n15
---, prvuse_area sc_khb_srv.area_d19_9
---, sply_area sc_khb_srv.area_d19_9
---, plot_area sc_khb_srv.area_d19_9
---, arch_area sc_khb_srv.area_d19_9
---, room_cnt sc_khb_srv.cnt_n15
---, toilet_cnt sc_khb_srv.cnt_n15
---, atlfsl_inq_cnt sc_khb_srv.cnt_n15
---, flr_expsr_mthd_cd sc_khb_srv.cd_v20
---, now_flr_expsr_mthd_cd sc_khb_srv.cd_v20
---, flr_cnt sc_khb_srv.cnt_n15
---, top_flr_cnt sc_khb_srv.cnt_n15
---, grnd_flr_cnt sc_khb_srv.cnt_n15
---, udgd_flr_cnt sc_khb_srv.cnt_n15
---, stairs_stle_cd sc_khb_srv.cd_v20
---, drc_cd sc_khb_srv.cd_v20
---, blcn_cd sc_khb_srv.cd_v20
---, pstn_expln_cn sc_khb_srv.cn_nvmax
---, parkng_psblty_yn sc_khb_srv.yn_c1
---, parkng_cnt sc_khb_srv.cnt_n15
---, cmcn_day sc_khb_srv.day_nv100
---, financ_amt sc_khb_srv.amt_n18
---, use_yn sc_khb_srv.yn_c1
---, clustr_info_stts_cd sc_khb_srv.cd_v20
---, push_stts_cd sc_khb_srv.cd_v20
---, rcmdtn_yn sc_khb_srv.yn_c1
---, auc_yn sc_khb_srv.yn_c1
---, atlfsl_stts_cd sc_khb_srv.cd_v20
---, totar sc_khb_srv.totar_d19_9
---, atlfsl_vrfc_yn sc_khb_srv.yn_c1
---, atlfsl_vrfc_day sc_khb_srv.day_nv100
---, reg_id sc_khb_srv.id_nv100
---, reg_dt sc_khb_srv.dt
---, mdfcn_id sc_khb_srv.id_nv100
---, mdfcn_dt sc_khb_srv.dt
---);
+CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
+  atlfsl_bsc_info_pk sc_khb_srv.pk_n18 NOT NULL
+, asoc_atlfsl_no sc_khb_srv.no_n15
+, asoc_app_intrlck_no sc_khb_srv.no_n15
+, lrea_office_info_pk sc_khb_srv.pk_n18
+, ctpv_cd_pk sc_khb_srv.pk_n18
+, sgg_cd_pk sc_khb_srv.pk_n18
+, emd_li_cd_pk sc_khb_srv.pk_n18
+, hsmp_info_pk sc_khb_srv.pk_n18
+, hsmp_dtl_info_pk sc_khb_srv.pk_n18
+, atlfsl_ty_cd sc_khb_srv.cd_v20
+, atlfsl_dtl_ty_cd sc_khb_srv.cd_v20
+, atlfsl_knd_cd sc_khb_srv.cd_v20
+, stdg_dong_cd sc_khb_srv.cd_v20
+, stdg_cd sc_khb_srv.cd_v20
+, stdg_innb sc_khb_srv.innb_v20
+, dong_innb sc_khb_srv.innb_v20
+, mno sc_khb_srv.mno_n4
+, sno sc_khb_srv.sno_n4
+, aptcmpl_nm sc_khb_srv.nm_nv500
+, ho_nm sc_khb_srv.nm_nv500
+, atlfsl_crdnt AS CASE WHEN (atlfsl_lot IS NULL OR atlfsl_lot = 0) THEN NULL
+                       ELSE geometry::STPointFromText(concat('point(', atlfsl_lot, ' ', atlfsl_lat, ')'), 4326)
+                  END 
+, atlfsl_lot sc_khb_srv.lot_d13_10
+, atlfsl_lat sc_khb_srv.lat_d12_10
+, atlfsl_trsm_dt sc_khb_srv.dt
+, bldg_aptcmpl_indct_yn sc_khb_srv.yn_c1
+, pyeong_indct_yn sc_khb_srv.yn_c1
+, vr_exst_yn sc_khb_srv.yn_c1
+, img_exst_yn sc_khb_srv.yn_c1
+, thema_cd_list sc_khb_srv.list_nv1000
+, pic_no sc_khb_srv.no_n15
+, pic_nm sc_khb_srv.nm_nv500
+, pic_telno sc_khb_srv.telno_v30
+, dtl_scrn_prsl_cnt sc_khb_srv.cnt_n15
+, prvuse_area sc_khb_srv.area_d19_9
+, sply_area sc_khb_srv.area_d19_9
+, plot_area sc_khb_srv.area_d19_9
+, arch_area sc_khb_srv.area_d19_9
+, room_cnt sc_khb_srv.cnt_n15
+, toilet_cnt sc_khb_srv.cnt_n15
+, atlfsl_inq_cnt sc_khb_srv.cnt_n15
+, flr_expsr_mthd_cd sc_khb_srv.cd_v20
+, now_flr_expsr_mthd_cd sc_khb_srv.cd_v20
+, flr_cnt sc_khb_srv.cnt_n15
+, top_flr_cnt sc_khb_srv.cnt_n15
+, grnd_flr_cnt sc_khb_srv.cnt_n15
+, udgd_flr_cnt sc_khb_srv.cnt_n15
+, stairs_stle_cd sc_khb_srv.cd_v20
+, drc_cd sc_khb_srv.cd_v20
+, blcn_cd sc_khb_srv.cd_v20
+, pstn_expln_cn sc_khb_srv.cn_nvmax
+, parkng_psblty_yn sc_khb_srv.yn_c1
+, parkng_cnt sc_khb_srv.cnt_n15
+, cmcn_day sc_khb_srv.day_nv100
+, financ_amt sc_khb_srv.amt_n18
+, use_yn sc_khb_srv.yn_c1
+, clustr_info_stts_cd sc_khb_srv.cd_v20
+, push_stts_cd sc_khb_srv.cd_v20
+, rcmdtn_yn sc_khb_srv.yn_c1
+, auc_yn sc_khb_srv.yn_c1
+, atlfsl_stts_cd sc_khb_srv.cd_v20
+, totar sc_khb_srv.totar_d19_9
+, atlfsl_vrfc_yn sc_khb_srv.yn_c1
+, atlfsl_vrfc_day sc_khb_srv.day_nv100
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+);
 
---BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
---       FROM 'D:\migra_data\product_info.txt'
---       WITH (
---             CODEPAGE = '65001',
---             FIELDTERMINATOR = '||',
---             ROWTERMINATOR = '0x0a'
---); -- article 테이블 삭제 전
+BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
+       FROM 'D:\migra_data\product_info.txt'
+       WITH (
+             CODEPAGE = '65001',
+             FIELDTERMINATOR = '||',
+             ROWTERMINATOR = '0x0a'
+); -- article 테이블 삭제 전
 
---bulk insert sc_khb_srv.tb_atlfsl_bsc_info
---from 'D:\migra_data\product_info_new.txt'
---with (
---    codepage = '65001'
---  , fieldterminator = '||'
---  , rowterminator = '0x0a'
---); -- 연면적 추가 전
+bulk insert sc_khb_srv.tb_atlfsl_bsc_info
+from 'D:\migra_data\product_info_new.txt'
+with (
+    codepage = '65001'
+  , fieldterminator = '||'
+  , rowterminator = '0x0a'
+); -- 연면적 추가 전
 
 /*totar추가 되었을 때 totar열에 새로운 값 추가하기*/
---WITH spc_tbl AS
---(
---    SELECT DISTINCT product_no, total_spc
---      FROM (
---			 SELECT product_no, total_spc
---		       FROM hanbang.hanbang.article_type_c_info
---		      UNION 
---		     SELECT product_no, total_spc
---		       FROM hanbang.hanbang.article_type_d_info
---		      UNION 
---		     SELECT product_no, total_spc
---		       FROM hanbang.hanbang.article_type_ef_info
---		   ) a
---)
---UPDATE sc_khb_srv.tb_atlfsl_bsc_info 
---   SET totar = total_spc
---          FROM spc_tbl
--- WHERE sc_khb_srv.tb_atlfsl_bsc_info.atlfsl_bsc_info_pk = spc_tbl.product_no;
+WITH spc_tbl AS
+(
+    SELECT DISTINCT product_no, total_spc
+      FROM (
+			 SELECT product_no, total_spc
+		       FROM hanbang.hanbang.article_type_c_info
+		      UNION 
+		     SELECT product_no, total_spc
+		       FROM hanbang.hanbang.article_type_d_info
+		      UNION 
+		     SELECT product_no, total_spc
+		       FROM hanbang.hanbang.article_type_ef_info
+		   ) a
+)
+UPDATE sc_khb_srv.tb_atlfsl_bsc_info 
+   SET totar = total_spc
+          FROM spc_tbl
+ WHERE sc_khb_srv.tb_atlfsl_bsc_info.atlfsl_bsc_info_pk = spc_tbl.product_no;
 /*
 txt파일을 만들지 않고 hanbang db를 이용하여 바로 값을 추가!!!
 */
@@ -534,8 +534,9 @@ BULK INSERT sc_khb_srv.tb_atlfsl_bsc_info
              CODEPAGE = '65001',
              FIELDTERMINATOR = '||',
              ROWTERMINATOR = '0x0a'
-); -- AS 방법
+); 
 
+-- AS 방법
 bulk insert sc_khb_srv.tb_atlfsl_bsc_info
 from 'D:\migra_data\product_info_spc.txt'
 with (
@@ -3294,33 +3295,33 @@ BULK INSERT sc_khb_srv.tb_link_subway_statn_info
 
 UPDATE sc_khb_srv.tb_link_subway_statn_info SET statn_crdnt = geometry::STPointFromText(concat('point(',statn_lot, ' ',statn_lat, ')'), 4326);
 
-/*다른 방법*/
-CREATE TABLE sc_khb_srv.tb_link_subway_statn_info (
-  statn_no sc_khb_srv.no_v200
-, statn_nm sc_khb_srv.nm_nv500
-, rte_no sc_khb_srv.no_v200
-, rte_nm sc_khb_srv.nm_nv500
-, eng_statn_nm sc_khb_srv.nm_nv500
-, chcrt_statn_nm sc_khb_srv.nm_nv500
-, trnsit_statn_se_nm sc_khb_srv.nm_nv500
-, trnsit_rte_no sc_khb_srv.no_v200
-, trnsit_rte_nm sc_khb_srv.nm_nv500
-, statn_lat sc_khb_srv.lat_d12_10
-, statn_lot sc_khb_srv.lot_d13_10
-, oper_inst_nm sc_khb_srv.nm_nv500
-, statn_rn_addr sc_khb_srv.addr_nv1000
-, statn_telno sc_khb_srv.telno_v30
-, data_crtr_day sc_khb_srv.day_nv100
-, statn_crdnt AS iif(statn_lot IS NOT NULL, 
-                     geometry::STPointFromText(concat('point(', statn_lot, ' ', statn_lat, ')'), 4326),
-                     NULL
-                    )
-, stdg_cd sc_khb_srv.cd_v20
-, reg_id sc_khb_srv.id_nv100
-, reg_dt sc_khb_srv.dt
-, mdfcn_id sc_khb_srv.id_nv100
-, mdfcn_dt sc_khb_srv.dt
-);
+/*AS 방법*/
+--CREATE TABLE sc_khb_srv.tb_link_subway_statn_info (
+--  statn_no sc_khb_srv.no_v200
+--, statn_nm sc_khb_srv.nm_nv500
+--, rte_no sc_khb_srv.no_v200
+--, rte_nm sc_khb_srv.nm_nv500
+--, eng_statn_nm sc_khb_srv.nm_nv500
+--, chcrt_statn_nm sc_khb_srv.nm_nv500
+--, trnsit_statn_se_nm sc_khb_srv.nm_nv500
+--, trnsit_rte_no sc_khb_srv.no_v200
+--, trnsit_rte_nm sc_khb_srv.nm_nv500
+--, statn_lat sc_khb_srv.lat_d12_10
+--, statn_lot sc_khb_srv.lot_d13_10
+--, oper_inst_nm sc_khb_srv.nm_nv500
+--, statn_rn_addr sc_khb_srv.addr_nv1000
+--, statn_telno sc_khb_srv.telno_v30
+--, data_crtr_day sc_khb_srv.day_nv100
+--, statn_crdnt AS iif(statn_lot IS NOT NULL, 
+--                     geometry::STPointFromText(concat('point(', statn_lot, ' ', statn_lat, ')'), 4326),
+--                     NULL
+--                    )
+--, stdg_cd sc_khb_srv.cd_v20
+--, reg_id sc_khb_srv.id_nv100
+--, reg_dt sc_khb_srv.dt
+--, mdfcn_id sc_khb_srv.id_nv100
+--, mdfcn_dt sc_khb_srv.dt
+--);
 
 BULK INSERT sc_khb_srv.tb_link_subway_statn_info
        FROM 'D:\migra_data\tb_kric_statn_info.txt'
@@ -3329,6 +3330,42 @@ BULK INSERT sc_khb_srv.tb_link_subway_statn_info
              fieldterminator = '||',
              rowterminator = '0x0a'
             );
+
+/*노선명 축약 update*/
+UPDATE sc_khb_srv.tb_link_subway_statn_info 
+   SET rte_nm = ( 
+                 CASE when rte_nm in ('경부선', '경원선', '경인선') then '1호선'
+		              when rte_nm in ('3호선', '일산선') then '3호선'
+             		  when rte_nm in ('4호선', '안산과천선', '진접선') then '4호선'
+		              when rte_nm in ('7호선', '도시철도 7호선') then '7호선'
+		              when rte_nm in ('8호선') then '8호선'
+		              when rte_nm in ('수도권  도시철도 9호선') then '9호선'
+		              when rte_nm in ('인천국제공항선') then '공항'
+		              when rte_nm in ('경의중앙선') then '경의중앙'
+		              when rte_nm in ('경춘선') then '경춘'
+		              when rte_nm in ('수인선', '분당선') then '수인분당'
+		              when rte_nm in ('신분당선') then '신분당'
+		              when rte_nm in ('경강선') then '경강'
+		              when rte_nm in ('서해선') then '서해'
+		              when rte_nm in ('인천지하철 1호선') then '인천1'
+		              when rte_nm in ('인천지하철 2호선') then '인천2'
+		              when rte_nm in ('우이신설선') then '우이신설'
+		              when rte_nm in ('김포골드라인') then '김포골드'
+		              when rte_nm in ('수도권 경량도시철도 신림선') then '신림'
+		              when rte_nm in ('부산 도시철도 1호선') then '1호선'
+		              when rte_nm in ('부산 도시철도 2호선') then '2호선'
+		              when rte_nm in ('부산 도시철도 3호선') then '3호선'
+		              when rte_nm in ('부산 경량도시철도 4호선') then '4호선'
+		              when rte_nm in ('부산김해경전철') then '부산김해'
+		              when rte_nm in ('동해선') then '동해'
+		              when rte_nm in ('대구 도시철도 1호선') then '1호선'
+		              when rte_nm in ('대구 도시철도 2호선') then '2호선'
+		              when rte_nm in ('대구 도시철도 3호선') then '3호선'
+		              when rte_nm in ('광주도시철도 1호선') then '1호선'
+		              when rte_nm in ('대전 도시철도 1호선') then '1호선'
+		              ELSE rte_nm
+	             END
+	            );
 
 SELECT * FROM sc_khb_srv.tb_link_subway_statn_info;
 SELECT count(*) FROM sc_khb_srv.tb_link_subway_statn_info; -- 1053

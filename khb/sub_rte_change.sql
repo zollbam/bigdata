@@ -76,28 +76,28 @@ SELECT DISTINCT rte_nm
 
 -- 지하철 있는 지역 매칭
 SELECT DISTINCT
-  substring(rte_no, 2,2) "gugun_cd"
-, CASE WHEN substring(rte_no, 2,2) = '11' THEN '수도권'
-       WHEN substring(rte_no, 2,2) = '26' THEN '부산'
-       WHEN substring(rte_no, 2,2) = '27' THEN '대구'
-       WHEN substring(rte_no, 2,2) = '28' THEN '수도권'
-       WHEN substring(rte_no, 2,2) = '29' THEN '광주'
-       WHEN substring(rte_no, 2,2) = '30' THEN '대전'
-       WHEN substring(rte_no, 2,2) = '41' THEN '수도권'
-       WHEN substring(rte_no, 2,2) = '48' THEN '부산'
+	  substring(rte_no, 2,2) "gugun_cd"
+	, CASE WHEN substring(rte_no, 2,2) = '11' THEN '수도권'
+	       WHEN substring(rte_no, 2,2) = '26' THEN '부산'
+	       WHEN substring(rte_no, 2,2) = '27' THEN '대구'
+	       WHEN substring(rte_no, 2,2) = '28' THEN '수도권'
+	       WHEN substring(rte_no, 2,2) = '29' THEN '광주'
+	       WHEN substring(rte_no, 2,2) = '30' THEN '대전'
+	       WHEN substring(rte_no, 2,2) = '41' THEN '수도권'
+	       WHEN substring(rte_no, 2,2) = '48' THEN '부산'
   END "region"
   FROM sc_khb_srv.tb_link_subway_statn_info
  ORDER BY 1;
 
 SELECT DISTINCT
-  substring(rte_no, 2,2) "gugun_cd"
-, CASE WHEN substring(rte_no, 2,2) IN ('11', '28', '41') THEN '수도권'
-       WHEN substring(rte_no, 2,2) IN ('26', '48') THEN '부산'
-       WHEN substring(rte_no, 2,2) = '27' THEN '대구'
-       WHEN substring(rte_no, 2,2) = '29' THEN '광주'
-       WHEN substring(rte_no, 2,2) = '30' THEN '대전'
-  END "region"
-, rte_nm
+	  substring(rte_no, 2,2) "gugun_cd"
+	, CASE WHEN substring(rte_no, 2,2) IN ('11', '28', '41') THEN '수도권'
+	       WHEN substring(rte_no, 2,2) IN ('26', '48') THEN '부산'
+	       WHEN substring(rte_no, 2,2) = '27' THEN '대구'
+	       WHEN substring(rte_no, 2,2) = '29' THEN '광주'
+	       WHEN substring(rte_no, 2,2) = '30' THEN '대전'
+	  END "region"
+	, rte_nm
   FROM sc_khb_srv.tb_link_subway_statn_info
  ORDER BY 2, 3;
  
@@ -106,49 +106,50 @@ SELECT DISTINCT
 -- 노선명 업데이트 쿼리
 WITH rte_nm_up AS(
 SELECT DISTINCT
---  substring(rte_no, 2,2) "gugun_cd"
-  CASE WHEN substring(rte_no, 2,2) IN ('11', '28', '41') THEN '수도권'
-       WHEN substring(rte_no, 2,2) IN ('26', '48') THEN '부산'
-       WHEN substring(rte_no, 2,2) = '27' THEN '대구'
-       WHEN substring(rte_no, 2,2) = '29' THEN '광주'
-       WHEN substring(rte_no, 2,2) = '30' THEN '대전'
-  END "region"
-, rte_nm "before_rte_nm"
-, CASE when rte_nm in ('1호선', '경부선', '경원선', '경인선') then '1호선'
-       when rte_nm in ('2호선') then '2호선'
-	   when rte_nm in ('3호선', '일산선') then '3호선'
-	   when rte_nm in ('4호선', '안산과천선', '진접선') then '4호선'
-	   when rte_nm in ('5호선') then '5호선'
-	   when rte_nm in ('6호선') then '6호선'
-	   when rte_nm in ('7호선', '도시철도 7호선') then '7호선'
-	   when rte_nm in ('8호선') then '8호선'
-	   when rte_nm in ('수도권  도시철도 9호선') then '9호선'
-	   when rte_nm in ('인천국제공항선') then '공항'
-	   when rte_nm in ('경의중앙선') then '경의중앙'
-	   when rte_nm in ('경춘선') then '경춘'
-	   when rte_nm in ('수인선', '분당선') then '수인분당'
-	   when rte_nm in ('신분당선') then '신분당'
-	   when rte_nm in ('경강선') then '경강'
-	   when rte_nm in ('서해선') then '서해'
-	   when rte_nm in ('인천지하철 1호선') then '인천1'
-	   when rte_nm in ('인천지하철 2호선') then '인천2'
-	   when rte_nm in ('에버라인') then '에버라인'
-	   when rte_nm in ('의정부') then '의정부'
-	   when rte_nm in ('우이신설선') then '우이신설'
-	   when rte_nm in ('김포골드라인') then '김포골드'
-	   when rte_nm in ('수도권 경량도시철도 신림선') then '신림'
-	   when rte_nm in ('부산 도시철도 1호선') then '1호선'
-	   when rte_nm in ('부산 도시철도 2호선') then '2호선'
-	   when rte_nm in ('부산 도시철도 3호선') then '3호선'
-	   when rte_nm in ('부산 경량도시철도 4호선') then '4호선'
-	   when rte_nm in ('부산김해경전철') then '부산김해'
-	   when rte_nm in ('동해선') then '동해'
-	   when rte_nm in ('대구 도시철도 1호선') then '1호선'
-	   when rte_nm in ('대구 도시철도 2호선') then '2호선'
-	   when rte_nm in ('대구 도시철도 3호선') then '3호선'
-	   when rte_nm in ('광주도시철도 1호선') then '1호선'
-	   when rte_nm in ('대전 도시철도 1호선') then '1호선'
-   END "after_rte_nm"
+	--  substring(rte_no, 2,2) "gugun_cd"
+	  CASE WHEN substring(rte_no, 2,2) IN ('11', '28', '41') THEN '수도권'
+	       WHEN substring(rte_no, 2,2) IN ('26', '48') THEN '부산'
+	       WHEN substring(rte_no, 2,2) = '27' THEN '대구'
+	       WHEN substring(rte_no, 2,2) = '29' THEN '광주'
+	       WHEN substring(rte_no, 2,2) = '30' THEN '대전'
+	  END "region"
+	, rte_nm "before_rte_nm"
+	, CASE when rte_nm in ('1호선', '경부선', '경원선', '경인선') then '1호선'
+	       when rte_nm in ('2호선') then '2호선'
+		   when rte_nm in ('3호선', '일산선') then '3호선'
+		   when rte_nm in ('4호선', '안산과천선', '진접선') then '4호선'
+		   when rte_nm in ('5호선') then '5호선'
+		   when rte_nm in ('6호선') then '6호선'
+		   when rte_nm in ('7호선', '도시철도 7호선') then '7호선'
+		   when rte_nm in ('8호선') then '8호선'
+		   when rte_nm in ('수도권  도시철도 9호선') then '9호선'
+		   when rte_nm in ('인천국제공항선') then '공항'
+		   when rte_nm in ('경의중앙선') then '경의중앙'
+		   when rte_nm in ('경춘선') then '경춘'
+		   when rte_nm in ('수인선', '분당선') then '수인분당'
+		   when rte_nm in ('신분당선') then '신분당'
+		   when rte_nm in ('경강선') then '경강'
+		   when rte_nm in ('서해선') then '서해'
+		   when rte_nm in ('인천지하철 1호선') then '인천1'
+		   when rte_nm in ('인천지하철 2호선') then '인천2'
+		   when rte_nm in ('에버라인') then '에버라인'
+		   when rte_nm in ('의정부') then '의정부'
+		   when rte_nm in ('우이신설선') then '우이신설'
+		   when rte_nm in ('김포골드라인') then '김포골드'
+		   when rte_nm in ('수도권 경량도시철도 신림선') then '신림'
+		   when rte_nm in ('부산 도시철도 1호선') then '1호선'
+		   when rte_nm in ('부산 도시철도 2호선') then '2호선'
+		   when rte_nm in ('부산 도시철도 3호선') then '3호선'
+		   when rte_nm in ('부산 경량도시철도 4호선') then '4호선'
+		   when rte_nm in ('부산김해경전철') then '부산김해'
+		   when rte_nm in ('동해선') then '동해'
+		   when rte_nm in ('대구 도시철도 1호선') then '1호선'
+		   when rte_nm in ('대구 도시철도 2호선') then '2호선'
+		   when rte_nm in ('대구 도시철도 3호선') then '3호선'
+		   when rte_nm in ('광주도시철도 1호선') then '1호선'
+		   when rte_nm in ('대전 도시철도 1호선') then '1호선'
+--		   ELSE rte_nm
+	   END "after_rte_nm"
   FROM sc_khb_srv.tb_link_subway_statn_info
 )
 SELECT
@@ -162,7 +163,7 @@ SELECT
  ORDER BY 1 DESC, 2;
 
 
-
+/*개별 업데이트 => 트랙잭션이 많아진다*/
 update sc_khb_srv.tb_link_subway_statn_info set rte_nm = '1호선' where rte_nm = '1호선';
 update sc_khb_srv.tb_link_subway_statn_info set rte_nm = '2호선' where rte_nm = '2호선';
 update sc_khb_srv.tb_link_subway_statn_info set rte_nm = '3호선' where rte_nm = '3호선';
@@ -205,6 +206,45 @@ update sc_khb_srv.tb_link_subway_statn_info set rte_nm = '1호선' where rte_nm 
 update sc_khb_srv.tb_link_subway_statn_info set rte_nm = '2호선' where rte_nm = '대구 도시철도 2호선';
 update sc_khb_srv.tb_link_subway_statn_info set rte_nm = '3호선' where rte_nm = '대구 도시철도 3호선';
 update sc_khb_srv.tb_link_subway_statn_info set rte_nm = '1호선' where rte_nm = '광주도시철도 1호선';
+/*70ms 소요*/
+
+
+/*한번에 업데이트 => 오래 걸림*/
+UPDATE sc_khb_srv.tb_link_subway_statn_info 
+   SET rte_nm = ( 
+                 CASE when rte_nm in ('경부선', '경원선', '경인선') then '1호선'
+		              when rte_nm in ('3호선', '일산선') then '3호선'
+             		  when rte_nm in ('4호선', '안산과천선', '진접선') then '4호선'
+		              when rte_nm in ('7호선', '도시철도 7호선') then '7호선'
+		              when rte_nm in ('8호선') then '8호선'
+		              when rte_nm in ('수도권  도시철도 9호선') then '9호선'
+		              when rte_nm in ('인천국제공항선') then '공항'
+		              when rte_nm in ('경의중앙선') then '경의중앙'
+		              when rte_nm in ('경춘선') then '경춘'
+		              when rte_nm in ('수인선', '분당선') then '수인분당'
+		              when rte_nm in ('신분당선') then '신분당'
+		              when rte_nm in ('경강선') then '경강'
+		              when rte_nm in ('서해선') then '서해'
+		              when rte_nm in ('인천지하철 1호선') then '인천1'
+		              when rte_nm in ('인천지하철 2호선') then '인천2'
+		              when rte_nm in ('우이신설선') then '우이신설'
+		              when rte_nm in ('김포골드라인') then '김포골드'
+		              when rte_nm in ('수도권 경량도시철도 신림선') then '신림'
+		              when rte_nm in ('부산 도시철도 1호선') then '1호선'
+		              when rte_nm in ('부산 도시철도 2호선') then '2호선'
+		              when rte_nm in ('부산 도시철도 3호선') then '3호선'
+		              when rte_nm in ('부산 경량도시철도 4호선') then '4호선'
+		              when rte_nm in ('부산김해경전철') then '부산김해'
+		              when rte_nm in ('동해선') then '동해'
+		              when rte_nm in ('대구 도시철도 1호선') then '1호선'
+		              when rte_nm in ('대구 도시철도 2호선') then '2호선'
+		              when rte_nm in ('대구 도시철도 3호선') then '3호선'
+		              when rte_nm in ('광주도시철도 1호선') then '1호선'
+		              when rte_nm in ('대전 도시철도 1호선') then '1호선'
+--		              ELSE rte_nm
+	             END
+	            );
+/*700ms 소요*/
 
 SELECT * FROM sc_khb_srv.tb_link_subway_statn_info;
 
