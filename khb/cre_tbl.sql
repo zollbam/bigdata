@@ -1,7 +1,7 @@
 /*
 테이블을 작성해주는 쿼리문을 짜주는 파일
 작성 일시: 23-06-10
-수정 일시: 230901
+수정 일시: 230904
 작 성 자 : 조건영
 
 */
@@ -88,7 +88,7 @@ FROM sys.columns c
      LEFT JOIN
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
-WHERE object_name(c.object_id) like 'tb_link%'
+WHERE object_name(c.object_id) like 'tb_atlfsl_thema_info%'
 ORDER BY 1, c.column_id;
 
 -- 컬럼 이름에 맞는 사용자 타입 찾기
@@ -154,7 +154,7 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_link_apt_nthg_rank_remndr_hh_lttot_info'
+        WHERE table_NAME = 'tb_com_job_schdl_info'
        ) tr;
 /*geometry은 설정을 안 해 두어서 null 발생*/
 
@@ -1076,6 +1076,31 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
+-- tb_com_cnrs_info =>  ms
+CREATE TABLE sc_khb_srv.tb_com_cnrs_info (
+  cnrs_info_pk sc_khb_srv.pk_n18 NOT NULL
+, cnrs_ttl_nm sc_khb_srv.nm_nv500
+, cnrs_cn sc_khb_srv.cn_nvmax
+, img_url sc_khb_srv.url_nv4000
+, url_paramtr_cn sc_khb_srv.cn_nvmax
+, aplctn_cd sc_khb_srv.cd_v20
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+);
+
+
+ALTER TABLE sc_khb_srv.tb_com_cnrs_info ADD CONSTRAINT pk_tb_com_cnrs_info PRIMARY KEY  CLUSTERED (cnrs_info_pk);
+
+SELECT * FROM sc_khb_srv.tb_com_cnrs_info;
+SELECT count(*) FROM sc_khb_srv.tb_com_cnrs_info; -- 0
+SELECT max(cnrs_info_pk) FROM sc_khb_srv.tb_com_cnrs_info; -- null
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_com_code
 CREATE TABLE sc_khb_srv.tb_com_code (
   code_pk sc_khb_srv.pk_n18 NOT NULL
@@ -1518,6 +1543,7 @@ CREATE TABLE sc_khb_srv.tb_com_job_schdl_hstry (
 , prgrs_rslt_cd sc_khb_srv.cd_v20
 , err_cn sc_khb_srv.cn_nvmax
 , excn_dt sc_khb_srv.dt
+, excn_hms sc_khb_srv.hms_c6
 );
 
 alter table sc_khb_srv.tb_com_job_schdl_hstry add constraint pk_tb_com_job_schdl_hstry primary key(job_schdl_hstry_pk);
@@ -1534,6 +1560,8 @@ CREATE TABLE sc_khb_srv.tb_com_job_schdl_info (
 , job_cycle sc_khb_srv.cycle_v20
 , last_excn_dt sc_khb_srv.dt
 , synchrn_pnttm_vl sc_khb_srv.vl_v100
+, excn_srvc_nm sc_khb_srv.nm_nv500
+, job_expln_cn sc_khb_srv.cn_nvmax
 );
 
 /*타임 스탬프 추가전 쿼리*/

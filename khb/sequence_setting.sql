@@ -117,6 +117,13 @@ CREATE SEQUENCE sc_khb_srv.sq_com_bbs_cmnt
     MAXVALUE 999999999999999999
     CACHE;
 
+CREATE SEQUENCE sc_khb_srv.sq_com_crtfc_tmpr
+    START WITH 1
+    INCREMENT BY 1
+    MINVALUE 1
+    MAXVALUE 999999999999999999
+    CACHE;
+
 CREATE SEQUENCE sc_khb_srv.sq_com_code
     START WITH 1
     INCREMENT BY 1

@@ -1,7 +1,7 @@
 /*
 사용자 타입을 생성하는 파일
 작성 일시: 23-06-25
-수정 일시: 23-07-26
+수정 일시: 230830
 작 성 자 : 조건영
 
 참조 사이트
@@ -148,7 +148,7 @@ SELECT user_type_name,
  ORDER BY 1;
 
 -- 사용자 타입 생성
-create type sc_khb_srv.addr_nv200 from nvarchar(200);
+create type sc_khb_srv.addr_nv1000 from nvarchar(1000);
 create type sc_khb_srv.amt_n18 from numeric(18);
 create type sc_khb_srv.area_d19_9 from decimal(19, 9);
 create type sc_khb_srv.cd_v20 from varchar(20);
@@ -157,14 +157,19 @@ create type sc_khb_srv.cn_nvmax from nvarchar(max);
 create type sc_khb_srv.cnt_n15 from numeric(15);
 create type sc_khb_srv.cntom_n15 from numeric(15);
 create type sc_khb_srv.cours_v100 from varchar(100);
+create type sc_khb_srv.cpcty_d25_15 from decimal(25, 15);
 create type sc_khb_srv.crdnt_v500 from varchar(500);
+create type sc_khb_srv.ct_n18 from numeric(18);
 create type sc_khb_srv.cycle_v20 from varchar(20);
 create type sc_khb_srv.day_nv100 from nvarchar(100);
 create type sc_khb_srv.de_v10 from varchar(10);
 create type sc_khb_srv.dt from datetime;
 create type sc_khb_srv.dt_v10 from varchar(10);
 create type sc_khb_srv.email_v320 from varchar(320);
+create type sc_khb_srv.fee_n18 from numeric(18);
+create type sc_khb_srv.fxno_v30 from varchar(30);
 create type sc_khb_srv.hm_c4 from char(4);
+create type sc_khb_srv.hms_c6 from char(6);
 create type sc_khb_srv.id_nv100 from nvarchar(100);
 create type sc_khb_srv.innb_v20 from varchar(20);
 create type sc_khb_srv.ip_v100 from varchar(100);
@@ -184,14 +189,19 @@ create type sc_khb_srv.pd_nv50 from nvarchar(50);
 create type sc_khb_srv.pk_n18 from numeric(18);
 create type sc_khb_srv.premium_n18 from numeric(18);
 create type sc_khb_srv.pyeong_d19_9 from decimal(19, 9);
+create type sc_khb_srv.rank_n5 from numeric(5);
+create type sc_khb_srv.rt_d19_9 from decimal(19, 9);
 create type sc_khb_srv.size_v20 from varchar(20);
 create type sc_khb_srv.sn_v200 from varchar(200);
 create type sc_khb_srv.sno_n4 from numeric(4);
 create type sc_khb_srv.telno_v30 from varchar(30);
+create type sc_khb_srv.totar_d19_9 from decimal(19, 9);
 create type sc_khb_srv.url_nv4000 from nvarchar(4000);
 create type sc_khb_srv.vl_v100 from varchar(100);
 create type sc_khb_srv.year_c4 from char(4);
+create type sc_khb_srv.ym_c6 from char(6);
 create type sc_khb_srv.yn_c1 from char(1);
+create type sc_khb_srv.zip_c5 from char(5);
 
 
 -- 사용자 타입 삭제 스크립트 쿼리문
@@ -222,8 +232,10 @@ SELECT user_type_name,
 -- 사용자 타입 삭제
 drop TYPE [sc_khb_srv].[code_v20];
 
+
+
 -- 사용자 타입 권한 부여 스크립트 쿼리문
-DECLARE @user_name varchar(100) = 'us_khb_std' -- 유저명은 원하는 대로 변경
+DECLARE @user_name varchar(100) = 'us_khb_com' -- 유저명은 원하는 대로 변경
 SELECT user_type_name,
   'grant execute on type::' +
   schema_name + '.' +
@@ -270,6 +282,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_adm;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_adm;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_adm;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_adm;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_adm;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_adm;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_adm;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_adm;
@@ -325,6 +338,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_agnt;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_agnt;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_agnt;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_agnt;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_agnt;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_agnt;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_agnt;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_agnt;
@@ -380,6 +394,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_com;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_com;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_com;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_com;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_com;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_com;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_com;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_com;
@@ -435,6 +450,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_dev;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_dev;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_dev;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_dev;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_dev;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_dev;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_dev;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_dev;
@@ -490,6 +506,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_exif;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_exif;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_exif;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_exif;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_exif;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_exif;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_exif;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_exif;
@@ -545,6 +562,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_magnt;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_magnt;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_magnt;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_magnt;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_magnt;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_magnt;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_magnt;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_magnt;
@@ -600,6 +618,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_mptl;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_mptl;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_mptl;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_mptl;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_mptl;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_mptl;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_mptl;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_mptl;
@@ -655,6 +674,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_report;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_report;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_report;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_report;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_report;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_report;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_report;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_report;
@@ -710,6 +730,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_srch;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_srch;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_srch;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_srch;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_srch;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_srch;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_srch;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_srch;
@@ -765,6 +786,7 @@ grant execute on type::sc_khb_srv.email_v320 to us_khb_std;
 grant execute on type::sc_khb_srv.fee_n18 to us_khb_std;
 grant execute on type::sc_khb_srv.fxno_v30 to us_khb_std;
 grant execute on type::sc_khb_srv.hm_c4 to us_khb_std;
+grant execute on type::sc_khb_srv.hms_c6 to us_khb_std;
 grant execute on type::sc_khb_srv.id_nv100 to us_khb_std;
 grant execute on type::sc_khb_srv.innb_v20 to us_khb_std;
 grant execute on type::sc_khb_srv.ip_v100 to us_khb_std;
@@ -781,7 +803,7 @@ grant execute on type::sc_khb_srv.ordr_n5 to us_khb_std;
 grant execute on type::sc_khb_srv.password_v500 to us_khb_std;
 grant execute on type::sc_khb_srv.pc_n10 to us_khb_std;
 grant execute on type::sc_khb_srv.pd_nv50 to us_khb_std;
-grant execute on type::sc_khb_srv.pk_n18 to us_khb_std;
+grant execute on type::sc_khb_srv.pk_n18 to us_khb_std; 
 grant execute on type::sc_khb_srv.premium_n18 to us_khb_std;
 grant execute on type::sc_khb_srv.pyeong_d19_9 to us_khb_std;
 grant execute on type::sc_khb_srv.rank_n5 to us_khb_std;
