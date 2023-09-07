@@ -88,7 +88,7 @@ FROM sys.columns c
      LEFT JOIN
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
-WHERE object_name(c.object_id) like 'tb_atlfsl_thema_info%'
+WHERE CAST(ep.value AS nvarchar(max)) like '%주차%'
 ORDER BY 1, c.column_id;
 
 -- 컬럼 이름에 맞는 사용자 타입 찾기
@@ -154,7 +154,7 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_com_job_schdl_info'
+        WHERE table_NAME = 'tb_lrea_office_info'
        ) tr;
 /*geometry은 설정을 안 해 두어서 null 발생*/
 
@@ -734,7 +734,7 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_etc_info (
 , atlfsl_bsc_info_pk sc_khb_srv.pk_n18
 , mvn_se_cd sc_khb_srv.cd_v20
 , mvn_psblty_wthn_month_cnt sc_khb_srv.cnt_n15
-, mvn_psblty_aftr_month_cnt sc_khb_srv.cnt_n15
+, mvn_psblty_aftr_ym sc_khb_srv.ym_c6
 , mvn_cnsltn_psblty_yn sc_khb_srv.yn_c1
 , atlfsl_sfe_expln_cn sc_khb_srv.cn_nvmax
 , entry_road_yn sc_khb_srv.yn_c1
@@ -2290,6 +2290,7 @@ BULK INSERT sc_khb_srv.tb_com_user
              ROWTERMINATOR = '0x0a'
 );
 
+/**/
 BULK INSERT sc_khb_srv.tb_com_user
        FROM 'D:\migra_data\realtor_info_user.txt'
        WITH (
@@ -3433,7 +3434,7 @@ CREATE TABLE sc_khb_srv.tb_lrea_office_info (
 , mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
 , lrea_office_intrcn_cn sc_khb_srv.cn_nvmax
-, lrea_office_crdnt_tmp sc_khb_srv.crdnt_v500
+, eml sc_khb_srv.varchar
 );
 
 /*AS 방법*/

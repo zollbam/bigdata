@@ -88,7 +88,7 @@ SELECT *
 /*
 1. 인중구분코드열은 com_code의 부모pk 1237로 휴대폰/인증서/sns로 구분되어 있지만
    열명을 보면 휴대폰/이메일/sns로 나뉘어져 있다.
-2. 
+2. crtfc_se_code?? crtfc_se_cd?? 둘중 어느 것을??
 */
 
 
@@ -466,9 +466,15 @@ SELECT *
 SELECT *
   FROM sc_khb_srv.tb_com_user;
 
+/*pk와 부모사용자pk 비교*/
+SELECT *
+  FROM sc_khb_srv.tb_com_user
+ WHERE user_no_pk != parnts_user_no_pk;
+ 
 /*
 1. 사용자에는 관리자(01), 공인중개사(02), 일반인(03) 3개의 그룹이 존재 => 다른 테이블들과 번호가 다르다
-2. 
+2. user_no_pk와 parnts_user_no_pk가 완전히 동일하다. 
+ => 다른 행은 0개로 존재하지 않는다.
 */
 
 
