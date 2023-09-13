@@ -1,6 +1,6 @@
 /*
 작성 일자 : 230717
-수정 일자 : -- 
+수정 일자 : 230908
 작 성 자 : 조건영
 작성 목적 : mssql에서 mssql로 db이관 연습
 사용 DB 프로그램 : SQL SERVER 2016
@@ -32,8 +32,8 @@ RESTORE FILELISTONLY FROM DISK='C:\hanbang\db_khb_srv.bak';
 
 RESTORE DATABASE backupdb 
    FROM DISK = 'D:\test\b.bak'
-   WITH MOVE 'db_khb_srv_log' TO 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\db_khb_srv.mdf',
-        MOVE 'db_khb_srv' TO 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\db_khb_srv_log.ldf';
+   WITH MOVE 'db_khb_srv' TO 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\db_khb_srv.mdf',
+        MOVE 'db_khb_srv_log' TO 'C:\Program Files\Microsoft SQL Server\MSSQL13.MSSQLSERVER\MSSQL\DATA\db_khb_srv_log.ldf';
 /*
 1. CREATE DATABASE 문이 없어도 알아서 DB가 생성
 2. 
@@ -73,9 +73,12 @@ db_khb_srv의 관련된 mdf와 로그 파일은 20기가
 
 
 
-
-
-
+-- 162번 7000번 포트에 한방 DB이관
+RESTORE DATABASE db_khb_srv 
+   FROM DISK = 'D:\khb_2019\MSSQL15.HBSERVER2019\MSSQL\Backup\db_khb_srv.bak'
+   WITH MOVE 'db_khb_srv' TO 'D:\khb_2019\MSSQL15.HBSERVER2019\MSSQL\DATA\db_khb_srv.mdf',
+        MOVE 'db_khb_srv_log' TO 'D:\khb_2019\MSSQL15.HBSERVER2019\MSSQL\DATA\db_khb_srv_log.ldf';
+/*161번 8000번 포트에 있던 db_khb_srv 데이터베이스를 */
 
 
 

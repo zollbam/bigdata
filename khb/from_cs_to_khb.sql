@@ -145,7 +145,7 @@ UPDATE sc_khb_srv.tb_com_user
    SET email = cut.email
   FROM sc_khb_srv.tb_com_user cu
        INNER JOIN
-       sc_khb_srv.tb_com_user_t cut
+       sc_khb_srv.tb_com_user_update cut
                ON cu.lrea_office_info_pk = cut.lrea_office_info_pk
  WHERE cu.user_se_code = '02'
    AND cu.lrea_office_info_pk = cu.lrea_office_info_pk;

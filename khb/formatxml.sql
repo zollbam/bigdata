@@ -26,7 +26,7 @@ SELECT TABLE_NAME
                                             CASE WHEN ORDINAL_POSITION = (SELECT max(ORDINAL_POSITION) 
                                                                             FROM information_schema.columns
                                                                            WHERE TABLE_SCHEMA = 'sc_khb_srv'
-                                                                             AND table_name = 'tb_com_code') 
+                                                                             AND table_name = 'tb_lrea_office_info') 
                                                                                                                    THEN '\n'
                                                  ELSE '||'
                                             END + 
@@ -68,7 +68,7 @@ SELECT TABLE_NAME
               '</BCPFORMAT>')
   FROM information_schema.columns c2
  WHERE TABLE_SCHEMA = 'sc_khb_srv'
-   AND table_name = 'tb_com_code'
+   AND table_name = 'tb_lrea_office_info'
  GROUP BY TABLE_NAME;
 /*
 테이블 이름 변경시 서브쿼리에 있는 where절에도 테이블 이름을 변경 해주어야 한다. => 총 2개의 조건을 변경 시켜야 함
@@ -1378,6 +1378,7 @@ CREATE TABLE sc_khb_srv.tb_lrea_office_info (
 , mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
 , lrea_office_intrcn_cn sc_khb_srv.cn_nvmax
+, eml sc_khb_srv.email_v320
 );
 
 insert into sc_khb_srv.tb_lrea_office_info
@@ -1411,8 +1412,9 @@ select
 , a.mdfcn_id
 , a.mdfcn_dt
 , a.lrea_office_intrcn_cn
+, a.eml
   from openrowset(
-                  bulk 'D:\migra_data\realtor_info_openrowset.txt'
+                  bulk 'D:\migra_data\.txt'
                 , FORMATFILE = 'D:\formatxml\tb_lrea_office_info.xml'
                 , codepage = 65001
                  ) as a;

@@ -30,7 +30,7 @@ SELECT ROW_NUMBER() OVER (ORDER BY m.mem_no) "user_no_pk"
      , ROW_NUMBER() OVER (ORDER BY m.mem_no) "parnts_user_no_pk"
      , um.user_id "user_id"
      , m.owner_nm "user_nm"
-     , um.user_pw "password"
+     , '' "password"
      , m.hp "moblphon_no"
      , m.email "email"
      , '02' "user_se_code"
@@ -110,9 +110,7 @@ SELECT CAST(ROW_NUMBER() OVER (ORDER BY m.mem_no) AS nvarchar(max)) + '|||' + --
        CASE WHEN m.owner_nm IS NULL OR m.owner_nm = '' THEN ''
             ELSE CAST(m.owner_nm AS nvarchar(max))
        END + '|||' + -- "user_nm"
-       CASE WHEN um.user_pw IS NULL OR um.user_pw = '' THEN ''
-            ELSE CAST(um.user_pw AS nvarchar(max))
-       END + '|||' + -- "password"
+       '' + '|||' + -- "password"
        CASE WHEN m.hp IS NULL OR m.hp = '' THEN ''
             ELSE CAST(m.hp AS nvarchar(max))
        END + '|||' + -- "moblphon_no"
@@ -120,7 +118,7 @@ SELECT CAST(ROW_NUMBER() OVER (ORDER BY m.mem_no) AS nvarchar(max)) + '|||' + --
             ELSE CAST(m.email AS nvarchar(max))
        END + '|||' + -- "email"
        '02' + '|||' + -- "user_se_code"
-        CASE WHEN m.comp_reg_date IS NULL OR m.comp_reg_date = '' THEN ''
+       CASE WHEN m.comp_reg_date IS NULL OR m.comp_reg_date = '' THEN ''
             ELSE CAST(m.comp_reg_date AS nvarchar(max))
        END + '|||' + -- "sbscrb_de"
        '' + '|||' + -- "password_change_de"
@@ -163,6 +161,7 @@ SELECT CAST(ROW_NUMBER() OVER (ORDER BY m.mem_no) AS nvarchar(max)) + '|||' + --
 
 /*
 1. com_user_new.txt 라는 파일로 생성
+2. user_lrea_update.txt 라는 파일로 생성
 2. 총 행은 165607
 3. 63021 행의 조정옥 공인중개사의 lrea_office_nm에 '||'값이 들어 가 있다.
  => 

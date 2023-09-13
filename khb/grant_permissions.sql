@@ -88,8 +88,8 @@ SELECT
                            count(a.res) FOR "권한명" IN ([INSERT], [SELECT], [UPDATE], [DELETE])
                           ) AS pivot_res
       ) b;
- WHERE b."객체명" IN ('tb_lrea_office_info', 'tb_lrea_sns_url_info', 'tb_lrea_spclty_fld_info'); 
- -- b."객체명" = 'tb_user_atlfsl_preocupy_info'
+ WHERE b."객체명" LIKE '%link%';
+--       b."객체명" IN ('tb_lrea_office_info', 'tb_lrea_sns_url_info', 'tb_lrea_spclty_fld_info')
 
 
 /* 권한 부여 스크립트 작성 쿼리문(테이블) */
@@ -119,8 +119,6 @@ SELECT
    AND object_name(major_id) = ANY(SELECT name FROM sys.tables WHERE schema_id = 5)
  GROUP BY class_desc, major_id, grantee_principal_id
  ORDER BY 2, 3;
-
-
 
 
 
@@ -236,10 +234,6 @@ SELECT
  ORDER BY 2,3;
 
 SELECT * FROM sc_khb_srv.tb_hsmp_info thi ;
-
-
-
-
 
 
 

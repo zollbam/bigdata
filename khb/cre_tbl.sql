@@ -88,7 +88,7 @@ FROM sys.columns c
      LEFT JOIN
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
-WHERE CAST(ep.value AS nvarchar(max)) like '%주차%'
+WHERE c.name like '%eml%'
 ORDER BY 1, c.column_id;
 
 -- 컬럼 이름에 맞는 사용자 타입 찾기
@@ -115,7 +115,7 @@ SELECT
 	   ELSE ''
   END "make_user_type"
   FROM information_schema.columns
- WHERE table_NAME = 'tb_user_atlfsl_info'
+ WHERE table_NAME = 'tb_com_user'
  ORDER BY ORDINAL_POSITION;
 -- WHERE TABLE_NAME = 'tb_svc_bass_info';
 /*
@@ -811,7 +811,7 @@ alter table sc_khb_srv.tb_atlfsl_inqry_info add constraint pk_tb_atlfsl_inqry_in
 
 SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
--- tb_atlfsl_img_info => 92842 ms
+-- tb_atlfsl_land_usg_info => 92842 ms
 SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_atlfsl_land_usg_info => 16853 ms
@@ -2837,7 +2837,7 @@ SET STATISTICS time ON;
 SET STATISTICS io ON;
 -- tb_link_hsmp_bsc_info =>  ms
 CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
-  hsmp_cd sc_khb_srv.cd_v20
+  hsmp_cd sc_khb_srv.cd_v20 NOT NULL 
 , hsmp_nm sc_khb_srv.nm_nv500
 , ctpv_nm sc_khb_srv.nm_nv500
 , sgg_nm sc_khb_srv.nm_nv500
@@ -2913,7 +2913,7 @@ UPDATE sc_khb_srv.tb_link_hsmp_bsc_info SET hsmp_crdnt = geometry::STPointFromTe
 
 /*다른 방법*/
 --CREATE TABLE sc_khb_srv.tb_link_hsmp_bsc_info (
---  hsmp_cd sc_khb_srv.cd_v20
+--  hsmp_cd sc_khb_srv.cd_v20 not null
 --, hsmp_nm sc_khb_srv.nm_nv500
 --, ctpv_nm sc_khb_srv.nm_nv500
 --, sgg_nm sc_khb_srv.nm_nv500
@@ -2983,6 +2983,8 @@ UPDATE sc_khb_srv.tb_link_hsmp_bsc_info SET hsmp_crdnt = geometry::STPointFromTe
 --             fieldterminator = '||',
 --             rowterminator = '\n'
 --            );
+
+ALTER TABLE sc_khb_srv.tb_link_hsmp_bsc_info ADD CONSTRAINT pk_tb_link_hsmp_bsc_info PRIMARY KEY (hsmp_cd);
 
 SELECT * FROM sc_khb_srv.tb_link_hsmp_bsc_info;
 SELECT count(*) FROM sc_khb_srv.tb_link_hsmp_bsc_info; -- 18318
@@ -3351,14 +3353,14 @@ UPDATE sc_khb_srv.tb_link_subway_statn_info SET statn_crdnt = geometry::STPointF
 --, mdfcn_id sc_khb_srv.id_nv100
 --, mdfcn_dt sc_khb_srv.dt
 --);
-
-BULK INSERT sc_khb_srv.tb_link_subway_statn_info
-       FROM 'D:\migra_data\tb_kric_statn_info.txt'
-       WITH (
-             codepage = '65001',
-             fieldterminator = '||',
-             rowterminator = '0x0a'
-            );
+--
+--BULK INSERT sc_khb_srv.tb_link_subway_statn_info
+--       FROM 'D:\migra_data\tb_kric_statn_info.txt'
+--       WITH (
+--             codepage = '65001',
+--             fieldterminator = '||',
+--             rowterminator = '0x0a'
+--            );
 
 /*노선명 축약 update*/
 UPDATE sc_khb_srv.tb_link_subway_statn_info 
@@ -3587,7 +3589,7 @@ CREATE TABLE sc_khb_srv.tb_lttot_info (
 , reg_id sc_khb_srv.id_nv100
 , reg_dt sc_khb_srv.dt
 , mdfcn_id sc_khb_srv.id_nv100
-, mdfcn_dt sc_khb_srv.dt1
+, mdfcn_dt sc_khb_srv.dt
 );
 
 BULK INSERT sc_khb_srv.tb_lttot_info
