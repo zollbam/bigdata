@@ -80,8 +80,12 @@ SELECT
   FROM information_schema.columns c2
  WHERE TABLE_SCHEMA='sc_khb_srv'
        AND
-       table_name = 'tb_com_job_schdl_info'
+       table_name = 'tb_user_atlfsl_thema_info'
  GROUP BY TABLE_NAME;
+
+
+
+
 
 -- tb_com_author
 declare @sql nvarchar(4000) = 'bcp ' +
@@ -104,6 +108,8 @@ EXEC xp_cmdshell @sql;
 
 
 
+
+
 -- tb_com_banner_info
 declare @sql varchar(8000) = 'bcp ' +
 '"SELECT ' + 
@@ -123,6 +129,10 @@ declare @sql varchar(8000) = 'bcp ' +
 '   FROM sc_khb_srv.tb_com_banner_info WHERE banner_info_pk >= 13" ' + 
 'queryout "D:\migra_data\mssql_com_banner_info.txt" -c -C 65001 -t "||" -T -S 192.168.0.161\HBSERVER -U sa -d db_khb_srv';
 EXEC xp_cmdshell @sql;
+
+
+
+
 
 -- com_code
 SELECT *
@@ -168,6 +178,9 @@ declare @sql nvarchar(4000) = 'bcp ' +
 '   from sc_khb_srv.tb_com_group" ' +
 'queryout "D:\migra_data\mssql_com_group.txt" -c -C 65001 -t "||" -T -S 192.168.0.161\HBSERVER -U sa -d db_khb_srv';
 EXEC xp_cmdshell @sql;
+SELECT * FROM sc_khb_srv.tb_com_group tcg;
+
+
 
 
 
@@ -186,6 +199,8 @@ declare @sql nvarchar(4000) = 'bcp ' +
 '  where job_se_cd != ''06''" ' + -- 우리쪽에서 새로 추가한 배치들
 'queryout "D:\migra_data\mssql_com_job_schdl_info.txt" -c -C 65001 -t "||" -T -S 192.168.0.161\HBSERVER -U sa -d db_khb_srv';
 EXEC xp_cmdshell @sql;
+
+
 
 
 

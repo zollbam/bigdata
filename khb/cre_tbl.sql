@@ -63,7 +63,7 @@ ORDER BY 1, c.column_id;
 -- 테이블의 열 정보(열번호 맞게 => comment 전부 보여줌)
 SELECT DISTINCT
   object_name(c.object_id) "테이블명"
-, c.NAME "컬럼명"
+, c.NAME  "컬럼명"
 , CASE WHEN type_name(c.system_type_id) = 'numeric'
             THEN type_name(c.system_type_id) + '(' + CAST(c.PRECISION AS varchar) + ')'
        WHEN type_name(c.system_type_id) = 'decimal'
@@ -82,13 +82,13 @@ SELECT DISTINCT
 , CASE WHEN c.IS_NULLABLE = 0 THEN ' NOT NULL'
        ELSE ''
   END "NULL여부"
-, ep.value "컬럼명(한글)"
+, CAST(ep.value AS nvarchar(max)) "컬럼명(한글)"
 , c.column_id
 FROM sys.columns c
      LEFT JOIN
      sys.extended_properties ep
      	ON object_name(c.object_id) = object_name(ep.major_id) AND c.column_id = ep.minor_id
-WHERE c.name like '%eml%'
+WHERE object_name(c.object_id) = 'tb_lrea_office_info'
 ORDER BY 1, c.column_id;
 
 -- 컬럼 이름에 맞는 사용자 타입 찾기
@@ -154,7 +154,7 @@ SELECT
 	           ELSE ''
           END "make_user_type"
          FROM information_schema.columns
-        WHERE table_NAME = 'tb_lrea_office_info'
+        WHERE table_NAME = 'tb_lrea_itrst_lttot_info'
        ) tr;
 /*geometry은 설정을 안 해 두어서 null 발생*/
 
@@ -289,7 +289,52 @@ SELECT
   FROM information_schema.tables
  ORDER BY 1;
 /*from절에 있는 table_name은 파일명으로 직접 입력 해주어야 함*/
- 
+
+SELECT * FROM sc_khb_srv.tb_link_subway_statn_info tlssi;
+
+-- 자두 연계 테이블 열 추가 쿼리문
+SELECT TABLE_name
+     , concat(
+              'alter table '
+            , table_schema + '.'
+            , table_name + ' '
+            , 'add '
+            , column_name + ' '
+            ,  CASE WHEN DATA_TYPE = 'geometry' THEN ''
+                    ELSE table_schema + '.' +
+                         CASE WHEN charindex('_', COLUMN_NAME) = 0 THEN COLUMN_NAME
+                              ELSE substring(RIGHT(COLUMN_NAME,5), charindex('_', RIGHT(COLUMN_NAME,5)) +1, len(RIGHT(COLUMN_NAME,5)))
+                          END 
+                END +
+               CASE WHEN DATA_TYPE = 'decimal' THEN concat('_', 'd', NUMERIC_PRECISION, '_', NUMERIC_SCALE)
+                    WHEN DATA_TYPE = 'numeric' THEN concat('_', 'n', NUMERIC_PRECISION)
+                    WHEN DATA_TYPE = 'char' THEN concat('_', 'c', CHARACTER_MAXIMUM_LENGTH)
+                    WHEN DATA_TYPE = 'nchar' THEN concat('_', 'nc', CHARACTER_MAXIMUM_LENGTH)
+                    WHEN DATA_TYPE = 'varchar' THEN 
+                                                    CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_vmax'
+                                                         ELSE concat('_', 'v', CHARACTER_MAXIMUM_LENGTH)
+                                                     END
+                    WHEN DATA_TYPE = 'nvarchar' THEN 
+                                                     CASE WHEN CHARACTER_MAXIMUM_LENGTH = -1 THEN '_nvmax'
+                                                          ELSE concat('_', 'nv', CHARACTER_MAXIMUM_LENGTH)
+                                                      END
+                    WHEN DATA_TYPE IN ('date', 'datetime') THEN ''
+                    ELSE DATA_TYPE
+                END
+            , ';'
+             )
+  FROM information_schema.columns
+ WHERE TABLE_NAME LIKE 'tb_link%'
+   AND COLUMN_NAME IN ('stdg_cd', 'ctpv_cd_pk', 'sgg_cd_pk', 'emd_li_cd_pk'
+                     , 'lttot_lat', 'lttot_lot', 'lttot_crdnt'
+                     , 'hsmp_crdnt', 'statn_crdnt'
+                     , 'reg_id', 'reg_dt', 'mdfcn_id', 'mdfcn_dt')
+ ORDER BY TABLE_NAME, ORDINAL_POSITION;
+
+
+
+
+
 -- 문자형 타입 좌표 타입으로 변경 및 열 삭제
 SELECT
   TABLE_NAME
@@ -309,6 +354,204 @@ SELECT
 SELECT TABLE_NAME
      , stuff((SELECT '' + COLUMN_NAME))
   FROM information_schema.columns;
+ 
+ 
+
+
+-- 각 테이블 별 행 개수 쿼리 작성
+SELECT TABLE_SCHEMA,
+       stuff(
+             (
+              SELECT ' select ''' + table_name + ''', count(*)  from ' + TABLE_SCHEMA + '.' + table_name + char(10) + 'union' + char(10)
+                FROM information_schema.tables c2
+               WHERE c2.TABLE_SCHEMA = c1.TABLE_SCHEMA
+                 AND c2.table_name IN (
+                      'tb_atlfsl_bsc_info'
+                     ,'tb_atlfsl_cfr_fclt_info'
+                     ,'tb_atlfsl_dlng_info'
+                     ,'tb_atlfsl_etc_info'
+                     ,'tb_atlfsl_img_info'
+                     ,'tb_atlfsl_inqry_info'
+                     ,'tb_atlfsl_land_usg_info'
+                     ,'tb_atlfsl_thema_info'
+                     ,'tb_com_author'
+                     ,'tb_com_banner_info'
+                     ,'tb_com_cnrs_info'
+                     ,'tb_com_code'
+                     ,'tb_com_crtfc_tmpr'
+                     ,'tb_com_ctpv_cd'
+                     ,'tb_com_device_info'
+                     ,'tb_com_device_ntcn_mapng_info'
+                     ,'tb_com_device_stng_info'
+                     ,'tb_com_emd_li_cd'
+                     ,'tb_com_error_log'
+                     ,'tb_com_faq'
+                     ,'tb_com_file'
+                     ,'tb_com_file_mapng'
+                     ,'tb_com_group'
+                     ,'tb_com_group_author'
+                     ,'tb_com_gtwy_svc'
+                     ,'tb_com_gtwy_svc_author'
+                     ,'tb_com_job_schdl_hstry'
+                     ,'tb_com_job_schdl_info'
+                     ,'tb_com_login_hist'
+                     ,'tb_com_menu'
+                     ,'tb_com_menu_author'
+                     ,'tb_com_notice'
+                     ,'tb_com_ntcn_info'
+                     ,'tb_com_push_meta_info'
+                     ,'tb_com_qna'
+					 ,'tb_com_recsroom'
+					 ,'tb_com_rss_info'
+					 ,'tb_com_scrin'
+					 ,'tb_com_scrin_author'
+					 ,'tb_com_sgg_cd'
+					 ,'tb_com_stplat_hist'
+					 ,'tb_com_stplat_info'
+					 ,'tb_com_stplat_mapng'
+					 ,'tb_com_svc_ip_manage'
+					 ,'tb_com_thema_info'
+					 ,'tb_com_user'
+					 ,'tb_com_user_author'
+					 ,'tb_com_user_group'
+					 ,'tb_com_user_ntcn_mapng_info'
+					 ,'tb_hsmp_curprc_info'
+					 ,'tb_hsmp_dtl_info'
+					 ,'tb_hsmp_info'
+					 ,'tb_itrst_atlfsl_info'
+					 ,'tb_link_apt_lttot_cmpet_rt_info'
+					 ,'tb_link_apt_lttot_house_ty_dtl_info'
+					 ,'tb_link_apt_lttot_info'
+					 ,'tb_link_apt_nthg_rank_remndr_hh_lttot_info'
+					 ,'tb_link_apt_nthg_rank_remndr_hh_lttot_ty_dtl_info'
+					 ,'tb_link_hsmp_area_info'
+					 ,'tb_link_hsmp_bsc_info'
+					 ,'tb_link_hsmp_managect_info'
+					 ,'tb_link_ofctl_cty_prvate_rent_lttot_cmpet_rt_info'
+					 ,'tb_link_ofctl_cty_prvate_rent_lttot_info'
+					 ,'tb_link_ofctl_cty_prvate_rent_lttot_ty_dtl_info'
+					 ,'tb_link_public_sprt_prvate_rent_lttot_cmpet_rt_info'
+					 ,'tb_link_remndr_hh_lttot_cmpet_rt_info'
+					 ,'tb_link_rtrcn_re_sply_lttot_cmpet_rt_info'
+					 ,'tb_link_subway_statn_info'
+					 ,'tb_lrea_itrst_lttot_info'
+					 ,'tb_lrea_mntrng_hsmp_info'
+					 ,'tb_lrea_office_info'
+					 ,'tb_lrea_schdl_ntcn_info'
+					 ,'tb_lrea_sns_url_info'
+					 ,'tb_lrea_spclty_fld_info'
+					 ,'tb_lttot_info'
+					 ,'tb_svc_bass_info'
+					 ,'tb_user_atlfsl_img_info'
+					 ,'tb_user_atlfsl_info'
+					 ,'tb_user_atlfsl_preocupy_info'
+					 ,'tb_user_atlfsl_thema_info'
+					)
+                 FOR xml PATH('')
+             )
+           , 1
+           , 1
+           , '')
+  FROM information_schema.tables c1
+ GROUP BY c1.TABLE_SCHEMA;
+
+
+
+
+
+-- 각 테이블별 pk 최대값
+SELECT TABLE_SCHEMA
+     , 'select *' + char(10) +
+       '  from (' + char(10) + 
+       stuff(
+             (
+              SELECT ' select ''' + table_name + ''' table_name' + char(10) +
+              '      , max(' + c2.column_name + ') max_value' + char(10) + 
+              '   from ' + TABLE_SCHEMA + '.' + table_name + char(10) + 'union' + char(10)
+                FROM information_schema.columns c2
+               WHERE c2.TABLE_SCHEMA = c1.TABLE_SCHEMA
+                 AND ORDINAL_POSITION = 1
+                 AND c2.table_name IN (
+                      'tb_atlfsl_bsc_info'
+                     ,'tb_atlfsl_cfr_fclt_info'
+                     ,'tb_atlfsl_dlng_info'
+                     ,'tb_atlfsl_etc_info'
+                     ,'tb_atlfsl_img_info'
+                     ,'tb_atlfsl_inqry_info'
+                     ,'tb_atlfsl_land_usg_info'
+                     ,'tb_atlfsl_thema_info'
+                     ,'tb_com_author'
+                     ,'tb_com_banner_info'
+                     ,'tb_com_cnrs_info'
+                     ,'tb_com_code'
+                     ,'tb_com_crtfc_tmpr'
+                     ,'tb_com_ctpv_cd'
+                     ,'tb_com_device_info'
+                     ,'tb_com_device_ntcn_mapng_info'
+                     ,'tb_com_device_stng_info'
+                     ,'tb_com_emd_li_cd'
+                     ,'tb_com_error_log'
+                     ,'tb_com_faq'
+                     ,'tb_com_file'
+                     ,'tb_com_file_mapng'
+                     ,'tb_com_group'
+                     ,'tb_com_group_author'
+                     ,'tb_com_gtwy_svc'
+                     ,'tb_com_gtwy_svc_author'
+                     ,'tb_com_job_schdl_hstry'
+                     ,'tb_com_job_schdl_info'
+                     ,'tb_com_login_hist'
+                     ,'tb_com_menu'
+                     ,'tb_com_menu_author'
+                     ,'tb_com_notice'
+                     ,'tb_com_ntcn_info'
+                     ,'tb_com_push_meta_info'
+                     ,'tb_com_qna'
+					 ,'tb_com_recsroom'
+					 ,'tb_com_rss_info'
+					 ,'tb_com_scrin'
+					 ,'tb_com_scrin_author'
+					 ,'tb_com_sgg_cd'
+					 ,'tb_com_stplat_hist'
+					 ,'tb_com_stplat_info'
+					 ,'tb_com_stplat_mapng'
+					 ,'tb_com_svc_ip_manage'
+					 ,'tb_com_thema_info'
+					 ,'tb_com_user'
+					 ,'tb_com_user_author'
+					 ,'tb_com_user_group'
+					 ,'tb_com_user_ntcn_mapng_info'
+					 ,'tb_hsmp_curprc_info'
+					 ,'tb_hsmp_dtl_info'
+					 ,'tb_hsmp_info'
+					 ,'tb_itrst_atlfsl_info'
+					 ,'tb_link_hsmp_bsc_info'
+					 ,'tb_lrea_itrst_lttot_info'
+					 ,'tb_lrea_mntrng_hsmp_info'
+					 ,'tb_lrea_office_info'
+					 ,'tb_lrea_schdl_ntcn_info'
+					 ,'tb_lrea_sns_url_info'
+					 ,'tb_lrea_spclty_fld_info'
+					 ,'tb_lttot_info'
+					 ,'tb_svc_bass_info'
+					 ,'tb_user_atlfsl_img_info'
+					 ,'tb_user_atlfsl_info'
+					 ,'tb_user_atlfsl_preocupy_info'
+					 ,'tb_user_atlfsl_thema_info'
+					)
+                 FOR xml PATH('')
+             )
+           , 1
+           , 1
+           , '') +
+       ') a' + char(10) +
+       '  order by table_name;'
+  FROM information_schema.columns c1
+ GROUP BY c1.TABLE_SCHEMA;
+
+
+
+
 
 -- 테이블 생성
 ---------------------------------------------------------------------------------------------------
@@ -2383,6 +2626,124 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
+-- tb_hsmp_curprc_info =>  ms
+CREATE TABLE sc_khb_srv.tb_hsmp_curprc_info_tmp
+(
+  hsmp_curprc_info_pk sc_khb_srv.pk_n18 NOT NULL
+, hsmp_info_pk sc_khb_srv.pk_n18
+, crtr_day sc_khb_srv.day_nv100
+, area_no sc_khb_srv.no_n15
+, trde_uplmt_amt sc_khb_srv.amt_n18
+, trde_lwlt_amt sc_khb_srv.amt_n18
+, lfsts_uplmt_amt sc_khb_srv.amt_n18
+, lfsts_lwlt_amt sc_khb_srv.amt_n18
+, gnrl_grnte_amt sc_khb_srv.amt_n18
+, gnrl_mtht_amt sc_khb_srv.amt_n18
+, rflt_yn sc_khb_srv.yn_c1
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+);
+/*
+1. tb_hsmp_curprc_info_tmp은??
+ => cs안에 있는 KRI_CURPRC_DANJI_TB전체 데이터를 txt파일로 이관
+2. 총 행 개수는 2613427
+ => 밑에 단계를 거치면 hsmp_info 테이블과 같은 pk만 가진 데이터만 존재하게 된다.
+*/
+
+/*데이터 이관*/
+/*1) txt 파일로*/
+BULK INSERT sc_khb_srv.tb_hsmp_curprc_info_tmp
+       FROM 'D:\migra_data\hsmp_curprc_info.txt'
+       WITH (
+             CODEPAGE = '65001',
+             FIELDTERMINATOR = '||',
+             ROWTERMINATOR = '\n'
+);
+
+/*2) insert into*/
+INSERT INTO sc_khb_srv.tb_hsmp_curprc_info(
+                                           hsmp_curprc_info_pk
+                                         , hsmp_info_pk
+                                         , crtr_day
+                                         , area_no
+                                         , trde_uplmt_amt
+                                         , trde_lwlt_amt
+                                         , lfsts_uplmt_amt
+                                         , lfsts_lwlt_amt
+                                         , gnrl_grnte_amt
+                                         , gnrl_mtht_amt
+                                         , rflt_yn
+                                         , reg_id
+                                         , reg_dt
+                                         , mdfcn_id
+                                         , mdfcn_dt
+                                          )
+SELECT NEXT value FOR sc_khb_srv.sq_hsmp_curprc_info
+     , DANJI_NO
+     , STDDE
+     , AR_NO
+     , TRDE_UPLMTPC
+     , TRDE_LSLPC
+     , LFSTS_UPLMTPC
+     , LFSTS_LSLPC
+     , GTN_GNRLPC
+     , MTHT_GNRLPC
+     , REFLCT_AT
+     , ''
+     , ''
+     , ''
+     , ''
+  FROM kmls.dbo.KRI_CURPRC_DANJI_TB;
+
+
+/*임시테이블에 index 생성*/
+ALTER TABLE sc_khb_srv.tb_hsmp_curprc_info_tmp ADD CONSTRAINT pk_tb_hsmp_curprc_info_tmp PRIMARY KEY (hsmp_curprc_info_pk);
+
+/*inner join으로 tb_hsmp_curprc_info 테이블 생성*/
+SELECT ROW_NUMBER() OVER (ORDER BY hcit.hsmp_info_pk, hcit.crtr_day, hcit.area_no) hsmp_curprc_info_pk
+     , hcit.hsmp_info_pk hsmp_info_pk
+     , hcit.crtr_day crtr_day
+     , hcit.area_no area_no
+     , hcit.trde_uplmt_amt trde_uplmt_amt
+     , hcit.trde_lwlt_amt trde_lwlt_amt
+     , hcit.lfsts_uplmt_amt lfsts_uplmt_amt
+     , hcit.lfsts_lwlt_amt lfsts_lwlt_amt
+     , hcit.gnrl_grnte_amt gnrl_grnte_amt
+     , hcit.gnrl_mtht_amt gnrl_mtht_amt
+     , hcit.rflt_yn rflt_yn
+     , hcit.reg_id reg_id
+     , hcit.reg_dt reg_dt
+     , hcit.mdfcn_id mdfcn_id
+     , hcit.mdfcn_dt mdfcn_dt
+  INTO sc_khb_srv.tb_hsmp_curprc_info
+  FROM sc_khb_srv.tb_hsmp_curprc_info_tmp hcit
+       INNER JOIN
+       sc_khb_srv.tb_hsmp_info thi 
+               ON hcit.hsmp_info_pk = thi.hsmp_info_pk;
+/*tb_hsmp_info와 inner join하고 남은 데이터만 존재하는 테이블 생성*/
+
+/*임시 테이블 삭제*/
+DROP TABLE sc_khb_srv.tb_hsmp_curprc_info_tmp;
+
+ALTER TABLE sc_khb_srv.tb_hsmp_curprc_info ALTER COLUMN hsmp_curprc_info_pk sc_khb_srv.pk_n18 NOT NULL;
+ALTER TABLE sc_khb_srv.tb_hsmp_curprc_info ADD CONSTRAINT pk_tb_hsmp_curprc_info PRIMARY KEY (hsmp_curprc_info_pk);
+
+TRUNCATE TABLE sc_khb_srv.tb_hsmp_curprc_info;
+
+SELECT * FROM sc_khb_srv.tb_hsmp_curprc_info;
+SELECT count(*) FROM sc_khb_srv.tb_hsmp_curprc_info; -- 2590311
+SELECT max(hsmp_curprc_info_pk) FROM sc_khb_srv.tb_hsmp_curprc_info; -- 2590311
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_hsmp_dtl_info => 27525 ms
 CREATE TABLE sc_khb_srv.tb_hsmp_dtl_info (
   hsmp_dtl_info_pk sc_khb_srv.pk_n18 NOT NULL
@@ -3405,6 +3766,122 @@ SET STATISTICS io OFF;
 ---------------------------------------------------------------------------------------------------
 SET STATISTICS time ON;
 SET STATISTICS io ON;
+-- tb_lrea_itrst_lttot_info => 
+CREATE TABLE sc_khb_srv.tb_lrea_itrst_lttot_info (
+  lrea_itrst_lttot_info_pk sc_khb_srv.pk_n18 NOT NULL
+, lrea_office_info_pk sc_khb_srv.pk_n18
+, lttot_tbl_se_cd sc_khb_srv.cd_v20
+, house_mng_no sc_khb_srv.no_n15
+, lttot_step_cd sc_khb_srv.cd_v20
+, step_bgng_day sc_khb_srv.day_nv100
+, step_end_day sc_khb_srv.day_nv100
+, lttot_pd sc_khb_srv.pd_nv50
+, lttot_amt sc_khb_srv.amt_n18
+, lttot_knd_cd sc_khb_srv.cd_v20
+, lttot_hh_cnt sc_khb_srv.cnt_n15
+, lttot_type_cd sc_khb_srv.cd_v20
+, house_nm sc_khb_srv.nm_nv500
+, lttot_addr sc_khb_srv.addr_nv1000
+, reg_id sc_khb_srv.id_nv100
+, reg_dt sc_khb_srv.dt
+, mdfcn_id sc_khb_srv.id_nv100
+, mdfcn_dt sc_khb_srv.dt
+);
+
+
+
+ALTER TABLE sc_khb_srv.tb_lrea_itrst_lttot_info ADD CONSTRAINT pk_tb_lrea_itrst_lttot_info PRIMARY KEY (lrea_itrst_lttot_info_pk);
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
+-- tb_lrea_mntrng_hsmp_info => 8777 ms
+/*txt 파일 이관 방법*/
+CREATE TABLE sc_khb_srv.tb_lrea_mntrng_hsmp_info_emp (
+  lrea_mntrng_hsmp_info_pk numeric(18, 0) NOT NULL 
+, lrea_office_info_pk numeric(18, 0)
+, hsmp_info_pk numeric(18, 0)
+, mntrng_stts_cd varchar(20)
+, reg_id nvarchar(100)
+, reg_dt datetime
+, mdfcn_id nvarchar(100)
+, mdfcn_dt datetime
+);
+
+BULK INSERT sc_khb_srv.tb_lrea_mntrng_hsmp_info_emp
+       FROM 'D:\migra_data\cs_lrea_mntrng_hsmp_info.txt'
+       WITH (
+             CODEPAGE = '65001',
+             FIELDTERMINATOR = '||',
+             ROWTERMINATOR = '0x0a'
+);
+
+SELECT row_number() over (order by lmhie.lrea_office_info_pk, lmhie.hsmp_info_pk) lrea_mntrng_hsmp_info_pk
+     , lmhie.lrea_office_info_pk lrea_office_info_pk
+     , lmhie.hsmp_info_pk hsmp_info_pk
+     , lmhie.mntrng_stts_cd mntrng_stts_cd
+     , NULL reg_id
+     , NULL reg_dt
+     , NULL mdfcn_id
+     , NULL mdfcn_dt
+  INTO sc_khb_srv.tb_lrea_mntrng_hsmp_info
+  FROM sc_khb_srv.tb_lrea_mntrng_hsmp_info_emp lmhie
+       INNER JOIN 
+       sc_khb_srv.tb_hsmp_info hi
+               ON lmhie.hsmp_info_pk = hi.hsmp_info_pk
+       INNER JOIN
+       sc_khb_srv.tb_lrea_office_info loi
+               ON lmhie.lrea_office_info_pk = loi.lrea_office_info_pk;
+DROP TABLE sc_khb_srv.tb_lrea_mntrng_hsmp_info;
+
+
+/*DB에 저장된 테이블을 활요한 방법*/
+CREATE TABLE sc_khb_srv.tb_lrea_mntrng_hsmp_info (
+  lrea_mntrng_hsmp_info_pk numeric(18, 0) NOT NULL
+, lrea_office_info_pk numeric(18, 0)
+, hsmp_info_pk numeric(18, 0)
+, mntrng_stts_cd varchar(20)
+, reg_id nvarchar(100)
+, reg_dt datetime
+, mdfcn_id nvarchar(100)
+, mdfcn_dt datetime
+);
+
+TRUNCATE TABLE sc_khb_srv.tb_lrea_mntrng_hsmp_info;
+
+INSERT INTO sc_khb_srv.tb_lrea_mntrng_hsmp_info
+SELECT row_number() over (order by mber_no, danji_no)
+     , MBER_NO
+     , DANJI_NO
+     , MONTR_MBER_STTUS_CD
+     , NULL
+     , NULL
+     , NULL
+     , NULL
+  FROM KMLS.dbo.KRI_MONTR_MBER_TB kmmt
+       INNER JOIN 
+       sc_khb_srv.tb_hsmp_info hi
+               ON kmmt.DANJI_NO = hi.hsmp_info_pk
+       INNER JOIN
+       sc_khb_srv.tb_lrea_office_info loi
+               ON kmmt.MBER_NO = loi.lrea_office_info_pk;
+
+
+/*pk 생성*/
+ALTER TABLE sc_khb_srv.tb_lrea_mntrng_hsmp_info ADD CONSTRAINT pk_tb_lrea_mntrng_hsmp_info PRIMARY KEY  CLUSTERED (lrea_mntrng_hsmp_info_pk);
+
+/*생성 테이블 확인*/
+SELECT * FROM sc_khb_srv.tb_lrea_mntrng_hsmp_info;
+SELECT count(*) FROM sc_khb_srv.tb_lrea_mntrng_hsmp_info; -- 13942
+SELECT max(lrea_mntrng_hsmp_info_pk) FROM sc_khb_srv.tb_lrea_mntrng_hsmp_info; -- 13942
+
+
+
+SET STATISTICS io OFF;
+---------------------------------------------------------------------------------------------------
+SET STATISTICS time ON;
+SET STATISTICS io ON;
 -- tb_lrea_office_info => 8777 ms
 CREATE TABLE sc_khb_srv.tb_lrea_office_info (
   lrea_office_info_pk sc_khb_srv.pk_n18 NOT NULL
@@ -3436,7 +3913,9 @@ CREATE TABLE sc_khb_srv.tb_lrea_office_info (
 , mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
 , lrea_office_intrcn_cn sc_khb_srv.cn_nvmax
-, eml sc_khb_srv.varchar
+, eml sc_khb_srv.email_v320
+, lrea_grd_cd sc_khb_srv.cd_v20
+, estbl_reg_no sc_khb_srv.no_v200
 );
 
 /*AS 방법*/

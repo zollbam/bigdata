@@ -1,49 +1,9 @@
 /*
-프로시저, 함수를 생성하는 쿼리문을 추추하는 파일
-작성 일시: 23-06-25
-수정 일시: 23-07-03
+작성 일자 : 230921
+수정 일자 : 
 작 성 자 : 조건영
+작성 목적 : 프로시저/함수 생성 및 권한
 */
-
-SELECT *
-  FROM information_schema.routines;
-
--- DB의 프로시저와 함수 정보
-SELECT ROUTINE_SCHEMA
-     , ROUTINE_NAME
-     , ROUTINE_DEFINITION
-  FROM information_schema.routines
- WHERE ROUTINE_NAME NOT IN ('fn_split', 'fc_amt_unit_chg')
-   AND ROUTINE_SCHEMA = 'sc_khb_srv'
- ORDER BY 2;
-
-
-
--- 프로시저와 함수의 권한 및 식
-SELECT class_desc
-     , object_name(major_id) "객체명"
-     , user_name(grantee_principal_id) "권한 받은 유저"
-     , ROUTINE_DEFINITION "식"
-     , 'grant ' + 
-				  stuff((SELECT ', ' + permission_name 
-				           FROM sys.DATABASE_permissions
-				          WHERE class_desc= dp.class_desc AND major_id=dp.major_id AND grantee_principal_id=dp.grantee_principal_id
-				            FOR xml PATH('')),1,2,'') + 
-				  ' on sc_khb_srv.' + 
-				  object_name(major_id) + 
-				  ' to ' + user_name(grantee_principal_id) + ';' "권한 부여 쿼리"
-  FROM sys.DATABASE_permissions dp
-       INNER JOIN 
-       information_schema.routines isr
-               ON object_name(dp.major_id) = isr.ROUTINE_NAME
- WHERE class_desc != 'DATABASE' 
-   AND grantee_principal_id != 0
-   AND object_name(major_id) NOT IN ('fn_split', 'fc_amt_unit_chg')
-   AND isr.ROUTINE_SCHEMA = 'sc_khb_srv'
- GROUP BY class_desc, major_id, grantee_principal_id, ROUTINE_DEFINITION
- ORDER BY 2,3;
-
-
 
 
 
@@ -61,8 +21,8 @@ RETURN @ctpvPoint
    END;
 
 
-GRANT EXECUTE ON sc_khb_srv.fc_emd_li_point TO us_khb_adm;
-GRANT EXECUTE ON sc_khb_srv.fc_emd_li_point TO us_khb_com;
+GRANT EXECUTE ON sc_khb_srv.fc_ctpv_point TO us_khb_adm;
+GRANT EXECUTE ON sc_khb_srv.fc_ctpv_point TO us_khb_com;
 
 
 
@@ -417,9 +377,5 @@ as
 
 
  GRANT EXECUTE on sc_khb_srv.pc_com_group_del to us_khb_com;
-
-
-
-
 
 

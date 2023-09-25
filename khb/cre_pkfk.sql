@@ -128,12 +128,12 @@ REFERENCES sc_khb_srv.tb_atlfsl_bsc_info(atlfsl_bsc_info_pk);
 SELECT 
   a.kid_table_name "테이블명"
 , a.constraint_name "fk제약조건명"
-, 'alter table sc_khb_srv.' + a.kid_table_name + char(13) +
-  'add constraint ' + a.constraint_name + char(13) + 
-  'foreign key (' + a.kid_column_name + ')' + char(13) +
-  'references sc_khb_srv.' + b.parent_table_name + '(' + b.parent_column_name + ');' "fk생성 쿼리문"
-, 'alter table sc_khb_srv.' + a.kid_table_name + char(13) +
-  'drop constraint ' + a.constraint_name + ';' "fk삭제 쿼리문"
+, 'alter table sc_khb_srv.' + a.kid_table_name + 
+  ' add constraint ' + a.constraint_name + 
+  ' foreign key (' + a.kid_column_name + ')' + 
+  ' references sc_khb_srv.' + b.parent_table_name + '(' + b.parent_column_name + ');' "fk생성 쿼리문"
+, 'alter table sc_khb_srv.' + a.kid_table_name + 
+  ' drop constraint ' + a.constraint_name + ';' "fk삭제 쿼리문"
   FROM (SELECT 
           object_name(fkc.constraint_object_id) "constraint_name"
         , object_name(fkc.parent_object_id) "kid_table_name"

@@ -265,7 +265,6 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , pyeong_indct_yn sc_khb_srv.yn_c1
 , vr_exst_yn sc_khb_srv.yn_c1
 , img_exst_yn sc_khb_srv.yn_c1
-, thema_cd_list sc_khb_srv.list_nv1000
 , pic_no sc_khb_srv.no_n15
 , pic_nm sc_khb_srv.nm_nv500
 , pic_telno sc_khb_srv.telno_v30
@@ -304,6 +303,19 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , reg_dt sc_khb_srv.dt
 , mdfcn_id sc_khb_srv.id_nv100
 , mdfcn_dt sc_khb_srv.dt
+, land_area sc_khb_srv.decimal
+, qota_area sc_khb_srv.decimal
+, use_inspct_day sc_khb_srv.nvarchar
+, bldg_usg_cd sc_khb_srv.varchar
+, lndr_se_cd sc_khb_srv.varchar
+, ktchn_se_cd sc_khb_srv.varchar
+, btr_se_cd sc_khb_srv.varchar
+, blcn_estn_yn sc_khb_srv.char
+, power_vl sc_khb_srv.decimal
+, room_one_cnt sc_khb_srv.numeric
+, room_two_cnt sc_khb_srv.numeric
+, room_three_cnt sc_khb_srv.numeric
+, room_four_cnt sc_khb_srv.numeric
 );
 
 insert into sc_khb_srv.tb_atlfsl_bsc_info
@@ -1379,6 +1391,9 @@ CREATE TABLE sc_khb_srv.tb_lrea_office_info (
 , mdfcn_dt sc_khb_srv.dt
 , lrea_office_intrcn_cn sc_khb_srv.cn_nvmax
 , eml sc_khb_srv.email_v320
+, curprc_pvsn_yn sc_khb_srv.yn_c1
+, lrea_grd_cd sc_khb_srv.cd_v20
+, estbl_reg_no sc_khb_srv.no_v200
 );
 
 insert into sc_khb_srv.tb_lrea_office_info
@@ -1413,6 +1428,9 @@ select
 , a.mdfcn_dt
 , a.lrea_office_intrcn_cn
 , a.eml
+, a.curprc_pvsn_yn
+, a.lrea_grd_cd
+, a.estbl_reg_no
   from openrowset(
                   bulk 'D:\migra_data\.txt'
                 , FORMATFILE = 'D:\formatxml\tb_lrea_office_info.xml'
