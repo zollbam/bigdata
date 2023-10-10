@@ -155,6 +155,36 @@ select
 , '' room_two_cnt
 , '' room_three_cnt
 , '' room_four_cnt
+, '' expitm_nm
+, '' elvtr_yn
+, '' drc_crtr_nm
+, '' now_tpbiz_nm
+, '' rcmdtn_usg_one_nm
+, '' rcmdtn_usg_two_nm
+, '' house_area
+, '' house_area_pyeong
+, '' sopsrt_area
+, '' sopsrt_area_pyeong
+, '' ofc_area
+, '' ofc_area_pyeong
+, '' sale_se_cd
+, '' flr_hg_vl
+, '' nearby_road_vl
+, '' bdst_usg_cd
+, '' biz_step_cd
+, '' slctn_bldr_nm
+, '' expect_sply_area
+, '' expect_sply_area_pyeong
+, '' expect_hh_cnt
+, '' zone_tot_area
+, '' zone_tot_area_pyeong
+, '' expect_fart
+, '' btl_rt
+, '' reg_rentbzmn_yn
+, '' atlfsl_usg_cd
+, '' atlfsl_se_cd
+, '' atlfsl_lct_cd
+, '' atlfsl_strct_cd
   into outfile '/var/lib/mysql/backup/product_info_openrowset.txt'
         FIELDS TERMINATED BY '||' ESCAPED BY ''
         LINES TERMINATED BY '\n'
@@ -245,7 +275,13 @@ select
 , IFNULL(REPLACE(ti.PREM_PRICE,CONCAT(CHAR(10)), ''), '') premium
 , IFNULL(REPLACE(ti.REG_DT,CONCAT(CHAR(10)), ''), '') reg_dt
 , IFNULL(REPLACE(ti.UPDT_DT,CONCAT(CHAR(10)), ''), '') mdfcn_dt
-, '' mng_amt -- 이관 열 찾기
+, '' mng_amt
+, '' fclt_amt
+, '' pay_amt
+, '' mdstrm_amt_int_se_cd
+, '' rl_invt_amt
+, '' nintr_moving_amt
+, '' int_moving_amt
 into outfile '/var/lib/mysql/backup/trade_info.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
@@ -370,6 +406,11 @@ select
 , IFNULL(REPLACE(gi.GRND_TRAD_ALW_YN,CONCAT(CHAR(10)), ''), '') land_dlng_prmsn_yn
 , IFNULL(REPLACE(gi.REG_DT,CONCAT(CHAR(10)), ''), '') reg_dt
 , IFNULL(REPLACE(gi.UPDT_DT,CONCAT(CHAR(10)), ''), '') mdfcn_dt
+, '' ldcg_cd
+, '' ldcg_nm
+, '' usg_rgn_one_cd
+, '' usg_rgn_two_cd
+, '' now_usg_rgn_nm
 into outfile '/var/lib/mysql/backup/grnd_info.txt'
         FIELDS TERMINATED BY '||'
         LINES TERMINATED BY '\n'
@@ -459,7 +500,7 @@ SELECT ROW_NUMBER() OVER(ORDER BY B.product_no, B.COMMA_CNT) atlfsl_thema_info_p
 
 
 /*------------------------------------------------------------------------------------------------------------------------------------*/
--- com_code => into 방법
+-- tb_com_code => into 방법
 /*대분류*/
 select 
   ROW_NUMBER () OVER(ORDER BY GUBUN, grd_cd, code) code_pk
@@ -833,6 +874,7 @@ select
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
   FROM hanbang.user_info 
+ WHERE length(ifnull(social_key, '')) > 0
  LIMIT 100000000;
 
 /*realtor_info*/
@@ -891,7 +933,7 @@ SELECT
   ROW_NUMBER() OVER (ORDER BY mem_no) com_user_group_pk
 , 4 group_no_pk
 , IFNULL(REPLACE(mem_no,CONCAT(CHAR(10)), ''), '') user_no_pk
-, '' regist_id
+, concat(social_type,social_key) regist_id
 , IFNULL(REPLACE(reg_date,CONCAT(CHAR(10)), ''), '') regist_dt
 , '' updt_id
 , IFNULL(REPLACE(mod_date,CONCAT(CHAR(10)), ''), '') updt_dt
@@ -899,6 +941,7 @@ SELECT
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
   FROM hanbang.user_info 
+ WHERE length(ifnull(social_key, '')) > 0
  LIMIT 10000000;
 
 /*realtor_info*/
@@ -1286,6 +1329,7 @@ select
 , '' mdfcn_id
 , IFNULL(REPLACE(um.mod_date,CONCAT(CHAR(10)), ''), '') mdfcn_dt
 , '' dtl_addr
+, '' del_yn
   INTO outfile '/var/lib/mysql/backup/user_mamul.txt'
        FIELDS TERMINATED BY '||'
        LINES TERMINATED BY '\n'
@@ -1318,8 +1362,7 @@ select
                         user_info ui
                            ON um.user_no=ui.mem_no
                 )
-       AND 
-       mem_no IN (SELECT realtor_no FROM realtor_info)
+   AND mem_no IN (SELECT realtor_no FROM realtor_info)
  LIMIT 100000000;
 
 

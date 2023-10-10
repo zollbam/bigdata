@@ -11,6 +11,7 @@
 create type sc_khb_srv.addr_nv1000 from nvarchar(1000);
 create type sc_khb_srv.amt_n18 from numeric(18);
 create type sc_khb_srv.area_d19_9 from decimal(19, 9);
+create type sc_khb_srv.cd_v2 from varchar(2);
 create type sc_khb_srv.cd_v20 from varchar(20);
 create type sc_khb_srv.cn_nv4000 from nvarchar(4000);
 create type sc_khb_srv.cn_nvmax from nvarchar(max);

@@ -11,6 +11,7 @@
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- tb_atlfsl_bsc_info => openrowset 방법
+/*데이터 삽입*/
 CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
   atlfsl_bsc_info_pk numeric(18, 0) NOT NULL
 , asoc_atlfsl_no numeric(15, 0)
@@ -48,7 +49,7 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , sply_area decimal(19, 9)
 , plot_area decimal(19, 9)
 , arch_area decimal(19, 9)
-, room_cnt numeric(15, 0)1
+, room_cnt numeric(15, 0)
 , toilet_cnt numeric(15, 0)
 , atlfsl_inq_cnt numeric(15, 0)
 , flr_expsr_mthd_cd varchar(20)
@@ -62,7 +63,7 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , blcn_cd varchar(20)
 , pstn_expln_cn nvarchar(max)
 , parkng_psblty_yn char(1)
-, parkng_cnt numeric(15, 0)
+, parkng_cnt decimal(13, 3)
 , cmcn_day nvarchar(100)
 , financ_amt numeric(18, 0)
 , use_yn char(1)
@@ -91,11 +92,40 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_bsc_info (
 , room_two_cnt numeric(15, 0)
 , room_three_cnt numeric(15, 0)
 , room_four_cnt numeric(15, 0)
+, expitm_nm nvarchar(500)
+, elvtr_yn char(1)
+, drc_crtr_nm nvarchar(500)
+, now_tpbiz_nm nvarchar(500)
+, rcmdtn_usg_one_nm nvarchar(500)
+, rcmdtn_usg_two_nm nvarchar(500)
+, house_area decimal(19, 9)
+, house_area_pyeong decimal(19, 9)
+, sopsrt_area decimal(19, 9)
+, sopsrt_area_pyeong decimal(19, 9)
+, ofc_area decimal(19, 9)
+, ofc_area_pyeong decimal(19, 9)
+, sale_se_cd varchar(20)
+, flr_hg_vl decimal(25, 15)
+, nearby_road_vl decimal(25, 15)
+, bdst_usg_cd varchar(20)
+, biz_step_cd varchar(20)
+, slctn_bldr_nm nvarchar(500)
+, expect_sply_area decimal(19, 9)
+, expect_sply_area_pyeong decimal(19, 9)
+, expect_hh_cnt numeric(15, 0)
+, zone_tot_area decimal(19, 9)
+, zone_tot_area_pyeong decimal(19, 9)
+, expect_fart decimal(19, 9)
+, btl_rt decimal(19, 9)
+, reg_rentbzmn_yn char(1)
+, atlfsl_usg_cd varchar(20)
+, atlfsl_se_cd varchar(20)
+, atlfsl_lct_cd varchar(20)
+, atlfsl_strct_cd varchar(20)
 );
 
 TRUNCATE TABLE sc_khb_srv.tb_atlfsl_bsc_info;
 
-/*데이터 삽입*/
 insert into sc_khb_srv.tb_atlfsl_bsc_info
 select
   a.atlfsl_bsc_info_pk
@@ -177,6 +207,36 @@ select
 , a.room_two_cnt
 , a.room_three_cnt
 , a.room_four_cnt
+, a.expitm_nm
+, a.elvtr_yn
+, a.drc_crtr_nm
+, a.now_tpbiz_nm
+, a.rcmdtn_usg_one_nm
+, a.rcmdtn_usg_two_nm
+, a.house_area
+, a.house_area_pyeong
+, a.sopsrt_area
+, a.sopsrt_area_pyeong
+, a.ofc_area
+, a.ofc_area_pyeong
+, a.sale_se_cd
+, a.flr_hg_vl
+, a.nearby_road_vl
+, a.bdst_usg_cd
+, a.biz_step_cd
+, a.slctn_bldr_nm
+, a.expect_sply_area
+, a.expect_sply_area_pyeong
+, a.expect_hh_cnt
+, a.zone_tot_area
+, a.zone_tot_area_pyeong
+, a.expect_fart
+, a.btl_rt
+, a.reg_rentbzmn_yn
+, a.atlfsl_usg_cd
+, a.atlfsl_se_cd
+, a.atlfsl_lct_cd
+, a.atlfsl_strct_cd
   from openrowset(
                   bulk 'D:\migra_data\product_info_openrowset.txt'
                 , FORMATFILE = 'D:\formatxml\tb_atlfsl_bsc_info.xml'
@@ -250,6 +310,12 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_dlng_info (
 , reg_dt datetime
 , mdfcn_dt datetime
 , mng_amt numeric(18, 0)
+, fclt_amt numeric(18, 0)
+, pay_amt numeric(18, 0)
+, mdstrm_amt_int_se_cd varchar(20)
+, rl_invt_amt numeric(18, 0)
+, nintr_moving_amt numeric(18, 0)
+, int_moving_amt numeric(18, 0)
 );
 
 TRUNCATE TABLE sc_khb_srv.tb_atlfsl_dlng_info;
@@ -392,6 +458,11 @@ CREATE TABLE sc_khb_srv.tb_atlfsl_land_usg_info (
 , land_dlng_prmsn_yn char(1)
 , reg_dt datetime
 , mdfcn_dt datetime
+, ldcg_cd varchar(20)
+, ldcg_nm nvarchar(500)
+, usg_rgn_one_cd varchar(20)
+, usg_rgn_two_cd varchar(20)
+, now_usg_rgn_nm nvarchar(500)
 );
 
 TRUNCATE TABLE sc_khb_srv.tb_atlfsl_land_usg_info;
@@ -2673,6 +2744,7 @@ CREATE TABLE sc_khb_srv.tb_user_atlfsl_info (
 , mdfcn_id nvarchar(100)
 , mdfcn_dt datetime
 , dtl_addr nvarchar(1000)
+, del_yn char(1)
 );
 
 TRUNCATE TABLE sc_khb_srv.tb_user_atlfsl_info;

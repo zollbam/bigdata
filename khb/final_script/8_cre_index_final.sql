@@ -37,7 +37,11 @@ create index ix_tb_atlfsl_bsc_info_01 on sc_khb_srv.tb_com_emd_li_cd(stdg_dong_c
 create index ix_tb_link_hsmp_bsc_info_01 on sc_khb_srv.tb_link_hsmp_bsc_info(stdg_addr);
 
 
-
+------- 추가된 인덱스 나중에 확인 필요!!!!!!
+CREATE NONCLUSTERED INDEX ni_tb_atlfsl_cfr_fclt_info_01 ON sc_khb_srv.tb_atlfsl_cfr_fclt_info(atlfsl_bsc_info_pk);
+CREATE NONCLUSTERED INDEX ni_tb_atlfsl_dlng_info_01 ON sc_khb_srv.tb_atlfsl_dlng_info(atlfsl_bsc_info_pk);
+CREATE NONCLUSTERED INDEX ni_tb_atlfsl_etc_info_01 ON sc_khb_srv.tb_atlfsl_etc_info(atlfsl_bsc_info_pk);
+CREATE NONCLUSTERED INDEX ni_tb_atlfsl_img_info_01 ON sc_khb_srv.tb_atlfsl_img_info(atlfsl_bsc_info_pk);
 
 
 
